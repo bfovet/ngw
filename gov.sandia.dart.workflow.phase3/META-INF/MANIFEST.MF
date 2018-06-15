@@ -1,0 +1,31 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Next Generation Workflow Engine
+Bundle-SymbolicName: gov.sandia.dart.workflow.phase3;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Vendor: Sandia National Laboratories
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Export-Package: com.googlecode.sarasvati,
+ gov.sandia.dart.workflow.runtime,
+ gov.sandia.dart.workflow.runtime.components,
+ gov.sandia.dart.workflow.runtime.components.localsubmit,
+ gov.sandia.dart.workflow.runtime.core,
+ gov.sandia.dart.workflow.runtime.dakota,
+ gov.sandia.dart.workflow.runtime.parser,
+ gov.sandia.dart.workflow.runtime.util,
+ org.apache.commons.io,
+ org.apache.commons.lang3
+Bundle-ClassPath: lib/commons-io-2.4.jar,
+ lib/commons-lang3-3.4.jar,
+ lib/commons-math3-3.6.1.jar,
+ lib/jsch-0.1.54.jar,
+ lib/log4j-api-2.4.1.jar,
+ lib/log4j-core-2.4.1.jar,
+ lib/log4j-slf4j-impl-2.4.1.jar,
+ lib/sarasvati-core-2.0.2.jar,
+ lib/slf4j-api-1.7.21.jar,
+ lib/jackson-annotations-2.9.4.jar,
+ lib/jackson-core-2.9.4.jar,
+ lib/jackson-databind-2.9.4.jar,
+ .

@@ -1,0 +1,37 @@
+<project default="install">
+	<property name="install.dir" value="${user.home}/wflib"/>
+	<target name="install" depends="jarfile">
+		<mkdir dir="${install.dir}"/>
+		<copy todir="${install.dir}">
+		    <fileset dir="lib"/>		     
+		</copy>
+		<copy file="resources/krb5.conf" todir="${install.dir}"/>	
+		<copy file="resources/jaas.conf" todir="${install.dir}"/>	
+		<copy file="scripts/dakotaDriver.sh" todir="${install.dir}"/>		
+		<copy file="scripts/dakotaDriver.bat" todir="${install.dir}"/>			
+		<copy file="driver.jar" todir="${install.dir}"/>	
+	</target>
+	<target name="jarfile" depends="compile">
+		<copy file="resources/log4j.properties" todir="bin"/>	
+		<copy file="resources/log4j2.xml" todir="bin"/>	
+		<mkdir dir="bin/scripts"/>
+		<copy file="scripts/execute.sh" todir="bin/scripts"/>		
+		<copy file="scripts/checkjob.sh" todir="bin/scripts"/>		
+		<copy file="scripts/submit.sh" todir="bin/scripts"/>	
+		<copy file="scripts/status.sh" todir="bin/scripts"/>
+		<copy file="scripts/dakotaDriver.sh" todir="bin"/>		
+		<copy file="scripts/dakotaDriver.bat" todir="bin"/>		
+		<jar destfile="driver.jar" basedir="bin"/>
+	</target>
+  <target name="compile">
+  	<path id="classpath">
+ 		 <fileset dir="lib">
+    		<include name="*.jar"/>
+  		</fileset>
+ 	</path>
+	<mkdir dir="bin"/>
+    <javac srcdir="src" destdir="bin">
+    	<classpath refid="classpath"/>
+  	</javac>
+  </target>
+</project>
