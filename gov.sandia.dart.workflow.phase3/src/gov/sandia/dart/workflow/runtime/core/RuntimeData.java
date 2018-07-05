@@ -29,7 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.googlecode.sarasvati.NodeToken;
 
-public class RuntimeData implements AutoCloseable {
+public class RuntimeData {
 
 	public static final String DEFAULT_TYPE = "default";
 	Map<String, Object> responses = Collections.synchronizedMap(new TreeMap<>());
@@ -169,12 +169,6 @@ public class RuntimeData implements AutoCloseable {
 		if (err != null)
 			this.err = err;
 	}
-	
-	@Override
-	public void close() throws Exception {
-		log.close();		
-	}
-
 
 	public synchronized File getHomeDir() {
 		return homeDir;

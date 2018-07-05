@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="com.strikewire.snl.apc.Common"
+         basedir="."
+         default="usage"
+         xmlns:ivy="antlib:org.apache.ivy.ant"
+>
+
+ <property name="version" value="2.3.0" />
+
+  
+  <!-- grab environment variables -->
+ <property environment="env" />
+  
+  <!--
+    defines the src, compile.output, ivy-repo
+  -->
+  <property file="standard-dirs.properties" />
+
+  <!-- pulls in dependency versions -->
+ <property file="${ivy-repo.dir}/depversions.properties" />
+  
+  <!-- pulls in patterns -->
+  <property file="${ivy-repo.dir}/ivy-settings/patterns.properties" />
+
+
+  <include file="${ivy-repo.dir}/ant-commontargets.xml" 
+    as="p"/>
+  
+    <!--
+        settings for the javac
+          try the local one, then the system one
+    -->
+    <property file="javasettings.properties" />
+    <property file="${ivy-repo.dir}/javasettings.properties" />    
+  
+  
+  <target name="clean-targetdir"
+   description="cleans the target directory">
+
+   <delete dir="target" />
+   <mkdir dir="target" />
+
+  </target>
+
+  <target name="clean-libdir"
+   description="cleans the target directory">
+
+   <delete dir="lib" />
+   <mkdir dir="lib" />
+
+  </target>  
+
+
+  <target name="usage" description="Help on usage">
+    <echo>
+*clean : remove the target directory contents
+*resolve : updates dependencies and .classpath
+      
+*update : cleans lib dir, resolves depedences,
+      updates .classpath      
+*update-classpath : updates the .classpath file based
+      upon the .jar files in the ${lib.dir}
+      
+src.dir: ${src.dir}
+output classes:${compile.output.dir}
+      
+ivy-repo.dir: ${ivy-repo.dir}
+    </echo>
+  </target>
+  
+
+  <target name="clean"
+          description="cleans the target directory"
+          depends="clean-targetdir"
+  >
+
+  </target>
+
+  <target name="ivy-init" unless="ivysettings.completed">
+    <property name="ivysettings.completed" value="true" />
+    <ivy:settings
+      id="ivy.instance"
+      file="ivysettings.xml" />
+  </target>
+
+<!--
+  <ivyeclipse conf="*" />
+-->
+
+  <target name="resolve"
+    description="resolves dependencies using internal"
+    depends="ivy-init"
+  >
+
+    <ivy:retrieve />
+
+  </target>
+  
+  <target name="compile">
+    <mkdir dir="target/classes" />
+    <javac srcdir="src/main/java"
+      destdir="target/classes"
+      source="${compile.java.source}"
+      target="${compile.java.target}">
+      <classpath>
+        <fileset dir="./lib">
+          <include name="**/*.jar" />
+        </fileset>
+      </classpath>
+      
+    </javac>
+  </target>
+  
+  <target name="jar"
+    description="makes .jar file"
+    depends="compile">
+    
+    <jar destfile="target/${ant.project.name}-${version}.jar">
+      <fileset dir="target/classes">
+        <exclude name="**/Test*.class" />
+      </fileset>
+    </jar>
+  </target>
+  
+  <target name="publish"
+    description="publish the .jar file to the local repository"
+    depends="jar,ivy-init">
+
+    <property name="revision" value="${version}" />
+    
+    <!-- the pattern in the build directgory -->
+    <property name="pattern" 
+      value="${basedir}/target/[artifact]-[revision].[ext]" />
+    
+    <ivy:resolve
+      revision="${revision}"
+      />
+
+    <ivy:publish
+      resolver="dart-ivy-repo"
+
+      organisation="com.strikewire"
+      module="${ant.project.name}"
+      revision="${version}"
+
+      pubrevision="${revision}"
+
+      update="true"
+
+      overwrite="true">
+      <artifacts pattern="${pattern}" />
+    </ivy:publish>
+    
+  </target>
+  
+  <target name="update"
+    description="Updates to the latest .jars by calling resolve and
+updating the classpath"
+    depends="clean-resolve,update-classpath,update-manifest,update-build-properties"
+    >
+  </target>
+
+  <target name="clean-resolve"
+    description="cleans the lib dir, and resolves dependencies"
+    depends="clean-libdir,resolve"
+  >
+
+  </target>
+
+  <target name="update-manifest"
+    description="updates the META-INF/MANIFEST.MF">
+
+    <java classname="gov.sandia.dart.ant.eclipse.ManifestUpdater"
+      fork="true"
+      dir="${basedir}"
+    >
+
+
+      <arg value="--exclude=org.apache.commons.lang.enum" />
+      <arg value="--exclude=META-INF/" />
+      <arg value="--exclude=META-INF.*" />
+      <arg value="--bundle-version=${version}" />
+      
+      <arg value="--classpath-dir=." />
+      <arg value="--export-src=${basedir}/src" />
+      <arg value="--exclude=com.sun.jna.*" />
+      <arg value="--exclude=com.twmacinta.util.test" />
+      <arg value="--exclude=com.strikewire.snl.apc.status" />
+      
+      <classpath refid="bph.cp" />
+
+    </java>
+  </target>
+
+
+  <target name="update-classpath">
+
+<!--
+      <arg value="-search-path-root=../build/ivy-repo/libs" />
+      <arg value="-ws-path-root=/build/ivy-repo/libs" />
+      <arg value="-jars-dir=./lib" />
+-->
+    <!-- 2016-01(kho): added parameters for workspace, source, javadoc -->
+    <java classname="gov.sandia.dart.ant.eclipse.EasyEclipseUpdater"
+          fork="true"
+          dir="${basedir}"
+          >
+      
+
+      <arg value="--ws-path-root=lib" />
+      <arg value="--jars-dir=./lib" />
+      <arg value="--workspace=${basedir}/../" />
+      <arg value="--source-dir=/build/ivy-repo/libs" />
+      <arg value="--javadoc-dir=/build/ivy-repo/libs" />      
+      
+
+      <classpath refid="bph.cp" />
+    </java>
+
+  </target>
+
+  <target name="update-build-properties">
+
+    <java classname="gov.sandia.dart.ant.eclipse.BuildPropertiesUpdater"
+          fork="true"
+          dir="${basedir}"
+          >
+
+      <classpath refid="bph.cp" />
+    </java>
+  </target>  
+
+</project>

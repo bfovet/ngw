@@ -48,6 +48,7 @@ import gov.sandia.dart.workflow.runtime.components.MinNode;
 import gov.sandia.dart.workflow.runtime.components.MultiSwitchNode;
 import gov.sandia.dart.workflow.runtime.components.MultiplyNode;
 import gov.sandia.dart.workflow.runtime.components.NegateNode;
+import gov.sandia.dart.workflow.runtime.components.NestedInternalWorkflowNode;
 import gov.sandia.dart.workflow.runtime.components.NestedWorkflowNode;
 import gov.sandia.dart.workflow.runtime.components.ParameterNode;
 import gov.sandia.dart.workflow.runtime.components.PiNode;
@@ -257,6 +258,7 @@ public class NodeDatabase {
 		nodeTypes.put("aprepro", ApreproNode.class);
 		nodeTypes.put("column", ColumnNode.class);
 		nodeTypes.put("nestedWorkflow", NestedWorkflowNode.class);
+		nodeTypes.put("nestedInternalWorkflow", NestedInternalWorkflowNode.class);
 
 		nodeTypes.put("gnuplot", GnuplotNode.class);
 		

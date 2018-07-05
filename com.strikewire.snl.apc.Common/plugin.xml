@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+   <extension-point id="APCProjectNatureContributor" name="APCProjectNatureContributor" schema="schema/APCProjectNatureContributor.exsd"/>
+   <extension-point id="TempFileUser" name="TempFileUser" schema="schema/TempFileUser.exsd"/>
+   <extension-point id="modelCreator" name="Model Creator" schema="schema/ModelCreator.exsd"/>
+   <extension-point id="HideEditor" name="HideEditor" schema="schema/HideEditor.exsd"/>
+   <extension-point id="SettingsEditor" name="SettingsEditor" schema="schema/SettingsEditor.exsd"/>
+   <extension-point id="ExecutionEnvContributor" name="ExecutionEnvContributor" schema="schema/ExecutionEnvContributor.exsd"/>
+   <extension-point id="UpdateSiteContributor" name="UpdateSiteContributor" schema="schema/UpdateSiteContributor.exsd"/>
+   <extension-point id="RemoteSiteContributor" name="RemoteSiteContributor" schema="schema/RemoteSiteContributor.exsd"/>
+
+<!--   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="org.eclipse.ui.edit.text.openLocalFile"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+O">
+      </key>
+   </extension> -->
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+          locationURI="toolbar:org.eclipse.ui.main.toolbar?after=group.nav">
+         <toolbar
+               id="com.strikewire.snl.apc.Common.toolbar">
+            <command
+                  commandId="com.strikewire.snl.apc.Common.actions.compareWithHandler"
+                  icon="icons/compare.gif"
+                  id="com.strikewire.snl.apc.Common.toolbar.compareWith"
+                  label="Compare Current Editor With..."
+                  style="push">
+                   <visibleWhen
+                     checkEnabled="false">
+                  <with
+                        variable="activeEditor">
+                     <instanceof
+                           value="org.eclipse.ui.part.EditorPart">
+                     </instanceof>
+                  </with>
+               </visibleWhen>
+            </command>
+         </toolbar>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="com.strikewire.snl.apc.Common.actions.CompareWithHandler"
+            id="com.strikewire.snl.apc.Common.actions.compareWithHandler"
+            name="Compare With Another File">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.help.contexts">
+      <contexts
+            file="helpContexts/context.xml"
+            plugin="com.strikewire.snl.apc.Common">
+      </contexts>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+
+      <page
+            class="gov.sandia.dart.preferences.DARTSystemPreferenceCategoryPage"
+            id="com.strikewire.snl.apc.ApcCommon.preferences.pages.system"
+            name="DART System">
+        </page>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            allowMultiple="false"
+            category="org.eclipse.ui"
+            class="com.strikewire.snl.apc.GUIs.settings.SettingsView"
+            id="com.strikewire.snl.apc.common.view.settings"
+            name="Settings"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            category="org.eclipse.ui"
+            class="com.strikewire.snl.apc.GUIs.settings.ActionView"
+            id="com.strikewire.snl.apc.common.view.action"
+            name="Action"
+            restorable="false">
+      </view>
+   </extension>
+      <extension point ="org.eclipse.core.contenttype.contentTypes">
+   	<content-type
+          file-extensions="g,e,e2,ex,ex2,exo,exo2,gen"
+          id="com.strikewire.snl.apc.Common.contenttypes.ExodusType"
+          name="Exodus File"
+          priority="normal">
+       <describer
+             class="org.eclipse.core.runtime.content.BinarySignatureDescriber">
+          <parameter
+                name="signature"
+                value="43, 44, 46">
+          </parameter>
+       </describer>
+      </content-type>
+   </extension>
+      <extension
+            point="org.eclipse.ui.startup">
+         <startup
+               class="com.strikewire.snl.apc.Common.startup.FileAssociationCleaner"></startup>
+         <startup
+               class="com.strikewire.snl.apc.Common.startup.TempFileCleaner">
+         </startup>
+         <startup
+               class="com.strikewire.snl.apc.GUIs.HideEditorAreaListener$HideEditorRegistryInitializer">
+         </startup>
+      </extension>
+      <extension
+            point="org.eclipse.ui.activities">
+         <activity
+               description="Job submission administrative settings"
+               id="com.strikewire.snl.apc.Common.jobSubmissionInternals"
+               name="Job Submission Internals">
+         </activity>
+         <activityPatternBinding
+               activityId="com.strikewire.snl.apc.Common.jobSubmissionInternals"
+               isEqualityPattern="true"
+               pattern="com.strikewire.snl.apc.Common/com.strikewire.snl.apc.Common.dateformats">
+         </activityPatternBinding>
+         <category
+               description="Tools for DART administration"
+               id="com.strikewire.snl.apc.Common.administrativeSettings"
+               name="Administrative Settings">
+         </category>
+         <categoryActivityBinding
+               activityId="com.strikewire.snl.apc.Common.jobSubmissionInternals"
+               categoryId="com.strikewire.snl.apc.Common.administrativeSettings">
+         </categoryActivityBinding>
+         
+         
+         
+      <category
+            id="gov.sandia.dart.common"
+            name="Disabled Eclipse UI">
+      </category>
+      <activity
+            id="gov.sandia.apc.editor.calore.debug_activity"
+            name="Eclipse Debug UI">
+      </activity>
+      <activity
+            id="gov.sandia.apc.editor.calore.team_enablement"
+            name="Eclipse Team UI">
+      </activity>     
+      <categoryActivityBinding
+            activityId="gov.sandia.apc.editor.calore.debug_activity"
+            categoryId="gov.sandia.dart.common">
+      </categoryActivityBinding>
+      <categoryActivityBinding
+            activityId="gov.sandia.apc.editor.calore.team_enablement"
+            categoryId="gov.sandia.dart.common">
+      </categoryActivityBinding>
+      <activityPatternBinding
+            activityId="gov.sandia.apc.editor.calore.debug_activity"
+            pattern="org\.eclipse\.ui\.ide/org\.eclipse\.ui\.wizards\.new\.project">
+      </activityPatternBinding>
+      <activityPatternBinding
+            activityId="gov.sandia.apc.editor.calore.team_enablement"
+            pattern="org\.eclipse\.team\.ui/org\.eclipse\.team\.ui\.applyPatch">
+      </activityPatternBinding>
+      <activityPatternBinding
+            activityId="gov.sandia.apc.editor.calore.team_enablement"
+            pattern="org\.eclipse\.team\.ui/nonbound\.org\.eclipse\.team\.ui\.ConfigureProject">
+      </activityPatternBinding>
+      <activityPatternBinding
+            activityId="gov.sandia.apc.editor.calore.debug_activity"
+            pattern="org\.eclipse\.team\.ui/org\.eclipse\.team\.ui\.showLocalHistory">
+      </activityPatternBinding>	
+      <activityPatternBinding
+            activityId="gov.sandia.apc.editor.calore.debug_activity"
+            pattern="org\.eclipse\.debug\.ui/org\.eclipse\.debug\.ui\.contextualLaunch\.debug\.submenu">
+      </activityPatternBinding>
+      <activityPatternBinding
+            activityId="gov.sandia.apc.editor.calore.debug_activity"
+            pattern="org\.eclipse\.debug\.ui/org\.eclipse\.debug\.ui\.contextualLaunch\.profile\.submenu">
+      </activityPatternBinding>
+      <activityPatternBinding
+            activityId="gov.sandia.apc.editor.calore.team_enablement"
+            pattern="org\.eclipse\.ui\.navigator\.resources/org\.eclipse\.ui\.navigator\.ProjectExplorer">
+      </activityPatternBinding>
+           
+       <activityPatternBinding
+            activityId="gov.sandia.apc.editor.calore.team_enablement"
+            pattern="org\.eclipse\.ui\.ide/org\.eclipse\.ui\.views\.ResourceNavigator">
+      </activityPatternBinding>
+       
+   </extension>
+    <extension
+        point="org.eclipse.ui.propertiesView">
+      <excludeSources
+           id="com.strikewire.snl.apc.common.view.settings">
+     </excludeSources>
+  </extension>
+     <extension
+         point="org.eclipse.ui.statusHandlers">
+      <statusHandler
+            class="com.strikewire.snl.apc.status.HTMLStatusHandler"
+            id="com.strikewire.snl.apc.statusHandler">
+      </statusHandler>
+   </extension>
+     <extension
+           point="gov.sandia.dart.application.DARTApplicationListener">
+        <DARTApplicationListener
+              listener="gov.sandia.dart.metrics.PerspectiveMetricRecorder">
+           <Event
+                 Event="PRE: WORKBENCH_ADVISOR_INITIALIZE">
+           </Event>
+           <Event
+                 Event="POST: WINDOW_ADVISOR_POST_WINDOW_OPEN">
+           </Event>
+        </DARTApplicationListener>
+        <DARTApplicationListener
+              listener="gov.sandia.dart.metrics.PartOpenedMetricRecorder">
+           <Event
+                 Event="PRE: WORKBENCH_ADVISOR_INITIALIZE">
+           </Event>
+        </DARTApplicationListener>
+        <DARTApplicationListener
+              listener="com.strikewire.snl.apc.resources.PreWorkbenchResourceEventListener">
+           <Event
+                 Event="PRE: WORKBENCH_ADVISOR_CONSTRUCT">
+           </Event>
+        </DARTApplicationListener>
+     </extension>
+</plugin>

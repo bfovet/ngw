@@ -131,6 +131,7 @@ public class WorkflowProcess {
 	static Pattern envVarPattern = Pattern.compile("(\\$\\w+)\\W?");
 	private Graph graph;
 	private WorkflowDefinition workflowDefinition;
+	private SAWWorkflowLogger log;
 	/**
 	 * Substitutes any system environment vars into value before adding name -> value to the environment var
 	 * mapping for this WorkflowProcess.
@@ -178,15 +179,10 @@ public class WorkflowProcess {
 			Map<String, String> envVars, 
 			boolean execute) throws SAWWorkflowException {
 		
-		SAWWorkflowLogger log;		
 		processes.clear();
-		try {
-			// TODO Log for nested runtimes
-			log = new SAWWorkflowLogger(new File(workDir, "workflow.engine.log"));
-		} catch (IOException e) {
-			throw new SAWWorkflowException("Failed to open log", e);
-		}
-		boolean closeResponseWriter = false;
+		// TODO Log for nested runtimes
+		getLogger();
+		boolean closeResponseWriter = false, closeLog = (log == null);
 		engine = createEngine(customNodeTypes, log);
 		workflowDefinition = new WorkflowDefinition();	
 		runtime = new RuntimeData(monitor, homeDir, workingDir, engine, log);
@@ -264,7 +260,9 @@ public class WorkflowProcess {
 				throw new SAWWorkflowException("Workflow terminated with error", e);
 			} finally {
 				try {if (execute) runtime.saveState();} catch (Exception ex) {}
-				try {runtime.close();} catch (Exception ex) {}
+				// This is a bit dodgy, sorry. But if we created the log in this method, then we should close it.
+				// If someone else created it earlier, then its their job.
+				try {if (closeLog) log.close(); } catch (Exception ex) {}
 				try {if (closeResponseWriter) responseWriter.close();} catch (Exception ex) {}
 			}
 		} catch (SAWWorkflowException e) {
@@ -375,5 +373,19 @@ public class WorkflowProcess {
 		engine.startProcess(graph, env);
 		if (responseWriter != null)
 			responseWriter.writeRow(runtime);
+	}
+	
+	public SAWWorkflowLogger getLogger() {
+		try {
+			if (log != null)
+				return log;
+			if (workDir != null) {
+				log = new SAWWorkflowLogger(new File(workDir, "workflow.engine.log"));
+				return log;
+			}
+		} catch (IOException e) {
+			throw new SAWWorkflowException("Failed to open log", e);
+		}
+		throw new SAWWorkflowException("Can't get logger before workdir is set");
 	}
 }

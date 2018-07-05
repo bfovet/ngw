@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<project default="build-target-platform">
+	
+	  <taskdef resource="net/sf/antcontrib/antlib.xml" />
+	  <typedef resource="org/tigris/subversion/svnant/svnantlib.xml" classpath="svnant.jar" />
+
+	<property name="build.dir" value="." />
+	
+	<property name="contribs.dir.name" value="Contribs" />
+	<property name="output.dir.name" value="Target-Platform" />
+	
+	<property name="contribs.dir" value="${build.dir}/${contribs.dir.name}" />
+	<property name="output.dir" value="${build.dir}/${output.dir.name}" />
+	
+	<target name="clean-target-platform">
+		<delete dir="${output.dir}" />
+	</target>
+	
+	<target name="build-target-platform" depends="clean-target-platform">
+		<unzip dest="${output.dir}">
+			<fileset dir="${contribs.dir}">
+				<include name="*.zip"/>
+			</fileset>
+		</unzip>
+		
+		<!-- in case anything wasn't in an eclipse directoyr, move it down -->
+		<move todir="${output.dir}/eclipse" verbose="true">
+			<fileset dir="${output.dir}" >
+				<depth max="0"/>
+				<type type="file"/>
+			</fileset>
+		</move>
+		<antcall target="move-features" />
+		<antcall target="move-plugins" />
+		<antcall target="move-binary" />
+		
+		<!-- expand feature jar files into feature directories -->
+		<property name="features.dir" value="${output.dir}/eclipse/features" />
+	  	<fileset dir="${features.dir}" includes="*.jar" id="all.jars" excludes="org.eclipse.test*.jar" />
+		<echo message="features.dir: ${features.dir}" />
+	  	<pathconvert property="jar.filenames" refid="all.jars" >
+	  		<mapper type="flatten"/>
+	  	</pathconvert>
+		<echo message="jar.filenames: ${jar.filenames}" />
+		<for list="${jar.filenames}" param="filename" delimiter="${path.separator}">
+			<sequential>
+				<local name="basename" />
+				<basename property="basename" file="@{filename}" suffix=".jar" />
+				<echo message="filename: @{filename}.  basename: ${basename}" />
+				<unjar dest="${features.dir}/${basename}" src="${features.dir}/@{filename}" />
+				<delete file="${features.dir}/@{filename}" />
+			</sequential>
+		</for>
+	</target>
+	
+	<target name="test-features-exists">
+		<available file="${output.dir}/features" property="features.exists"/>
+	</target>
+	
+	<target name="move-features" if="features.exists" depends="test-features-exists">
+		<move todir="${output.dir}/eclipse/features" verbose="true">
+			<fileset dir="${output.dir}/features"/>
+		</move>
+	</target>
+	
+	<target name="test-plugins-exists">
+		<available file="${output.dir}/plugins" property="plugins.exists"/>
+	</target>
+	
+	<target name="move-plugins" if="plugins.exists" depends="test-plugins-exists">
+		<move todir="${output.dir}/eclipse/plugins" verbose="true">
+			<fileset dir="${output.dir}/plugins"/>
+		</move>
+	</target>
+	
+	<target name="test-binary-exists">
+		<available file="${output.dir}/binary" property="binary.exists"/>
+	</target>
+	
+	<target name="move-binary" if="binary.exists" depends="test-binary-exists">
+		<move todir="${output.dir}/eclipse/binary" verbose="true">
+			<fileset dir="${output.dir}/binary"/>
+		</move>
+	</target>
+</project>

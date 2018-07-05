@@ -59,7 +59,7 @@ public class PluginLoader {
 						try {
 							Class c = Class.forName(className);
 							if (SAWCustomNode.class.isAssignableFrom(c)) {
-								log.warn("Added node type {0} from plugin jar {1}", typeName, file.getName());
+								log.info("Added node type {0} from plugin jar {1}", typeName, file.getName());
 								NodeDatabase.addNodeType(typeName, c);
 							} else {
 								log.warn("Node class {0} in jar file {1} does not extend SAWCustomNode", className, file.getName());

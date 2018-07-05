@@ -1,11 +1,9 @@
-This is the Next Generation Workflow Engine. It is extremely important
-that this plugin have NO external dependencies, including Eclipse dependencies.
-The Ant file build.xml builds and installs the standalone workflow system, and it
-must be able to operate solely on the contents of this project. That said, this
-is packaged as an Eclipse plugin so the engine can be embedded in an RCP app.
+This is the Next Generation Workflow runtime. This version is implemented on
+Sarasvati. It is extremely important that this plugin have NO external dependencies,
+including Eclipse dependencies. The Ant file build.xml builds and installs the
+standalone workflow system, and it must be able to operate solely on the contents
+of this project. That said, this is packaged as an Eclipse plugin so the engine
+can be embedded in an RCP app.
 
-There are some configuration files in “resources” that you will need to populate
-to make the networking components function.
-
-This software is licensed under the terms of the EPL. Some of the included libraries
-are used under the terms of the LGPL, and others under the Apache license.
+If you're not at Sandia, there are some configuration files in “resources” that
+you will need to modify to make the networking components function.

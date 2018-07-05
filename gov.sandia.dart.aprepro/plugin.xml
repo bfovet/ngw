@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="gov.sandia.dart.aprepro.pref.ApreproPreferencePage"
+            id="gov.sandia.dart.aprepro.pref"
+            name="APREPRO">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="gov.sandia.dart.aprepro.pref.ApreproInitializer">
+      </initializer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="gov.sandia.dart.aprepro.actions.ApreproTransformHandler"
+            id="gov.sandia.dart.aprepro.actions.runaprepro"
+            name="Run Aprepro">
+      </command>
+      <command
+            defaultHandler="gov.sandia.dart.aprepro.actions.ApreproTransformEditorHandler"
+            id="gov.sandia.dart.aprepro.actions.runapreproEditor"
+            name="Run Aprepro Editor">
+      </command>
+      <command
+            defaultHandler="gov.sandia.dart.aprepro.actions.ApreproTransformCompareEditorHandler"
+            id="gov.sandia.dart.aprepro.actions.runapreproCompareEditor"
+            name="Run Aprepro Compare Editor">
+      </command>
+      <command
+            defaultHandler="gov.sandia.dart.aprepro.actions.createParameter"
+            id="gov.sandia.dart.jaguar.createParameter"
+            name="Parameter: Create">
+      </command>
+      <command
+            defaultHandler="gov.sandia.dart.aprepro.actions.useExisitingParameter"
+            id="gov.sandia.dart.jaguar.useExisitingParameter"
+            name="Parameter: Use Exisiting">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=group.nav">
+         <toolbar
+               id="gov.sandia.dart.aprepro.toolbar">
+            <command
+                  commandId="gov.sandia.dart.aprepro.actions.runaprepro"
+                  icon="icons/aprepro_translation.gif"
+                  id="gov.sandia.dart.aprepro.toolbar.runaprepro"
+                  label="Run Aprepro Transformation"
+                  style="pulldown">
+               <visibleWhen
+                     checkEnabled="false">
+                  <with
+                        variable="activeEditor">
+                     <instanceof
+                           value="org.eclipse.ui.part.EditorPart">
+                     </instanceof>
+                  </with>
+               </visibleWhen>
+            </command>
+         </toolbar>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:gov.sandia.dart.aprepro.toolbar.runaprepro">
+         <command
+               commandId="gov.sandia.dart.aprepro.actions.runapreproEditor"
+               icon="icons/editor_option.gif"
+               label="Display Aprepro Translation in New Tab"
+               style="push"
+               tooltip="Run aprepro transformation and display in editor">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="activeEditor">
+                  <instanceof
+                        value="org.eclipse.ui.part.EditorPart">
+                  </instanceof>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="gov.sandia.dart.aprepro.actions.runapreproCompareEditor"
+               icon="icons/compare_option.gif"
+               label="Compare Aprepro Translation in New Tab"
+               style="push"
+               tooltip="Run aprepro transformation and display in compare editor">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="activeEditor">
+                  <instanceof
+                        value="org.eclipse.ui.part.EditorPart">
+                  </instanceof>
+               </with>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:#AbstractTextEditorContext?before=additions">
+         <command
+               commandId="gov.sandia.dart.jaguar.createParameter"
+               icon="icons/tag_blue_add.png"
+               label="Create a parameter"
+               style="push">
+            <visibleWhen>
+               <test
+                     forcePluginActivation="true"
+                     property="gov.sandia.dart.aprepro.propertyTester.canCreateParameter"
+                     value="true">
+               </test>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="gov.sandia.dart.jaguar.useExisitingParameter"
+               icon="icons/tag_blue.png"
+               label="Use existing parameter"
+               style="push">
+            <visibleWhen>
+               <test
+                     forcePluginActivation="true"
+                     property="gov.sandia.dart.aprepro.propertyTester.canUseParameter"
+                     value="true">
+               </test>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="org.eclipse.ui.edit.copy"
+               label="Copy"
+               style="push">
+               <visibleWhen>
+               <test
+                     forcePluginActivation="true"
+                     property="gov.sandia.dart.aprepro.propertyTester.canUseParameter"
+                     value="true">
+               </test>
+            	</visibleWhen>
+         </command>
+         <command
+               commandId="org.eclipse.ui.edit.paste"
+               label="Paste"
+               style="push">
+         </command>
+         
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            class="gov.sandia.dart.aprepro.ApreproPropertyTester"
+            id="gov.sandia.dart.aprepro.propertyTester"
+            namespace="gov.sandia.dart.aprepro.propertyTester"
+            properties="canCreateParameter,canUseParameter"
+            type="java.lang.Object">
+      </propertyTester>
+   </extension>
+   <!--
+   moved to commands
+   <extension
+      point="org.eclipse.ui.popupMenus">
+     <viewerContribution
+         id="org.eclipse.ui.articles.action.contribution.popup.editor"
+         targetID="#TextEditorContext ">
+        <action
+            class="gov.sandia.dart.aprepro.handler.VariableHighlight"
+            icon="icons/tag_green.png"
+            id="gov.sandia.dart.variableDefinition.variablize"
+            label="Create a parameter"
+            menubarPath="additions">
+        </action>
+        <action
+            class="gov.sandia.dart.aprepro.handler.VariableHighlight"
+            icon="icons/tag_green.png"
+            id="gov.sandia.dart.variableDefinition.use_existing"
+            label="Use existing parameter"
+            menubarPath="additions">
+        </action>
+     </viewerContribution>
+   </extension>
+-->
+
+</plugin>

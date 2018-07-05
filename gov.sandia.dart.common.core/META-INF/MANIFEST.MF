@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Common Core
+Bundle-SymbolicName: gov.sandia.dart.common.core
+Bundle-Version: 1.0.0
+Bundle-Activator: gov.sandia.dart.common.core.CommonCoreActivator
+Bundle-Vendor: Sandia National Laboratories
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.core.expressions,
+ gov.sandia.dart.apache.commons,
+ org.eclipse.osgi.services;bundle-version="3.4.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Export-Package: gov.sandia.dart,
+ gov.sandia.dart.common.core,
+ gov.sandia.dart.common.core.env,
+ gov.sandia.dart.common.core.formatting,
+ gov.sandia.dart.common.core.listeners,
+ gov.sandia.dart.common.core.localhostname,
+ gov.sandia.dart.common.core.osgi,
+ gov.sandia.dart.common.core.reporting,
+ gov.sandia.dart.metrics

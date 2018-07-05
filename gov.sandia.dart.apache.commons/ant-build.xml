@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="gov.sandia.dart.apache.commons"
+         basedir="."
+         default="usage"
+         xmlns:ivy="antlib:org.apache.ivy.ant"
+>
+
+ <property name="version" value="2.4.7" />
+
+  
+  <!-- grab environment variables -->
+ <property environment="env" />
+  
+  <!--
+    defines the src, compile.output, ivy-repo
+  -->
+  <property file="standard-dirs.properties" />
+
+  <!-- pulls in dependency versions -->
+ <property file="${ivy-repo.dir}/depversions.properties" />
+  
+  <!-- pulls in patterns -->
+  <property file="${ivy-repo.dir}/ivy-settings/patterns.properties" />
+
+
+  <include file="${ivy-repo.dir}/ant-commontargets.xml" 
+    as="p"/>
+  
+  
+  <target name="clean-targetdir"
+   description="cleans the target directory">
+
+   <delete dir="target" />
+   <mkdir dir="target" />
+
+  </target>
+
+  <target name="clean-libdir"
+   description="cleans the target directory">
+
+   <delete dir="lib" />
+   <mkdir dir="lib" />
+
+  </target>  
+
+
+  <target name="usage" description="Help on usage">
+    <echo>
+*clean : remove the target directory contents
+*resolve : updates dependencies and .classpath
+      
+*update : cleans lib dir, resolves depedences,
+      updates .classpath, MANIFEST.MF, build.properties
+*update-classpath : updates the .classpath file based
+      upon the .jar files in the ${lib.dir}
+      
+src.dir: ${src.dir}
+output classes:${compile.output.dir}
+      
+ivy-repo.dir: ${ivy-repo.dir}
+    </echo>
+  </target>
+  
+  <!-- should pull from the common targets -->
+  <!--
+  <path id="bph.classpath">
+    <pathelement path="${basedir}/resources" />
+    <pathelement path="../BinaryPluginHelper/target/classes" />
+    <pathelement path="../BinaryPluginHelper/src/main/resources" />
+    <fileset dir="${basedir}/lib">
+      <include name="**/*.jar" />
+    </fileset>
+    
+    <fileset dir="${env.ANT_HOME}/lib">
+      <include name="**/*.jar" />
+    </fileset>
+  </path>
+  -->  
+  
+
+  <target name="clean"
+          description="cleans the target directory"
+          depends="clean-targetdir"
+  >
+
+  </target>
+
+  <target name="ivy-init" unless="ivysettings.completed">
+    <property name="ivysettings.completed" value="true" />
+    <ivy:settings
+      id="ivy.instance"
+      file="ivysettings.xml" />
+  </target>
+
+<!--
+  <ivyeclipse conf="*" />
+-->
+
+  <target name="resolve"
+    description="resolves dependencies using internal"
+    depends="ivy-init"
+  >
+
+    <ivy:retrieve />
+
+  </target>
+  
+  
+  <target name="update"
+    description="Updates to the latest .jars by calling resolve and
+updating the classpath"
+    depends="clean-resolve,update-classpath,update-manifest,update-build-properties"
+    >
+  </target>
+
+  <target name="clean-resolve"
+    description="cleans the lib dir, and resolves dependencies"
+    depends="clean-libdir,resolve"
+  >
+
+  </target>
+  
+
+
+  <target name="update-manifest">
+
+    <java classname="gov.sandia.dart.ant.eclipse.ManifestUpdater"
+          fork="true"
+          dir="${basedir}"
+          >
+
+      <arg value="--bundle-version=${version}" />
+      <arg value="--exclude=org.apache.commons.lang.enum" />
+      <arg value="--exclude=META-INF" />
+      <arg value="--exclude=META-INF.*" />
+      <arg value="--classpath-dir=resources/" />
+      <classpath refid="bph.cp" />
+    </java>
+    
+<!--
+  removed from classpath, since now in the inclusions
+        <fileset dir="${basedir}/../build/ivy-repo/libs/org.slf4j/slf4j-api/jar">
+          <include name="**/*.jar" />
+        </fileset>
+        <fileset dir="${basedir}/../build/ivy-repo/libs/org.slf4j/slf4j-log4j12/jar">
+          <include name="**/*.jar" />
+        </fileset>
+-->    
+
+  </target>
+
+
+  <target name="update-classpath">
+
+    <java classname="gov.sandia.dart.ant.eclipse.EasyEclipseUpdater"
+          fork="true"
+          dir="${basedir}"
+          >
+      
+      <arg value="--ws-path-root=lib" />
+      <arg value="--jars-dir=./lib" />
+      <arg value="--workspace=${basedir}/../" />
+      <arg value="--source-dir=/build/ivy-repo/libs" />
+      <arg value="--javadoc-dir=/build/ivy-repo/libs" />      
+      
+
+      <classpath refid="bph.cp" />
+    </java>
+
+  </target>
+
+
+  <target name="update-build-properties">
+
+    <java classname="gov.sandia.dart.ant.eclipse.BuildPropertiesUpdater"
+          fork="true"
+          dir="${basedir}"
+          >
+
+      <classpath refid="bph.cp" />
+    </java>
+  </target>
+
+</project>

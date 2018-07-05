@@ -290,6 +290,14 @@
         <output name='exitStatus' type='default'/>
       </outputs>
     </nodeType>
+    <nodeType name='parameters' category='Sources'>
+      <properties>
+        <property name='values' type='map'/>
+      </properties>
+      <outputs>
+        <output name='parametersMap' type='map'/>
+      </outputs>
+    </nodeType>
     <nodeType name='nestedWorkflow' category='Control'>
       <properties>
         <property name='fileName' type='home_file'/>

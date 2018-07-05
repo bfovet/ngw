@@ -1,0 +1,9 @@
+George's description of his task:
+
+- Define dependencies and all upstream and downstream artifacts in an analysis workflow component.  Provide the option to define the following:
+- Input parameters the component will consume
+- Response parameters that the component is expected to produce
+- Set of static files that the component will consume.  These files are the same for each component instance.  Examples: Sierra input file, Cubit journal file
+- Set of upstream instance files that the component will consume.  These files are different for each component instance.  Examples: results file, history file, heartbeat file
+- Set of downstream instance files the component is expected to produce.  Examples: genesis file from a Cubit component, video file from an Ensight component
+If any of the expected output artifacts (parameters or files) is not produced execute failure action.  Default action: kill other executing workflow component instances for the current workflow instance and terminate workflow instance.  Optional action: invoke user defined random failure detection logic.  If random failure is reported re-execute the workflow component instance (user needs a mechanism to define the maximum allowed number of allowed retries)

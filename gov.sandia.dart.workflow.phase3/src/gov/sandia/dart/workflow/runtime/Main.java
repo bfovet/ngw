@@ -101,10 +101,11 @@ public class Main {
 					setWorkDir(workDir).
 					setStartNode(startNode);
 			
-			// TODO Could we do some preflight here -- parse workflow file, create logger?
+			// TODO Could we do some preflight here -- parse workflow file?
 
 			if (dakotaMode) {
-				readDakotaParameters(options.params()[1], process);
+				SAWWorkflowLogger log = process.getLogger();
+				readDakotaParameters(options.params()[1], process, log);
 			}
 
 			Map<String, Object> responses = null;
@@ -113,7 +114,8 @@ public class Main {
 				responses = process.getRuntime().getResponses();
 			} finally {
 				if (dakotaMode) {
-					writeDakotaResults(options.params()[1], options.params()[2], responses);
+					SAWWorkflowLogger log = process.getLogger();
+					writeDakotaResults(options.params()[1], options.params()[2], responses, log);
 				}
 			}
 					
@@ -126,19 +128,24 @@ public class Main {
 		}
 	}
 
-	private static void readDakotaParameters(String file, WorkflowProcess process) throws IOException {
+	private static void readDakotaParameters(String file, WorkflowProcess process, SAWWorkflowLogger log) throws IOException {
 		DakotaParamsFile paramsFile = new DakotaParamsFile(file);
 		for (String name: paramsFile.getVariableNames()) {
 			process.setParameter(name, paramsFile.getValue(name));
 		}
+		log.info("Read {0} Dakota parameters from file {1}", paramsFile.getVariableNames().size(), file);			
+
 		// TODO Validate that requested responses are available. We can get response names from Dakota params file, but 
 		// the way things are done right now the WorkflowProcess hasn't parsed the workflow definition yet
 		// so we can't validate them.
 	}
 	
-	private static void writeDakotaResults(String paramsFile, String responseFile, Map<String, Object> responses) throws IOException {
+	private static void writeDakotaResults(String paramsFile, String responseFile, Map<String, Object> responses, SAWWorkflowLogger log) throws IOException {
 		DakotaParamsFile params = new DakotaParamsFile(paramsFile);
 		DakotaResultsFile.write(responseFile, params.getResponseNames(), responses);
+		log.info("Wrote {0} responses to Dakota results file {1}", params.getResponseNames().size(), responseFile);		
+		// Since we opened the log before the run, we have to close it now.
+		log.close();
 	}
 
 	

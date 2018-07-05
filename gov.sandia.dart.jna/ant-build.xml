@@ -1,0 +1,216 @@
+<project name="gov.sandia.dart.jna" 
+  basedir="."
+  default="main"
+  xmlns:ivy="antlib:org.apache.ivy.ant">
+
+  <!-- set global properties for this build -->
+  <property name="version" value="4.2" />
+  <property name="main-class"  value="ExecTester"/>
+  <property name="src.dir"     value="src/main/java"/>
+  <property name="build.dir"   value="target"/>
+  <property name="classes.dir" value="${build.dir}/classes"/>
+  <property name="jar.dir"     value="${build.dir}"/>
+  <property name="lib.dir"     value="${basedir}/lib"/>
+
+  
+  <!-- grab environment variables -->
+ <property environment="env" />  
+  
+  <!--
+    defines the src, compile.output, ivy-repo
+  -->
+  <property file="standard-dirs.properties" />  
+
+  <!-- pulls in dependency versions -->
+ <property file="${ivy-repo.dir}/depversions.properties" />
+
+  <!-- pulls in patterns -->
+  <property file="${ivy-repo.dir}/ivy-settings/patterns.properties" />
+
+
+  <include file="${ivy-repo.dir}/ant-commontargets.xml" 
+    as="p"/>
+  
+
+
+  <!-- adds every jar in the lib directory to the classpath-->
+  <path id="classpath">
+    <fileset dir="${lib.dir}" includes="**/*.jar"/>
+  </path>
+
+  <path id="ant.classpath">
+    <fileset dir="${ant.library.dir}">
+      <include name="*.jar" />
+    </fileset>
+    <pathelement path="${basedir}/target/classes" />
+  </path>
+
+  <target name="ivy-init" unless="ivysettings.completed">
+    <property name="ivysettings.completed" value="true" />
+    <ivy:settings
+      id="ivy.instance"
+      file="ivysettings.xml" />
+  </target>
+
+<!--
+  <ivyeclipse conf="*" />
+-->
+
+  <target name="resolve"
+    description="resolves dependencies using internal"
+    depends="ivy-init"
+  >
+
+    <ivy:retrieve />
+
+  </target>  
+  
+  <target name="clean">
+    <delete dir="${build.dir}"/>
+  </target>
+
+  <target name="compile">
+    <mkdir dir="${classes.dir}"/>
+    <javac srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath"/>
+  </target>
+
+
+  <target name="jar" depends="compile">
+    <mkdir dir="${jar.dir}"/>
+    <jar destfile="${jar.dir}/${ant.project.name}-${version}.jar">
+      <fileset dir="${classes.dir}">
+        <exclude name="**/Test*.class" />
+      </fileset>
+      <fileset dir="${basedir}/src/main/resources">
+        <include name="**/*"/>
+      </fileset>
+      <fileset dir="${basedir}/src/test/resources">
+        <include name="**/*"/>
+      </fileset>
+      <manifest>
+        <attribute name="Main-Class" value="${main-class}"/>
+      </manifest>
+    </jar>
+  </target>
+  
+  <target name="zip" depends="jar">
+    <property name="st.dir" value="${build.dir}/sspitest" />
+    <delete dir="${st.dir}" failonerror="false"></delete>
+    <delete file="${build.dir}/sspitest.zip" failonerror="false" />
+    <mkdir dir="${st.dir}" />
+    <copy preservelastmodified="true" todir="${st.dir}">
+      <fileset dir="${jar.dir}" >
+        <include name="**/*.jar" />
+      </fileset>
+      <fileset dir="${basedir}" >
+        <include name="lib/*.jar" />
+      </fileset>
+      <fileset dir="${basedir}/tools" >
+        <include name="*.bat" />
+      </fileset>
+    </copy>
+
+    <zip destfile="${build.dir}/sspitest.zip">
+      <fileset dir="${build.dir}" >
+        <include name="sspitest/**/*" />
+      </fileset>
+    </zip>
+  </target>
+
+
+  
+  <target name="run" depends="jar">
+    <java fork="true" classname="${main-class}">
+      <classpath>
+        <path refid="classpath"/>
+        <path location="${jar.dir}/${ant.project.name}.jar"/>
+      </classpath>
+    </java>
+  </target>
+
+  
+  
+  <target name="clean-build" depends="clean,jar"/>
+
+  
+  
+  <target name="main" depends="clean,jar"/>
+  
+  
+  
+    <target name="update"
+      description="Updates to the latest .jars by calling resolve and
+  updating the classpath"
+      depends="clean-resolve,update-classpath,update-manifest,update-build-properties"
+      >
+    </target>  
+  
+  <target name="clean-resolve"
+    description="cleans the lib dir, and resolves dependencies"
+    depends="clean-libdir,resolve"
+  >
+
+  </target>  
+  
+  <target name="clean-libdir"
+   description="cleans the target directory">
+
+   <delete dir="${lib.dir}" />
+   <mkdir dir="${lib.dir}" />
+
+  </target>    
+
+  <target name="update-classpath">
+    <property environment="env" />
+
+    <java classname="gov.sandia.dart.ant.eclipse.EasyEclipseUpdater"
+          fork="true"
+          dir="${basedir}"
+          >
+      <arg value="--ws-path-root=lib" />
+      <arg value="--jars-dir=./lib" />
+      <arg value="--workspace=${basedir}/../" />
+      <arg value="--source-dir=/build/ivy-repo/libs" />
+      <arg value="--javadoc-dir=/build/ivy-repo/libs" />      
+      
+      <classpath refid="bph.cp" />      
+    </java>
+  </target>
+  
+  
+    <target name="update-manifest"
+      description="updates the META-INF/MANIFEST.MF">
+
+      <java classname="gov.sandia.dart.ant.eclipse.ManifestUpdater"
+        fork="true"
+        dir="${basedir}"
+      >
+
+
+        <arg value="--exclude=org.apache.commons.lang.enum" />
+        <arg value="--exclude=META-INF/" />
+        <arg value="--exclude=META-INF.*" />
+        <arg value="--bundle-version=${version}" />
+        
+        <arg value="--classpath-dir=." />
+        <arg value="--exclude=com.sun.jna.w32ce-arm" />
+        <arg value="--exclude=com.sun.jna.win32-x86-64" />
+        <arg value="--exclude=com.sun.jna.win32-x86" />
+        
+        <classpath refid="bph.cp" />
+
+      </java>
+    </target>  
+  
+  <target name="update-build-properties">
+
+    <java classname="gov.sandia.dart.ant.eclipse.BuildPropertiesUpdater"
+          fork="true"
+          dir="${basedir}"
+          >
+
+      <classpath refid="bph.cp" />
+    </java>
+  </target>    
+  
+</project>

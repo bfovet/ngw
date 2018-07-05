@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivy-module>
+  <settings
+    defaultResolver="dart-ivy-repo"
+  />
+
+  <include file="${ivy-repo.dir}/ivy-settings/ivysettings-internal.xml" />
+
+</ivy-module>
