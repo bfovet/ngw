@@ -1,0 +1,26 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Built-By: genie.cdt
+Created-By: Apache Maven
+Build-Jdk: 1.8.0_162
+
+Name: p2.inf
+SHA-256-Digest: /6PBQZfNxr26pIUC9Ut/HlrQDWhY3ehJi4H99vKn3js=
+
+Name: feature.xml
+SHA-256-Digest: ap5J5RCjsJr6obncxLkWJYqH717VElvYQyxUZQ2BUv8=
+
+Name: feature.properties
+SHA-256-Digest: vsxxT7KreXY/67jTSY0tymhZegjWu8wwDEmaeIRTklU=
+
+Name: META-INF/maven/org.eclipse.cdt/org.eclipse.cdt.core.parser.upc.f
+ eature/pom.properties
+SHA-256-Digest: 42BaOMgti2vAsyiMnee8aG3+awj2AU0NpYXP/IrWBII=
+
+Name: license.html
+SHA-256-Digest: Dv5NbrV590iFepPFp4HDAA9w8zkHSynRW5FCE+FLHVM=
+
+Name: META-INF/maven/org.eclipse.cdt/org.eclipse.cdt.core.parser.upc.f
+ eature/pom.xml
+SHA-256-Digest: HuEfjbezXkJNDpDnBS0Ukm7WNgFkeUbkDxCG7hrRI7U=
+

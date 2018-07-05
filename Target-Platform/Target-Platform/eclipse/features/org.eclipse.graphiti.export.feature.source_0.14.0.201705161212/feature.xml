@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature id="org.eclipse.graphiti.export.feature.source" version="0.14.0.201705161212" plugin="org.eclipse.graphiti.export.batik" label="%featureName" provider-name="%providerName">
+  <includes id="org.eclipse.graphiti.export.feature" version="0.14.0.201705161212"/>
+  <description>
+      %description
+   </description>
+  <copyright url="http://www.eclipse.org/legal/epl-v10.html">
+Copyright (c) 2005, 2012 SAP AG.
+All rights reserved.   This program and the accompanying materials
+are made available under the terms of the Eclipse Public License
+v1.0
+which accompanies this distribution, and is available at
+http://www.eclipse.org/legal/epl-v10.html
+   </copyright>
+  <license url="%licenseURL">
+      %license
+   </license>
+  <plugin id="org.eclipse.graphiti.export.batik.source" version="0.14.0.201705161212" download-size="0" install-size="0" unpack="false"/>
+  <plugin id="org.apache.batik.svggen.source" version="1.7.0.v201011041433" download-size="0" install-size="0" unpack="false"/>
+  <plugin id="org.apache.batik.ext.awt.source" version="1.7.0.v201011041433" download-size="0" install-size="0" unpack="false"/>
+  <plugin id="org.apache.batik.util.source" version="1.7.0.v201011041433" download-size="0" install-size="0" unpack="false"/>
+  <plugin id="org.apache.batik.util.gui.source" version="1.7.0.v200903091627" download-size="0" install-size="0" unpack="false"/>
+  <plugin id="org.apache.batik.dom.source" version="1.7.1.v201505191845" download-size="0" install-size="0" unpack="false"/>
+  <plugin id="org.apache.batik.css.source" version="1.7.0.v201011041433" download-size="0" install-size="0" unpack="false"/>
+  <plugin id="org.w3c.css.sac.source" version="1.3.1.v200903091627" download-size="0" install-size="0" unpack="false"/>
+  <plugin id="org.w3c.dom.svg.source" version="1.1.0.v201011041433" download-size="0" install-size="0" unpack="false"/>
+  <plugin id="org.w3c.dom.smil.source" version="1.0.0.v200806040011" download-size="0" install-size="0" unpack="false"/>
+  <plugin id="org.apache.batik.xml.source" version="1.7.0.v201011041433" download-size="0" install-size="0" unpack="false"/>
+</feature>

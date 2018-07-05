@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.eclipse.nebula.widgets.geomap.feature"
+      label="Nebula GeoMap Widget and Viewer"
+      version="1.0.0.201706221838"
+      provider-name="Eclipse Nebula">
+
+   <description url="http://www.eclipse.org/nebula/widgets/geomap">
+      The Nebula Geomap maptile viewer.
+   </description>
+
+   <license url="%licenseURL">
+      %license
+   </license>
+
+   <plugin
+         id="org.eclipse.nebula.widgets.geomap"
+         download-size="122"
+         install-size="247"
+         version="1.0.0.201706221838"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.nebula.widgets.geomap.source"
+         download-size="68"
+         install-size="181"
+         version="1.0.0.201706221838"
+         unpack="false"/>
+
+</feature>

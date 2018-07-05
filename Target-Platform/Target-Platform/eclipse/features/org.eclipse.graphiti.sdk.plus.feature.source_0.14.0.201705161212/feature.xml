@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature id="org.eclipse.graphiti.sdk.plus.feature.source" version="0.14.0.201705161212" label="%featureName" provider-name="%providerName">
+  <includes id="org.eclipse.graphiti.sdk.plus.feature" version="0.14.0.201705161212"/>
+  <description>
+      %description
+   </description>
+  <copyright url="http://www.eclipse.org/legal/epl-v10.html">
+Copyright (c) 2005, 2011 SAP AG.
+All rights reserved.   This program and the accompanying materials
+are made available under the terms of the Eclipse Public License
+v1.0
+which accompanies this distribution, and is available at
+http://www.eclipse.org/legal/epl-v10.html
+   </copyright>
+  <license url="%licenseURL">
+      %license
+   </license>
+  <includes id="org.eclipse.graphiti.sdk.feature.source" version="0.14.0.201705161212"/>
+  <includes id="org.eclipse.graphiti.export.feature.source" version="0.14.0.201705161212"/>
+</feature>

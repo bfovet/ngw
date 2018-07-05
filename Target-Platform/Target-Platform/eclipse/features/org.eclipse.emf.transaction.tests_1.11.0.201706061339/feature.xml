@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * <copyright>
+ *
+ * Copyright (c) 2005, 2014 IBM Corporation and others.
+ * All rights reserved.   This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *   IBM - Initial API and implementation
+ *
+ * </copyright>
+ */
+-->
+<feature
+      id="org.eclipse.emf.transaction.tests"
+      label="%featureName"
+      version="1.11.0.201706061339"
+      provider-name="%providerName"
+      image="modeling32.png">
+
+   <description url="http://www.eclipse.org/modeling/emf/?project=transaction">
+      %description
+   </description>
+
+   <copyright url="http://www.eclipse.org/legal/epl-v10.html">
+      Copyright (c) 2005, 2015 IBM Corporation and others.
+All rights reserved.   This program and the accompanying materials
+are made available under the terms of the Eclipse Public License v1.0
+which accompanies this distribution, and is available at
+http://www.eclipse.org/legal/epl-v10.html
+   </copyright>
+
+   <license url="%licenseURL">
+      %license
+   </license>
+
+   <url>
+      <update label="%updateSiteName" url="http://download.eclipse.org/modeling/emf/transaction/updates/releases/"/>
+   </url>
+
+   <requires>
+      <import plugin="org.eclipse.emf.transaction" version="1.4.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.core.resources" version="3.9.0" match="compatible"/>
+      <import plugin="org.eclipse.emf.examples.library.edit" version="2.5.0" match="compatible"/>
+      <import plugin="org.junit" version="4.10.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ui" version="3.106.0" match="compatible"/>
+      <import plugin="org.eclipse.core.filesystem" version="1.4.0" match="compatible"/>
+      <import plugin="org.eclipse.emf.examples.library" version="2.5.0" match="compatible"/>
+      <import plugin="org.eclipse.emf.workspace" version="1.5.0" match="greaterOrEqual"/>
+   </requires>
+
+   <plugin
+         id="org.eclipse.test"
+         download-size="539"
+         install-size="616"
+         version="3.3.200.v20160912-1145"/>
+
+   <plugin
+         id="org.eclipse.ant.optional.junit"
+         download-size="7"
+         install-size="10"
+         version="3.3.200.v20160315-2119"
+         fragment="true"/>
+
+   <plugin
+         id="org.eclipse.emf.transaction.tests"
+         download-size="293"
+         install-size="572"
+         version="1.10.0.201706061339"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.emf.workspace.tests"
+         download-size="240"
+         install-size="489"
+         version="1.10.0.201706061339"
+         unpack="false"/>
+
+</feature>

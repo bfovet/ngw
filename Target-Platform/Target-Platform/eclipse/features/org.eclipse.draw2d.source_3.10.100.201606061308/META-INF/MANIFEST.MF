@@ -1,0 +1,26 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Built-By: genie.gef
+Build-Jdk: 1.7.0_80
+Created-By: Apache Maven 3.1.1
+
+Name: META-INF/maven/org.eclipse.draw2d.features/org.eclipse.draw2d.so
+ urce/pom.xml
+SHA-256-Digest: OYthQJMYQn4kg0IOllgQg8BUUt8TD94eiiWSXB9bSHY=
+
+Name: epl-v10.html
+SHA-256-Digest: mpbQ2vmKpvtKpTDTmcdCxmEhsL2uSh9/+iLSE14d9/0=
+
+Name: feature.xml
+SHA-256-Digest: PfWrxJ33lQRqbRbitYLwh43Pi+A1EagEEeWssqQZvSc=
+
+Name: META-INF/maven/org.eclipse.draw2d.features/org.eclipse.draw2d.so
+ urce/pom.properties
+SHA-256-Digest: yHBZdC5ujeQt5m/Ok4i1+/hbepNBChmeX/sC66CtRLQ=
+
+Name: feature.properties
+SHA-256-Digest: +UJWOLTlpO2RlQxBMZcRr8gSKN7zXFkO3tXe9Y4jCcQ=
+
+Name: license.html
+SHA-256-Digest: X315zLynvdLZ4DaYSopgxruQUUEadA3FOPNviC+YO24=
+

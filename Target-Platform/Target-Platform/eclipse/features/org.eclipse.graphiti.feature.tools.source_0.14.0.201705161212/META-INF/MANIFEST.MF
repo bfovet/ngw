@@ -1,0 +1,29 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Built-By: genie.graphiti
+Created-By: Apache Maven
+Build-Jdk: 1.8.0_121
+
+Name: .gitkeep
+SHA-256-Digest: 47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=
+
+Name: META-INF/maven/org.eclipse.graphiti/org.eclipse.graphiti.feature
+ .tools/pom.properties
+SHA-256-Digest: zI9bBykGqHYklnekj+fwEFyP+JXqDxxbKxzBHmd3K4A=
+
+Name: epl-v10.html
+SHA-256-Digest: mpbQ2vmKpvtKpTDTmcdCxmEhsL2uSh9/+iLSE14d9/0=
+
+Name: META-INF/maven/org.eclipse.graphiti/org.eclipse.graphiti.feature
+ .tools/pom.xml
+SHA-256-Digest: Uz3HDRkk13V/5BdlFUCRktdSF49Z5Lccef5MldXfqB0=
+
+Name: feature.xml
+SHA-256-Digest: pnGveGDSAvTnUVBnTr6bzMZU+k2qLu/LMAsyO/ho3bU=
+
+Name: feature.properties
+SHA-256-Digest: MmQ6oV3q8jZBG/c66eDnHeoYP/IagGImp2vTCZTB4lY=
+
+Name: license.html
+SHA-256-Digest: X315zLynvdLZ4DaYSopgxruQUUEadA3FOPNviC+YO24=
+

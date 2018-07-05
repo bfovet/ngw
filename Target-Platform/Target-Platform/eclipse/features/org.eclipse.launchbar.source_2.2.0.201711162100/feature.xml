@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature id="org.eclipse.launchbar.source" version="2.2.0.201711162100" label="%featureName" provider-name="%providerName">
+  <includes id="org.eclipse.launchbar" version="2.2.0.201711162100"/>
+  <description>
+      %description
+   </description>
+  <copyright>
+      %copyright
+   </copyright>
+  <license url="%licenseURL">
+      %license
+   </license>
+  <plugin id="org.eclipse.launchbar.core.source" version="2.2.0.201711162100" download-size="0" install-size="0" unpack="false"/>
+  <plugin id="org.eclipse.launchbar.ui.source" version="2.2.0.201711162100" download-size="0" install-size="0" unpack="false"/>
+  <plugin id="org.eclipse.launchbar.ui.controls.source" version="1.0.1.201711162100" download-size="0" install-size="0" unpack="false"/>
+</feature>
