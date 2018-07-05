@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<project default="update-if-missing">
+	
+	<taskdef resource="net/sf/antcontrib/antlib.xml" />
+	
+	<property name="ws.dir" value="${basedir}/.." />
+	
+	<property file="cubit-lib.properties" />
+	
+	<target name="init-cubit.zipfile.path">
+		<pathconvert property="zip.file.path" setonempty="false" pathsep=" ">
+			<path>
+				<fileset dir="${ws.dir}" includes="cubitlib*.zip" />
+			</path>
+		</pathconvert>
+	</target>
+	
+	<target name="init-cubitlib.folder.path" >
+		<pathconvert property="cubitlib.folder.path" setonempty="false" pathsep=" ">
+			<path>
+				<dirset dir="${ws.dir}" includes="cubit-bundle*" />
+			</path>
+		</pathconvert>
+	</target>
+	
+	<target name="test-cubitlib-available" depends="init-cubitlib.folder.path">
+		<available file="${cubitlib.folder.path}" property="cubitlib.available" />
+	</target>
+	
+	<target name="update-if-missing" depends="test-cubitlib-available" if="auto-download" unless="cubitlib.available">
+		<antcall target="update-cubit-lib" />
+	</target>
+	
+	<target name="clean" >
+		<antcall target="delete-cubitlib-folder" />
+		<delete dir="${ws.dir}" includes="cubitlib-*.zip" />
+	</target>
+	
+	<target name="delete-cubitlib-folder" depends="test-cubitlib-available" if="cubitlib.available">
+		<delete dir="${cubitlib.folder.path}" />
+	</target>
+	
+	<target name="update-cubit-lib" depends="init-cubit.os,clean" >
+		<get src="${cubitlib-url}/${cubit.os}/cubitlib-${cubit.os}.zip" dest="${ws.dir}"/>
+		
+		<antcall target="unzip" />
+	</target>
+	
+	<target name="try-native-unzip" depends="init-cubit.zipfile.path" >
+		<exec executable="unzip" dir="${ws.dir}" failifexecutionfails="false" failonerror="false" >
+			<arg value="${zip.file.path}" />
+		</exec>
+	</target>
+	
+	<target name="test-native-unzip" depends="init-cubitlib.folder.path" >
+		<pathconvert property="cubitlib.folder.path" setonempty="false" pathsep=" ">
+			<path>
+				<fileset dir="${ws.dir}" includes="cubit-bundle*" />
+			</path>
+		</pathconvert>
+		<available file="${cubitlib.folder.path}" property="native-unzip-succeeded" />
+	</target>
+	
+	<target name="unzip" depends="try-native-unzip,test-native-unzip" unless="native-unzip-succeeded">
+		<unzip dest="${ws.dir}">
+			<fileset dir="${ws.dir}">
+				<include name="cubitlib*.zip"/>
+			</fileset>
+		</unzip>
+	</target>
+	
+	<target name="init-cubit.os">
+		<condition property="cubit.os" value="macosx">
+			<os family="mac" />
+		</condition>
+		<condition property="cubit.os" value="win64">
+			<os family="windows" />
+		</condition>
+		<condition property="cubit.os" value="linux64">
+			<os family="unix" />
+		</condition>
+		<fail unless="cubit.os" message="Unable to determine local OS, and it's not explicitly set"/>
+	</target>
+</project>
