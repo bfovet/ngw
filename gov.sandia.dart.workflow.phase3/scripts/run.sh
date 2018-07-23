@@ -1,2 +1,12 @@
-WFLIB=/ascldap/users/ejfried/wflib 
-${WFLIB}/jre/bin/java -cp ${WFLIB}/driver.jar:${WFLIB}/sarasvati-core-2.0.2.jar gov.sandia.dart.workflow.runtime.Driver workflow.xml
+#!/bin/sh
+
+# export WFLIB=`dirname $BASH_SOURCE`
+export WFLIB=~/wflib
+PATH=${WFLIB}:${PATH}
+
+if [ -f ${WFLIB}/environment ] ; then
+. ${WFLIB}/environment
+fi 
+
+java -XX:CICompilerCount=2 -XX:+ReduceSignalUsage -XX:+DisableAttachMechanism -XX:+UseSerialGC -cp ${WFLIB}/\*:${WFLIB}/plugins/\* gov.sandia.dart.workflow.runtime.Main $*
+exit $?
