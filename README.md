@@ -7,7 +7,7 @@ runtime is designed to be implementable on a variety of Java workflow
 engines. The initial implementation is based on [Google Sarasvati](https://code.google.com/archive/p/sarasvati/).
 
 
-### Installation
+### Installation - Eclipse
 #### Required Software
 - [Eclipse Oxygen SR3 for RCP/RAP Developer](http://www.eclipse.org/downloads/packages/eclipse-rcp-and-rap-developers/oxygen3a)
 - Git
@@ -24,7 +24,26 @@ engines. The initial implementation is based on [Google Sarasvati](https://code.
  8. Check the `Dart Platform` then "Reload" and finally "Apply and Close"
  9. File -> Restart <br/> Eclipse will restart and rebuild your workspace
 
-### Running
+#### Docker / Charliecloud
+...
+
+#### Running
 When running these plugins as an Eclipse application, you'll need to
 explicitly open the "Settings" view to configure workflow
 components. A "Workflow Editing" perspective is in the works.
+
+
+### Installation - Workflow Engine (only)
+#### Require Software
+- Java JDK
+- Git
+- 
+#### Procedure
+1. ?
+2. ?
+
+#### Docker / Charliecloud
+...
+
+#### Running
+...
