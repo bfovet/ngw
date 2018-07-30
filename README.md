@@ -25,25 +25,46 @@ engines. The initial implementation is based on [Google Sarasvati](https://code.
  9. File -> Restart <br/> Eclipse will restart and rebuild your workspace
 
 #### Docker / Charliecloud
-...
+Required [Docker](https://docs.docker.com/install/) and [Charliecloud](https://github.com/hpc/charliecloud/); however, you can run the container with Charilecloud but you will need to write the appropraite `docker run` statement.
+1. `$ cd (git location)\???`
+2. `$ docker build -t eclipse_x11 .`
+3. `$ ch-docker2tar eclise_x11 /var/tmp`
+4. `$ ch-tar2dir /var/tmp/eclipse_x11 /var/tmp`
+5. `$ ch-run /var/tmp/eclipse_x11 -- /opt/eclipse/./eclipse`
+6. Use your host systems home directory as the workspace and import the project using the same steps listed above. By doing so you can ensure that development work is not tired directly to a container.
 
 #### Running
 When running these plugins as an Eclipse application, you'll need to
 explicitly open the "Settings" view to configure workflow
 components. A "Workflow Editing" perspective is in the works.
 
+1. File -> New -> Project (General/Project)
+2. Create "New Project" providing required details <br/>There are no referenced projects
+3. Right click on newly created project -> Run As -> Run Configurations...
+4. Create a new `Eclipse Application`
+5. In the new application via the Plug-ins tabe un-check `Validate Plug-ins automatically prior to launching` and Apply
+6. Run
+7. Ignore all errors & warnings that appear in the Console during this initial process
+8. *First time setup* in newly opened window
+9. Window -> Perspective -> Open Perspective -> Java
+10. Window -> Show View -> Other -> "Settings" -> Open
+11. File -> New -> Java Project <br/> Enter Project Name, all other settings default
+12. Right click new project -> New -> Other -> "Workflow" -> Next
+13. Name your workflow file and Finish
+14. The newly created workflile (fileName.iwf) will be oepn in the middle of the screen.<br/>Below you should see the `Settings` and `Palette` windows.
+
+From this point you can begin creating the workflow, simply select an object from the Palette and place it in the workflow window. After this module has been deployed in the workflow further configuration can be accomplised via the Settings window.
 
 ### Installation - Workflow Engine (only)
 #### Require Software
 - Java JDK
 - Git
-- 
+
 #### Procedure
 1. ?
-2. ?
 
 #### Docker / Charliecloud
-...
+TODO - need to complete & test the conter, I'll update soon
 
 #### Running
 ...
