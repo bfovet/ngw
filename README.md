@@ -26,12 +26,14 @@ engines. The initial implementation is based on [Google Sarasvati](https://code.
 
 #### Docker / Charliecloud
 Required [Docker](https://docs.docker.com/install/) and [Charliecloud](https://github.com/hpc/charliecloud/); however, you can run the container with Charilecloud but you will need to write the appropraite `docker run` statement.
-1. `$ cd (git location)\???`
-2. `$ docker build -t eclipse_x11 .`
+1. `$ docker pull registry.gitlab.com/iwf/ngw/eclipse_x11`
+2. `$ docker tag registry.gitlab.com/iwf/ngw/eclipse_x11 eclipse_x11`
 3. `$ ch-docker2tar eclise_x11 /var/tmp`
-4. `$ ch-tar2dir /var/tmp/eclipse_x11 /var/tmp`
+4. `$ ch-tar2dir /var/tmp/eclipse_x11.tar.gz /var/tmp`
 5. `$ ch-run /var/tmp/eclipse_x11 -- /opt/eclipse/./eclipse`
 6. Use your host systems home directory as the workspace and import the project using the same steps listed above. By doing so you can ensure that development work is not tired directly to a container.
+
+*TODO* Upload Dockerfile and document in README
 
 #### Running
 When running these plugins as an Eclipse application, you'll need to
@@ -56,15 +58,19 @@ components. A "Workflow Editing" perspective is in the works.
 From this point you can begin creating the workflow, simply select an object from the Palette and place it in the workflow window. After this module has been deployed in the workflow further configuration can be accomplised via the Settings window.
 
 ### Installation - Workflow Engine (only)
+I have only tested the workflow engine running on a local host (virtual machine) and not on an HPC. 
+There are likely adidtional requirements that need added to the container to offer the full range of support.
 #### Require Software
 - Java JDK
 - Git
-
-#### Procedure
-1. ?
+- [Docker](https://docs.docker.com/install/) 
+- [Charliecloud](https://github.com/hpc/charliecloud/)
 
 #### Docker / Charliecloud
-TODO - need to complete & test the conter, I'll update soon
+1. `$ docker pull registry.gitlab.com/iwf/ngw/engine`
+2. `$ docker tag registry.gitlab.com/iwf/ngw/engine engine`
+3. `$ ch-docker2tar engine /var/tmp`
+3. `$ ch-tar2dir /var/tmp/engine.tar.gz /var/tmp`
+4. `$ ch-run -w -b {directory storing .iwf} /var/tmp/engine -- java -jar wf_engine.jar /mnt/0/{workflowName}.iwf`
 
-#### Running
-...
+*TODO* Upload Dockerfile and document in README
