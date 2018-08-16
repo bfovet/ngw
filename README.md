@@ -28,7 +28,7 @@ engines. The initial implementation is based on [Google Sarasvati](https://code.
 Required [Docker](https://docs.docker.com/install/) and [Charliecloud](https://github.com/hpc/charliecloud/); however, you can run the container with Charilecloud but you will need to write the appropraite `docker run` statement.
 1. `$ docker pull registry.gitlab.com/iwf/ngw/eclipse_x11`
 2. `$ docker tag registry.gitlab.com/iwf/ngw/eclipse_x11 eclipse_x11`
-3. `$ ch-docker2tar eclise_x11 /var/tmp`
+3. `$ ch-docker2tar eclipse_x11 /var/tmp`
 4. `$ ch-tar2dir /var/tmp/eclipse_x11.tar.gz /var/tmp`
 5. `$ ch-run /var/tmp/eclipse_x11 -- /opt/eclipse/./eclipse`
 6. Use your host systems home directory as the workspace and import the project using the same steps listed above. By doing so you can ensure that development work is not tired directly to a container.
