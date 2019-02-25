@@ -14,6 +14,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import gov.sandia.dart.workflow.runtime.core.NodeCategories;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
 import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
 import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
@@ -22,13 +25,12 @@ public class ParameterNode extends SAWCustomNode {
 	@Override
 	public Map<String, Object> doExecute(Map<String, String> properties, WorkflowDefinition workflow, RuntimeData runtime) {	
 		Object value = runtime.getParameter(getName());
-		return Collections.singletonMap("f", String.valueOf(value));		
+		return Collections.singletonMap("f", value);		
 	}
 
-	@Override public List<String> getDefaultOutputNames() { return Collections.singletonList("f"); }
-	@Override public List<String> getDefaultOutputTypes() { return Collections.singletonList("text"); }
+	@Override public List<OutputPortInfo> getDefaultOutputs() { return Collections.singletonList(new OutputPortInfo("f", "text")); }
 
-	@Override public List<String> getDefaultProperties() { return Arrays.asList("value"); }
+	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo("value")); }
 
-	@Override public String getCategory() { return "Sources"; }
+	@Override public List<String> getCategories() { return Arrays.asList(NodeCategories.WORKFLOW, "Sources"); }
 }	

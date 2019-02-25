@@ -17,6 +17,7 @@ import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
 import org.eclipse.graphiti.mm.pictograms.ContainerShape;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
 
+import gov.sandia.dart.workflow.domain.Image;
 import gov.sandia.dart.workflow.domain.Note;
 
 public class MoveThingsOntoNotesFeature extends DefaultMoveShapeFeature {
@@ -30,7 +31,7 @@ public class MoveThingsOntoNotesFeature extends DefaultMoveShapeFeature {
 		ContainerShape trg = context.getTargetContainer();
 		Object trgObj = getFeatureProvider().getBusinessObjectForPictogramElement(trg);		
 
-		if (trgObj instanceof Note)
+		if (trgObj instanceof Note || trgObj instanceof Image)
 			return true;
 		else if (trg instanceof Diagram)
 			return true;
@@ -42,7 +43,7 @@ public class MoveThingsOntoNotesFeature extends DefaultMoveShapeFeature {
 		ContainerShape trg = context.getTargetContainer();
 		GraphicsAlgorithm ga = trg.getGraphicsAlgorithm();
 		Object trgObj = getFeatureProvider().getBusinessObjectForPictogramElement(trg);	
-		if (trgObj instanceof Note) {
+		if (trgObj instanceof Note || trgObj instanceof Image) {
 			MoveShapeContext nc = new MoveShapeContext(context.getShape());
 			nc.setDeltaX(context.getDeltaX());
 			nc.setDeltaY(context.getDeltaY());

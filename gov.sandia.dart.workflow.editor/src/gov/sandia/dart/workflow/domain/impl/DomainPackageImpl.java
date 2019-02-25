@@ -17,6 +17,7 @@ import gov.sandia.dart.workflow.domain.WFArc;
 import gov.sandia.dart.workflow.domain.WFNode;
 import gov.sandia.dart.workflow.domain.DomainFactory;
 import gov.sandia.dart.workflow.domain.DomainPackage;
+import gov.sandia.dart.workflow.domain.Image;
 import gov.sandia.dart.workflow.domain.InputPort;
 import gov.sandia.dart.workflow.domain.NamedObject;
 import gov.sandia.dart.workflow.domain.NamedObjectWithProperties;
@@ -153,6 +154,13 @@ public class DomainPackageImpl extends EPackageImpl implements DomainPackage {
 	 * @generated
 	 */
 	private EClass arcEClass = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EClass imageEClass = null;
 
 	/**
 	 * Creates an instance of the model <b>Package</b>, registered with
@@ -693,6 +701,33 @@ public class DomainPackageImpl extends EPackageImpl implements DomainPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EClass getImage() {
+		return imageEClass;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getImage_Text() {
+		return (EAttribute)imageEClass.getEStructuralFeatures().get(0);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getImage_Color() {
+		return (EAttribute)imageEClass.getEStructuralFeatures().get(1);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public DomainFactory getDomainFactory() {
 		return (DomainFactory)getEFactoryInstance();
 	}
@@ -783,6 +818,10 @@ public class DomainPackageImpl extends EPackageImpl implements DomainPackage {
 		createEAttribute(runnerEClass, RUNNER__TYPE);
 
 		arcEClass = createEClass(ARC);
+
+		imageEClass = createEClass(IMAGE);
+		createEAttribute(imageEClass, IMAGE__TEXT);
+		createEAttribute(imageEClass, IMAGE__COLOR);
 	}
 
 	/**
@@ -899,6 +938,10 @@ public class DomainPackageImpl extends EPackageImpl implements DomainPackage {
 		initEAttribute(getRunner_Type(), ecorePackage.getEString(), "type", null, 0, 1, Runner.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(arcEClass, Arc.class, "Arc", IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+
+		initEClass(imageEClass, Image.class, "Image", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+		initEAttribute(getImage_Text(), ecorePackage.getEString(), "text", "", 0, 1, Image.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getImage_Color(), ecorePackage.getEString(), "color", null, 0, 1, Image.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 	}
 
 } //DomainPackageImpl

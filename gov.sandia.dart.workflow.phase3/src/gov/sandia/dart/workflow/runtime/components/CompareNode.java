@@ -9,11 +9,6 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.runtime.components;
 
-import gov.sandia.dart.workflow.runtime.core.RuntimeData;
-import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
-import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
-import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
-
 import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,6 +20,14 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
+import gov.sandia.dart.workflow.runtime.core.RuntimeData;
+import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
+import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
+import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
+
 public class CompareNode extends SAWCustomNode {
 
 	@Override
@@ -35,16 +38,17 @@ public class CompareNode extends SAWCustomNode {
 		String arg1 = null;
 		try {
 			ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName("nashorn");
-			scriptEngine.eval(new StringReader(getCustomCode(properties)));
+			scriptEngine.eval(new StringReader(getCustomCode(properties, runtime)));
 
-			arg1 = (String) runtime.getInput(getName(), "x", String.class);
+			arg1 = getStringFromPortOrProperty(runtime, properties, "x");
+//			arg1 = (String) runtime.getInput(getName(), "x", String.class);
+//			if (arg1 == null)
+//				throw new SAWWorkflowException("No input 'x' for node " + getName());
 
-			if (arg1 == null)
-				arg1 = "0";
-			String arg2 = (String) runtime.getInput(getName(), "y", String.class);
-		    
-			if (arg2 == null)
-				arg2 = "0";
+			String arg2 = getStringFromPortOrProperty(runtime, properties, "y");		    
+//			String arg2 = (String) runtime.getInput(getName(), "y", String.class);		    
+//			if (arg2 == null)
+//				throw new SAWWorkflowException("No input 'x' for node " + getName());
 			
 			Invocable invocable = (Invocable) scriptEngine;
 
@@ -63,16 +67,22 @@ public class CompareNode extends SAWCustomNode {
 		return Collections.singletonMap(fname, arg1);			
 	}
 
-	protected String getCustomCode(Map<String, String> properties) {
-		return String.format("var f = function(arg1, arg2) { return Number(arg1) %s Number(arg2) ; }", getOperator(properties));
+	protected String getCustomCode(Map<String, String> properties, RuntimeData runtime) {
+		return String.format("var f = function(arg1, arg2) { return Number(arg1) %s Number(arg2) ; }", getOperator(properties, runtime));
 	}
 	
-	@Override public List<String> getDefaultInputNames() { return Arrays.asList("x", "y"); }
-	@Override public List<String> getDefaultOutputNames() { return Arrays.asList("true", "false"); }
-	@Override public List<String> getDefaultProperties() { return Arrays.asList("operator"); }
+	@Override public List<InputPortInfo> getDefaultInputs() { return Arrays.asList(new InputPortInfo("x"), new InputPortInfo("y")); }
+	@Override public List<OutputPortInfo> getDefaultOutputs() { return Arrays.asList(new OutputPortInfo("true"), new OutputPortInfo("false")); }
+	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo("operator")); }
+//	@Override public List<String> getDefaultProperties() { return Arrays.asList("operator"); }
 	@Override public String getCategory() { return "Control"; }
 	
-	public String getOperator(Map<String, String> properties) {
-		return properties.get("operator");		
+	public String getOperator(Map<String, String> properties, RuntimeData runtime) {
+		String operator = properties.get("operator");
+		if (operator == null || operator.isEmpty()) {
+			operator = "==";
+			runtime.log().info(getName() + ": no operator specified, presuming \"" + operator + "\"");
+		}
+		return operator;		
 	}
 }

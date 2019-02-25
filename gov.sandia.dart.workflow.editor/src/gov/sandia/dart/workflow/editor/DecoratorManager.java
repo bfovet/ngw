@@ -16,14 +16,14 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.graphiti.tb.IDecorator;
 
-class DecoratorManager  {
+public class DecoratorManager  {
 	private static Map<String, Map<EObject, IDecorator>> decorators = new HashMap<>();
 
 	public static synchronized  Map<EObject, IDecorator> getDecoratorMap(Resource eResource) {
 		String tag = eResource.toString();
 		Map<EObject, IDecorator> map = decorators.get(tag);
 		if (map == null) {
-			decorators.put(tag, map = new HashMap<EObject, IDecorator>());
+			decorators.put(tag, map = new HashMap<>());
 		}
 		return map;
 	}

@@ -20,4 +20,5 @@ public interface IWorkflowListener {
 	void nodeAborted(String name, String workflow, Throwable t);
 	void workflowStarted(String workflow);
 	void workflowStopped(String workflow);
+	void status(String name, String workflow, String status);
 }

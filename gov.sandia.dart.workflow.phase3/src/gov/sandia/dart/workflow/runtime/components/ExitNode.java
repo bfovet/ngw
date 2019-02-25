@@ -9,6 +9,8 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.runtime.components;
 
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -40,8 +42,9 @@ public class ExitNode extends SAWCustomNode {
 		return properties.get("formatString");
 	}
 
-	@Override public List<String> getDefaultInputNames() { return Collections.singletonList("x"); }
-	@Override public List<String> getDefaultProperties() { return Arrays.asList("formatString"); }
+	@Override public List<InputPortInfo> getDefaultInputs() { return Collections.singletonList(new InputPortInfo("x")); }
+	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo("formatString")); }
+//	@Override public List<String> getDefaultProperties() { return Arrays.asList("formatString"); }
 
 	@Override
 	public String getCategory() {

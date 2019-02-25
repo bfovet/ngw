@@ -9,46 +9,47 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.editor.features;
 
-import gov.sandia.dart.workflow.domain.Note;
-
+import org.eclipse.draw2d.IFigure;
+import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.IDirectEditingContext;
 import org.eclipse.graphiti.features.impl.AbstractDirectEditingFeature;
-import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
-import org.eclipse.graphiti.mm.algorithms.MultiText;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.mm.pictograms.Shape;
+import org.eclipse.graphiti.ui.platform.ICellEditorProvider;
+import org.eclipse.jface.viewers.CellEditor;
+import org.eclipse.jface.viewers.TextCellEditor;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+
+import gov.sandia.dart.workflow.domain.Note;
+import gov.sandia.dart.workflow.editor.WorkflowEditorPlugin;
+import gov.sandia.dart.workflow.editor.rendering.NoteGARenderer;
  
-public class DirectEditNoteFeature extends AbstractDirectEditingFeature {
+public class DirectEditNoteFeature extends AbstractDirectEditingFeature implements ICellEditorProvider {
  
-    public DirectEditNoteFeature(IFeatureProvider fp) {
+    private Note note;
+
+	public DirectEditNoteFeature(IFeatureProvider fp, Note note) {
         super(fp);
+		this.note = note;
     }
  
     @Override
 	public int getEditingType() {
-        // there are several possible editor-types supported:
-        // text-field, checkbox, color-chooser, combobox, ...
-        return TYPE_TEXT;
+        return TYPE_CUSTOM;
     }
  
     @Override
     public boolean canDirectEdit(IDirectEditingContext context) {
         PictogramElement pe = context.getPictogramElement();
         Object bo = getBusinessObjectForPictogramElement(pe);
-        GraphicsAlgorithm ga = context.getGraphicsAlgorithm();
-        // support direct editing, if it is a WFNode, and the user clicked
-        // directly on the text and not somewhere else in the rectangle
-        if (bo instanceof Note && ga instanceof MultiText) {
-            return true;
-        }
-        // direct editing not supported in all other cases
-        return false;
+        return bo instanceof Note;
     }
  
     @Override
 	public String getInitialValue(IDirectEditingContext context) {
-        // return the current name of the WFNode
         PictogramElement pe = context.getPictogramElement();
         Note note = (Note) getBusinessObjectForPictogramElement(pe);
         return note.getText();
@@ -56,16 +57,13 @@ public class DirectEditNoteFeature extends AbstractDirectEditingFeature {
  
     @Override
     public String checkValueValid(String value, IDirectEditingContext context) {
-        if (value.length() < 1)
-            return "Please enter text for note.";
- 
-        // null means, that the value is valid
+        // null means that the value is valid
         return null;
     }
  
     @Override
 	public void setValue(String value, IDirectEditingContext context) {
-        // set the new name for the WFNode
+        // set the new text for the note
         PictogramElement pe = context.getPictogramElement();
         Note note = (Note) getBusinessObjectForPictogramElement(pe);
         note.setText(value);
@@ -78,4 +76,26 @@ public class DirectEditNoteFeature extends AbstractDirectEditingFeature {
         // main shape of the WFNode
         updatePictogramElement(((Shape) pe).getContainer());
     }
+    
+    @Override
+    public boolean stretchFieldToFitText() {
+    	return true;
+    }
+
+	@Override
+	public CellEditor createCellEditor(Composite parent) {
+		TextCellEditor tce = new TextCellEditor(parent, SWT.MULTI | SWT.WRAP);
+		return tce;
+	}
+
+	@Override
+	public void relocate(CellEditor cellEditor, IFigure figure) {
+		Rectangle bounds = figure.getBounds();
+		Control control = cellEditor.getControl();
+		control.setLocation(bounds.x + NoteGARenderer.CORNER + 2, bounds.y + 2);
+		control.setSize(bounds.width - NoteGARenderer.CORNER - 4, bounds.height - 4);	
+		control.setFont(WorkflowEditorPlugin.getDefault().getNotesFont());
+		// TODO How to get the actual color??
+		control.setBackground(NoteGARenderer.getColor(note.getColor()));
+	}
 }

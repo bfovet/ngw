@@ -18,4 +18,7 @@ public interface IWorkflowEditorPreferences {
 	String NODE_TYPE_HEADERS = PREFIX + "node_type_headers";
 	String PORT_LABELS = PREFIX + "port_labels";
 	String EDITOR_FONT = PREFIX + "editor_font";
+	String CONNECTIONS_BEHIND = PREFIX + "connections_behind";
+	String TRANSLUCENT_COMPONENTS = PREFIX + "translucent_components";
+
 }

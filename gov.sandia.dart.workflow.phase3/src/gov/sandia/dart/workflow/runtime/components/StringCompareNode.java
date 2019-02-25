@@ -9,6 +9,9 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.runtime.components;
 
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
 import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
 import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
@@ -44,9 +47,9 @@ public class StringCompareNode extends SAWCustomNode {
 		return s.trim();
 	}
 	
-	@Override public List<String> getDefaultInputNames() { return Arrays.asList("x"); }
-	@Override public List<String> getDefaultOutputNames() { return Arrays.asList("true", "false"); }
-	@Override public List<String> getDefaultProperties() { return Arrays.asList("compareString"); }
+	@Override public List<InputPortInfo> getDefaultInputs() { return Arrays.asList(new InputPortInfo("x")); }
+	@Override public List<OutputPortInfo> getDefaultOutputs() { return Arrays.asList(new OutputPortInfo("true"), new OutputPortInfo("false")); }
+	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo("compareString")); }
 	@Override public String getCategory() { return "Control"; }
 	
 	public String getCompareString(Map<String, String> properties) {

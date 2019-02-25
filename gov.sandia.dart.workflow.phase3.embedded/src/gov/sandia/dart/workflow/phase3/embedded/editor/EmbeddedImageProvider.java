@@ -13,8 +13,7 @@ import org.eclipse.graphiti.ui.platform.AbstractImageProvider;
 
 public class EmbeddedImageProvider extends AbstractImageProvider {
 	 
-    public static final String PREFIX =  "gov.sandia.dart.workflow.js.bridge.";
-    public static final String FOLDER =  PREFIX + "folder";
+    public static final String PREFIX =  "gov.sandia.dart.workflow.phase3.embedded.";
     public static final String RUN =  PREFIX + "run";
 
 
@@ -26,7 +25,6 @@ public class EmbeddedImageProvider extends AbstractImageProvider {
  
     @Override
     protected void addAvailableImages() {
-        addImageFilePath(FOLDER, "icons/folder.png");
         addImageFilePath(RUN, "icons/i16play.png");
     }
 

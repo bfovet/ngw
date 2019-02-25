@@ -16,6 +16,7 @@ import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -38,7 +39,7 @@ public class RuntimeData {
 	File workDir;
 	private File homeDir;
 	private Object engine;
-	private IWorkflowMonitor monitor;
+	private List<IWorkflowMonitor> monitors;
 	private String sampleId = "DEFAULT";
 	
 	private PrintWriter out = new PrintWriter(System.out, true);
@@ -52,13 +53,16 @@ public class RuntimeData {
 	private ExecutorService executor = Executors.newCachedThreadPool();
 	private WorkflowProcess facade;
 	private Set<ICancelationListener> listeners = ConcurrentHashMap.newKeySet();
+	private Set<String> ranOK = ConcurrentHashMap.newKeySet();
+	private Set<String> aborted = ConcurrentHashMap.newKeySet();
+	private Set<String> globals = ConcurrentHashMap.newKeySet();
 
 	// Constructor is package-protected: only WorkflowProcess should create these.
-	RuntimeData(IWorkflowMonitor monitor, File homeDir, File workDir, Object engine, SAWWorkflowLogger log) {
+	RuntimeData(List<IWorkflowMonitor> monitors, File homeDir, File workDir, Object engine, SAWWorkflowLogger log) {
 		this.homeDir = homeDir;
 		this.workDir = workDir;
 		this.engine = engine;
-		this.monitor = monitor;
+		this.monitors = monitors;
 		this.log = log;
 	}
 		
@@ -82,11 +86,15 @@ public class RuntimeData {
 		return value;
 	}
 
-	synchronized void putInput(String node, String port, String outputType, Object value) {
+	// This is kind of hacky right now. "Purge" will only be true when putInput is called from an "or" node.
+	synchronized void putInput(boolean purge, String node, String port, String outputType, Object value) {
+				
 		Map<String, Datum> datums =  data.get(node);
 		if (datums == null)
 			data.put(node, datums = new HashMap<>());
-		
+
+		if (purge)
+			datums.clear();
 			
 		datums.put(port, new Datum(outputType, value, classOf(value)));		
 	}
@@ -118,8 +126,8 @@ public class RuntimeData {
 		return engine;
 	}
 	
-	public IWorkflowMonitor getWorkflowMonitor() {
-		return monitor;
+	public List<IWorkflowMonitor> getWorkflowMonitors() {
+		return monitors;
 	}
 
 	public IResponseWriter openResponseWriter(WorkflowDefinition workflow) throws IOException {
@@ -225,7 +233,7 @@ public class RuntimeData {
 					data.put(name, datums = new HashMap<>());
 				datums.put(port, nodeInputs.get(port));		
 			}
-		}
+		}		
 	}
 	
 	public void saveState() throws IOException {
@@ -280,16 +288,45 @@ public class RuntimeData {
 		}
 		return path;
 	}
-
-	public void setParameter(String name, Object value) {
+	
+	public void setParameter(String name, Object value, boolean global) {
 		parameters.put(name, value);
+		if (global)
+			globals.add(name);
 	}
 	
 	public Object getParameter(String name) {
 		return parameters.get(name);
 	}
 	
+	public boolean isGlobal(String name) {
+		return globals.contains(name);
+	}
+	
+	public static boolean isBuiltIn(String name) {
+		return WorkflowProcess.builtIns.contains(name);
+	}
+	
 	public Map<String, Object> getParameters() {
 		return parameters;
+	}
+
+	public void enterNode(SAWCustomNode node) {
+		ranOK.add(node.getName());
+		monitors.forEach(m -> m.enterNode(node, this));
+	}
+
+	public void exitNode(SAWCustomNode node) {
+		monitors.forEach(m -> m.exitNode(node, this));		
+	}
+	
+	public void status(SAWCustomNode node, Object status) {
+		monitors.forEach(m -> m.status(node, this, status));
+	}
+
+	public void abortNode(SAWCustomNode node, Throwable t) {
+		// TODO Keep exception too?
+		aborted.add(node.getName());
+		monitors.forEach(m -> m.abortNode(node, this, t));
 	}
 }

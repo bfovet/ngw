@@ -17,6 +17,10 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.NodeCategories;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
 import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
 import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
@@ -37,6 +41,7 @@ public class PrintNode extends SAWCustomNode {
 			for (InputPort port: values) {
 
 				String arg1 = (String) runtime.getInput(getName(), port.name, String.class);
+				// TODO If connected input gives null, should we throw?
 				if (arg1 != null) {
 					String result = arg1.trim();
 					if (StringUtils.isNotEmpty(formatString)) {
@@ -52,13 +57,13 @@ public class PrintNode extends SAWCustomNode {
 	}
 
 	public String getFormatString(RuntimeData runtime, Map<String, String> properties) {
-		return getStringFromPortOrProperty(runtime, properties, "formatString");
+		return getOptionalStringFromPortOrProperty(runtime, properties, "formatString");
 	}
 
-	@Override public List<String> getDefaultOutputNames() { return Collections.singletonList("f"); }
-	@Override public List<String> getDefaultInputNames() { return Collections.singletonList("x"); }
-	@Override public List<String> getDefaultProperties() { return Arrays.asList("formatString"); }
-
+	@Override public List<OutputPortInfo> getDefaultOutputs() { return Collections.singletonList(new OutputPortInfo("f")); }
+	@Override public List<InputPortInfo> getDefaultInputs() { return Collections.singletonList(new InputPortInfo("x")); }
+	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo("formatString")); }
+	@Override public List<String> getCategories() { return Arrays.asList(NodeCategories.INPUT_OUTPUT); }
 
 
 }

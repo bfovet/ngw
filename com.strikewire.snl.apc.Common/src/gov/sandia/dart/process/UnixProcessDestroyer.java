@@ -37,6 +37,7 @@ class UnixProcessDestroyer implements ProcessDestroyer {
 				pp.waitFor();
 			} catch (Exception e) {
 				// FALL THROUGH
+				System.out.println("Can't kill process tree");
 				e.printStackTrace();
 			}
 		}
@@ -56,6 +57,7 @@ class UnixProcessDestroyer implements ProcessDestroyer {
 				}
 			}
 		} catch (Exception sx) {
+			System.out.println("Can't get process pid");
 			// FALL THROUGH
 		}
 		return -1;

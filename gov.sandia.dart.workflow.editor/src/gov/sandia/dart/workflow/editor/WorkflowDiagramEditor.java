@@ -12,12 +12,15 @@ package gov.sandia.dart.workflow.editor;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -32,6 +35,8 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.draw2d.Layer;
+import org.eclipse.draw2d.LayeredPane;
 import org.eclipse.emf.common.command.CommandStack;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.impl.AdapterImpl;
@@ -43,13 +48,18 @@ import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.emf.transaction.util.TransactionUtil;
 import org.eclipse.gef.DefaultEditDomain;
 import org.eclipse.gef.GraphicalViewer;
+import org.eclipse.gef.LayerConstants;
+import org.eclipse.gef.editparts.FreeformGraphicalRootEditPart;
 import org.eclipse.gef.editparts.ZoomManager;
 import org.eclipse.gef.palette.PaletteRoot;
 import org.eclipse.gef.ui.views.palette.PaletteView;
 import org.eclipse.graphiti.dt.IDiagramTypeProvider;
 import org.eclipse.graphiti.examples.common.FileService;
+import org.eclipse.graphiti.features.IFeatureProvider;
+import org.eclipse.graphiti.mm.pictograms.Connection;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
 import org.eclipse.graphiti.services.Graphiti;
+import org.eclipse.graphiti.tb.IToolBehaviorProvider;
 import org.eclipse.graphiti.ui.editor.DiagramBehavior;
 import org.eclipse.graphiti.ui.editor.DiagramComposite;
 import org.eclipse.graphiti.ui.editor.DiagramEditor;
@@ -57,19 +67,15 @@ import org.eclipse.graphiti.ui.editor.DiagramEditorInput;
 import org.eclipse.graphiti.ui.editor.IDiagramContainerUI;
 import org.eclipse.graphiti.ui.services.GraphitiUi;
 import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
-import org.eclipse.jface.viewers.ArrayContentProvider;
-import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -83,6 +89,7 @@ import org.eclipse.swt.widgets.Link;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
@@ -97,16 +104,18 @@ import com.strikewire.snl.apc.selection.MultiControlSelectionProvider;
 import com.strikewire.snl.apc.temp.TempFileManager;
 import com.strikewire.snl.apc.util.ResourceUtils;
 
+import gov.sandia.dart.workflow.domain.WFArc;
 import gov.sandia.dart.workflow.domain.WFNode;
+import gov.sandia.dart.workflow.editor.preferences.IWorkflowEditorPreferences;
+import gov.sandia.dart.workflow.editor.settings.WFArcSettingsEditor;
 import gov.sandia.dart.workflow.util.PropertyUtils;
 import gov.sandia.dart.workflow.util.WorkflowUtils;
 
 public class WorkflowDiagramEditor extends DiagramEditor implements IPropertyChangeListener  {
 
 	public static final String ID = "gov.sandia.dart.workflow.editor.WorkflowDiagramEditor";
-	private Label iconLabel;
 	private Label messageLabel;
-	private ComboViewer runLocationCombo;
+	private SubdirSelectionCombo runLocationCombo;
 	private AtomicReference<IFile> _baseFile = new AtomicReference<>();
 	private Composite _pathComposite;
 	private Composite _mainComposite;
@@ -150,29 +159,22 @@ public class WorkflowDiagramEditor extends DiagramEditor implements IPropertyCha
 		contentsLayout.verticalSpacing = 0;
 		contents.setLayout(contentsLayout);
 
-		Composite statusLine = new Composite(contents, SWT.NONE);
-		statusLine.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		statusLine.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
+		Composite runLocationLine = new Composite(contents, SWT.NONE);
+		runLocationLine.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		runLocationLine.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
 
-		GridLayout statusLayout = new GridLayout(3, false);
-		statusLayout.verticalSpacing = 0;
-		statusLine.setLayout(statusLayout);		
-
-		iconLabel = new Label(statusLine, SWT.NONE);
-		iconLabel.setImage(getImage("icons/white_square.png"));		
-		iconLabel.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
-		iconLabel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
+		GridLayout runLocationLayout = new GridLayout(2, false);
+		runLocationLayout.verticalSpacing = 0;
+		runLocationLine.setLayout(runLocationLayout);		
 		
-		messageLabel = new Label(statusLine, SWT.NONE);
-		messageLabel.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
-		messageLabel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		Label runLabel = new Label(runLocationLine, SWT.NONE);
+		runLabel.setText("Run in:");
+		runLabel.setLayoutData(new GridData(SWT.END, SWT.FILL, false, false));
 
-		CCombo combo = new CCombo(statusLine, SWT.NONE);
-		runLocationCombo = new ComboViewer(combo);
-		combo.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
+		CCombo combo = new CCombo(runLocationLine, SWT.BORDER);
+		runLocationCombo = new SubdirSelectionCombo(combo);
 		combo.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));			
-		runLocationCombo.setContentProvider(new ArrayContentProvider());
-		runLocationCombo.setLabelProvider(new DatedPathLabelProvider());
+		runLocationCombo.getCCombo().addModifyListener(e -> updateHasRunData());
 		
 		_pathComposite = new Composite(contents, SWT.NONE);
 		_pathComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
@@ -202,40 +204,51 @@ public class WorkflowDiagramEditor extends DiagramEditor implements IPropertyCha
 		if (file != null) {
 			updateRunLocationLabelFromMarker(file);	
 		}
-		
+		messageLabel = new Label(contents, SWT.NONE);
+		messageLabel.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
+		messageLabel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 	}
 			
-	private Image getImage(String path) {
-		ImageRegistry registry = WorkflowEditorPlugin.getDefault().getImageRegistry();
-		Image image = registry.get(path);
-		if (null == image) {
-			ImageDescriptor desc = WorkflowEditorPlugin.getImageDescriptor(path); 
-			registry.put(path, desc);
-			image = registry.get(path);
+	/**
+	 * This belongs in the embedded plugin, but how?
+	 * @return
+	 */
+	private Object updateHasRunData() {
+		IToolBehaviorProvider provider = getDiagramTypeProvider().getCurrentToolBehaviorProvider();
+		if (provider instanceof WorkflowToolBehaviorProvider) {
+			WorkflowToolBehaviorProvider wtbp = (WorkflowToolBehaviorProvider) provider;
+			IFile workflowFile = getWorkflowFile();
+			wtbp.clearExecutingNodes(workflowFile.getName());
+			IPath path = runLocationCombo.getPath();
+			File workdir = new File(path.toOSString());
+			if (workdir.exists()) {				
+				File status = new File(workdir, "workflow.status.log");
+				if (status.exists()) {
+					try (FileReader sr = new FileReader(status)) {
+						for (String s: IOUtils.readLines(sr)) {
+							if (s.startsWith("ENTER: ")) {
+								wtbp.nodeEntered(s.substring("ENTER: ".length()), workflowFile.getName());
+							} else if (s.startsWith("EXIT: ")) {
+								wtbp.nodeExited(s.substring("EXIT: ".length()), workflowFile.getName());
+							} else if (s.startsWith("ABORT: ")) {
+								wtbp.nodeAborted(s.substring("ABORT: ".length()), workflowFile.getName(), new Exception());
+							}
+						}
+					} catch (IOException e) {
+						WorkflowEditorPlugin.getDefault().logError("Failed to read status", e);
+					}
+				}
+			}
 		}
-		return image;
+		getDiagramTypeProvider().getDiagramBehavior().refresh();
+		return null;
 	}
 	
 	public void clearStatus() {
-		iconLabel.setImage(null);
 		messageLabel.setText("");
 	}
 	
-	public void setStatus(String lastNode, boolean success) {
-		String icon = "icons/blue_ball.png";
-		String message = "Unknown";
-		if (success) {
-			icon = "icons/green_ball_check.png";
-			message = "Workflow completed successfully";
-		} else if (!success) {
-			icon = "icons/green_ball.png";
-			if (lastNode == null)
-				message = "Workflow executing";
-			else
-				message = "Workflow executing node " + lastNode;		
-		}
-
-		iconLabel.setImage(getImage(icon));
+	public void setStatus(String message) {
 		messageLabel.setText(message);
 	}
 		
@@ -248,6 +261,28 @@ public class WorkflowDiagramEditor extends DiagramEditor implements IPropertyCha
 		if (file != null && file.exists() && runLocationCombo != null) {
 			updateRunLocationLabelFromMarker(file);
 		}
+		// Would like to do this in persistency behavior but don't know how
+		Diagram d = getDiagramTypeProvider().getDiagram();
+		IFeatureProvider fp = getDiagramTypeProvider().getFeatureProvider();
+		TransactionalEditingDomain editingDomain = getEditingDomain();				
+		final CommandStack commandStack = editingDomain.getCommandStack();
+		commandStack.execute(new RecordingCommand(editingDomain) {
+			@Override
+			protected void doExecute() {
+				for (Connection c: getDiagramTypeProvider().getDiagram().getConnections()) {
+					Object bo = getDiagramTypeProvider().getFeatureProvider().getBusinessObjectForPictogramElement(c);
+					if (bo instanceof WFArc) {
+						WFArcSettingsEditor.updateConnectionAppearance(d, fp, (WFArc) bo);
+					}
+				}
+			}
+		});
+		try {
+			doSave(null);
+		} catch (Exception e) {
+			// MUST NOT FAIL
+		}
+
 	}
 
 	private IFile getWorkflowFile() {
@@ -395,6 +430,13 @@ public class WorkflowDiagramEditor extends DiagramEditor implements IPropertyCha
 		getGraphicalViewer().getRootEditPart().refresh();
 	}
 	
+	@Override
+	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
+		super.selectionChanged(part, selection);
+		getGraphicalViewer().getRootEditPart().getViewer().getControl().redraw();
+		getGraphicalViewer().getRootEditPart().refresh();
+	}
+	
 	// TODO Change this to a URI after it's working
 	public void setRunLocation(File folder) {
 		final IFile workflowFile = getWorkflowFile();
@@ -421,9 +463,25 @@ public class WorkflowDiagramEditor extends DiagramEditor implements IPropertyCha
 	
 	public File getRunLocation() {
 		if (StringUtils.isEmpty(runLocationCombo.getCCombo().getText())) {
-			return getWorkflowFile().getParent().getLocation().toFile();
+			File runLocation = getWorkflowFile().getParent().getLocation().toFile();
+			String subdirName = getPartName();
+			
+			int extIndex = subdirName.indexOf('.');
+			if(extIndex > 0) {
+				subdirName = subdirName.substring(0,  extIndex);
+			}
+			
+			int index = 0;
+
+			File testLocation = new File(runLocation, subdirName);		
+			while(testLocation.exists()) {
+				index++;
+				testLocation = new File(runLocation, subdirName + "(" + index + ")");
+			}
+			
+			return testLocation;
 		}
-		File folder = new File(runLocationCombo.getCCombo().getText());
+		File folder = new File(runLocationCombo.getPath().toOSString());
 		if (folder.isAbsolute()) {
 			return folder;
 		} else {
@@ -432,14 +490,8 @@ public class WorkflowDiagramEditor extends DiagramEditor implements IPropertyCha
 	}
 	
 	private void updateRunLocationLabelFromMarker(IFile file) {
-		try {
-			
-			List<DatedPath> content = WorkflowUtils.getRunLocationMarkers(file);
-			
-			runLocationCombo.setInput(content);
-			if (content.size() > 0) {
-				runLocationCombo.getCCombo().select(0);
-			}
+		try {			
+			runLocationCombo.setInput(file);
 		} catch (Exception e) {
 			WorkflowEditorPlugin.getDefault().logError("Problem getting run location marker", e);
 		}
@@ -475,6 +527,7 @@ public class WorkflowDiagramEditor extends DiagramEditor implements IPropertyCha
 		private final String _property;
 		private final DiagramEditorInput _input;
 		private Link _lnk;
+		private Label _arrow;
 		private MyDiagramComposite _diagram;
 		private ISelectionProviderWithFocusListener _wrappedProvider;
 		
@@ -483,9 +536,8 @@ public class WorkflowDiagramEditor extends DiagramEditor implements IPropertyCha
 			this._parentNode = parentNode;
 			this._property = property;
 			
-			// TODO unique temp dir/file names...
 			IFolder tmpDir = TempFileManager.getUniqueTempDir();
-			IFile tmpFile = tmpDir.getFile("tmp.wf.file");
+			IFile tmpFile = tmpDir.getFile(parentNode.getName()+".iwf.tmp");
 			
 			if(tmpFile.exists())
 			{
@@ -596,6 +648,15 @@ public class WorkflowDiagramEditor extends DiagramEditor implements IPropertyCha
 				}
 				_lnk = null;
 			}
+			
+			if(_arrow != null)
+			{
+				if(!_arrow.isDisposed())
+				{
+					_arrow.dispose();
+				}
+				_arrow = null;
+			}
 		}
 		
 		private void makeButton()
@@ -606,10 +667,11 @@ public class WorkflowDiagramEditor extends DiagramEditor implements IPropertyCha
 				addTopFileButton();
 			}
 			
-			Label arrow = new Label(_pathComposite, SWT.NONE);
-			arrow.setText(">");
+			_arrow = new Label(_pathComposite, SWT.NONE);
+			_arrow.setText(">");
 			_lnk = new Link(_pathComposite, SWT.NONE);
 			_lnk.setText("<a>"+_parentNode.getName()+"</a>");
+			_lnk.setToolTipText(_parentNode.getLabel());
 			_lnk.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
@@ -626,6 +688,7 @@ public class WorkflowDiagramEditor extends DiagramEditor implements IPropertyCha
 			
 			IFile baseFile = getBaseFile();
 			lnk.setText("<a>"+baseFile.getName()+"</a>");
+			lnk.setToolTipText("Root Workflow File");
 			lnk.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
@@ -770,6 +833,22 @@ public class WorkflowDiagramEditor extends DiagramEditor implements IPropertyCha
 		{
 			return (MyWorkflowDiagramBehavior) super.getDiagramBehavior();
 		}
+		
+		@Override
+		public void configureGraphicalViewer() {
+			super.configureGraphicalViewer();
+			if (WorkflowEditorPlugin.getDefault().getPreferenceStore().getBoolean(IWorkflowEditorPreferences.CONNECTIONS_BEHIND)) {
+				try {
+					GraphicalViewer viewer = getGraphicalViewer();
+					pushConnectionsToBack(viewer);
+					
+				} catch (Exception e) {
+					// Oh well, something has changed. Connections will be in front.
+					WorkflowEditorPlugin.getDefault().logWarning("Unable to move connection layer behind figures in nested workflow", e);
+				}
+			}		
+
+		}
 	}
 	
 	private static class MyWorkflowDiagramBehavior extends WorkflowDiagramBehavior
@@ -806,4 +885,45 @@ public class WorkflowDiagramEditor extends DiagramEditor implements IPropertyCha
 		}
 	}
 	
+	
+	@Override
+	public void configureGraphicalViewer() {
+		super.configureGraphicalViewer();
+		if (WorkflowEditorPlugin.getDefault().getPreferenceStore().getBoolean(IWorkflowEditorPreferences.CONNECTIONS_BEHIND)) {
+			try {
+				GraphicalViewer viewer = getGraphicalViewer();
+				pushConnectionsToBack(viewer);
+				
+			} catch (Exception e) {
+				// Oh well, something has changed. Connections will be in front.
+				WorkflowEditorPlugin.getDefault().logWarning("Unable to move connection layer behind figures", e);
+			}
+		}		
+	}
+
+	/**
+	 * By putting the connection layer before the primary in the layer stack, we
+	 * can make GEF draw connections underneath the other figures. We could do
+	 * this by overriding createPrintableLayers in a custom RootEditPane, and
+	 * calling setRootEditPart on the GraphicalViewer, but unfortunately Graphiti
+	 * already provides one, in an internal class.
+	 */
+
+	private static void pushConnectionsToBack(GraphicalViewer viewer)
+			throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+		// The main layered pane contains several sub-layered panes; the middle one contains the "printable layers."
+		// We're just getting that "sub-stack."
+		FreeformGraphicalRootEditPart rootEditPart = (FreeformGraphicalRootEditPart) viewer.getRootEditPart();
+		Method m = FreeformGraphicalRootEditPart.class.getDeclaredMethod("getPrintableLayers");
+		m.setAccessible(true);
+		
+		LayeredPane pane = (LayeredPane) m.invoke(rootEditPart);
+		Layer primary = pane.getLayer(LayerConstants.PRIMARY_LAYER);		
+		Layer connections = pane.getLayer(LayerConstants.CONNECTION_LAYER);		
+		
+		// The reason we're here; move the connection layer in the stack.
+		pane.remove(connections);
+		pane.addLayerAfter(connections, LayerConstants.CONNECTION_LAYER, primary);
+	}
+
 }

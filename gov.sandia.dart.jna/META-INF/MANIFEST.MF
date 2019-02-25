@@ -2,16 +2,17 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Java Native Access (JNA)
 Bundle-SymbolicName: gov.sandia.dart.jna
-Bundle-Version: 4.2.0
+Bundle-Version: 4.5
 Bundle-ClassPath: .,
- lib/jna-4.2.2.jar,
- lib/jna-platform-4.2.2.jar
+ lib/jna-4.5.2.jar,
+ lib/jna-platform-4.5.2.jar
 Export-Package: com.sun.jna,
  com.sun.jna.darwin,
  com.sun.jna.platform,
  com.sun.jna.platform.dnd,
  com.sun.jna.platform.mac,
  com.sun.jna.platform.unix,
+ com.sun.jna.platform.unix.solaris,
  com.sun.jna.platform.win32,
  com.sun.jna.platform.win32.COM,
  com.sun.jna.platform.win32.COM.tlb,

@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
 import gov.sandia.dart.workflow.runtime.core.WorkflowProcess;
 
 /**
@@ -39,8 +40,6 @@ public interface WorkflowConductor extends Iterable<Map<String, String>>, Iterat
 
 	void setProperties(Map<String, String> properties);
 	
-	List<String> getDefaultProperties();
-	
-	List<String> getDefaultPropertyTypes();
+	List<PropertyInfo> getDefaultProperties();
 
 }

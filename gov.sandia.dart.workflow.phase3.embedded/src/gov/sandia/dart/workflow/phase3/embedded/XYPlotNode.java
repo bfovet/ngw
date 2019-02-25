@@ -9,6 +9,9 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.phase3.embedded;
 
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
 import gov.sandia.dart.chart.xyplot.expression.FunctionBuilder;
 import gov.sandia.dart.chart.xyplot.ui.view.NebulaXYPlotView;
 import gov.sandia.dart.chart.xyplot.ui.view.Plottable;
@@ -103,9 +106,9 @@ public class XYPlotNode extends SAWCustomNode {
 		return Collections.singletonMap("f", true);
 	}
 	
-	@Override public List<String> getDefaultProperties() { return Arrays.asList("title"); }
-	@Override public List<String> getDefaultInputNames() { return Arrays.asList("x", "y"); }
-	@Override public List<String> getDefaultOutputNames() { return Arrays.asList("f"); }
+	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo("title")); }
+	@Override public List<InputPortInfo> getDefaultInputs() { return Arrays.asList(new InputPortInfo("x"), new InputPortInfo("y")); }
+	@Override public List<OutputPortInfo> getDefaultOutputs() { return Arrays.asList(new OutputPortInfo("f")); }
 	
 	
 	@Override

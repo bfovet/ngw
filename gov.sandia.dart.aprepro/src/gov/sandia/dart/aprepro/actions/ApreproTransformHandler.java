@@ -10,6 +10,7 @@
 package gov.sandia.dart.aprepro.actions;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
@@ -302,8 +303,8 @@ public class ApreproTransformHandler extends AbstractHandler {
 	}
 
 	private String getContents(IFile file) {
-		try {
-			return IOUtils.toString(file.getContents(), Charset.defaultCharset());
+		try (InputStream stream = file.getContents()){
+			return IOUtils.toString(stream, Charset.defaultCharset());
 		} catch (IOException | CoreException e) {
 			ApreproPlugin.getDefault().logError("Problem reading transformed file", e);
 			return "";

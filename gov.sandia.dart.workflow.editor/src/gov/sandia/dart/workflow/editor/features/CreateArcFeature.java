@@ -32,6 +32,7 @@ import gov.sandia.dart.workflow.domain.ResponseArc;
 import gov.sandia.dart.workflow.domain.WFArc;
 import gov.sandia.dart.workflow.domain.WFNode;
 import gov.sandia.dart.workflow.editor.WorkflowImageProvider;
+import gov.sandia.dart.workflow.editor.settings.NOWPSettingsEditorUtils;
 import gov.sandia.dart.workflow.util.ParameterUtils;
 import gov.sandia.dart.workflow.util.PropertyUtils;
  
@@ -143,18 +144,19 @@ public class CreateArcFeature extends
 	}
 	protected Connection connectToNodeOnNewPort(ICreateConnectionContext context, OutputPort source, WFNode nTarget) {
 		Connection newConnection;
-		// Creating the new port is easy enough, but...
 		String  inputPortName = getPortName(source);
 		Optional<InputPort> oPort = nTarget.getInputPorts().stream().filter(x -> x.getName().equals(inputPortName)).findFirst();
 		InputPort port;
-		if (!oPort.isPresent()) {
+		if (oPort.isPresent() && oPort.get().getArcs().isEmpty()) {
+			port = oPort.get();
+			
+		} else {
 			port = DomainFactory.eINSTANCE.createInputPort();			
-			port.setName(inputPortName);
+			port.setName(NOWPSettingsEditorUtils.createUniqueName(inputPortName, nTarget.getInputPorts()));
 			port.setType(getInputPortType(source));
 			nTarget.getInputPorts().add(port);
-		} else {
-			port = oPort.get();
 		}
+		
 		// Update the node, to create the anchors
 		List<PictogramElement> nodePe = Graphiti.getLinkService().getPictogramElements(getDiagram(), nTarget);
 		UpdateContext uc = new UpdateContext(nodePe.get(0));
@@ -240,7 +242,7 @@ public class CreateArcFeature extends
         PropertyUtils.setProperty(arc, PropertyUtils.LINK_INCOMING_FILE_TO_TARGET, "false");
         PropertyUtils.setProperty(arc, PropertyUtils.EXPAND_WILDCARDS, "false");
         PropertyUtils.setProperty(arc, PropertyUtils.READ_IN_FILE, "false");
-
+        PropertyUtils.setProperty(arc, PropertyUtils.COPY_INCOMING_FILE_TO_TARGET, "false");
 
         return arc;
    }

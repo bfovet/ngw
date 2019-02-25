@@ -11,6 +11,8 @@ package gov.sandia.dart.workflow.runtime.components;
 
 import java.util.Map;
 
+import gov.sandia.dart.workflow.runtime.core.NodeCategories;
+
 public class AcosNode extends AbstractUnaryFunctionNode {
 	@Override
 	protected String getCustomCode(Map<String, String> properties) {		
@@ -18,5 +20,5 @@ public class AcosNode extends AbstractUnaryFunctionNode {
 
 	}
 	
-	@Override public String getCategory() { return "Trig Functions"; }	
+	@Override public String getCategory() { return NodeCategories.SCALAR_OPS; }	
 }

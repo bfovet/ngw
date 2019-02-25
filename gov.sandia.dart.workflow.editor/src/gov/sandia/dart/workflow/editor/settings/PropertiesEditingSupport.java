@@ -9,10 +9,6 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.editor.settings;
 
-import gov.sandia.dart.workflow.domain.Property;
-import gov.sandia.dart.workflow.editor.WorkflowEditorPlugin;
-import gov.sandia.dart.workflow.editor.configuration.Prop;
-
 import java.util.Arrays;
 
 import org.eclipse.emf.common.notify.impl.NotificationImpl;
@@ -24,6 +20,10 @@ import org.eclipse.jface.viewers.ComboBoxCellEditor;
 import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TextCellEditor;
+
+import gov.sandia.dart.workflow.domain.Property;
+import gov.sandia.dart.workflow.editor.WorkflowEditorPlugin;
+import gov.sandia.dart.workflow.editor.configuration.Prop;
 
 public class PropertiesEditingSupport extends EditingSupport {
 

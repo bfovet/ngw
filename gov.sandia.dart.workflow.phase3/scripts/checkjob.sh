@@ -38,7 +38,7 @@ function msg() {
 function should_assume_completed() {
   local FL="dart.id"
   
-  if [[ !(-f "${FL}") || -n $(find "{$FL}" -min +5) ]]; then
+  if [[ !(-f "${FL}") || -n $(find "{$FL}" -mmin +5) ]]; then
     return 1
   else
     return 0

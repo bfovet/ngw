@@ -16,6 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
 import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
 import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
@@ -63,8 +65,8 @@ public class SetCheckpointNode extends SAWCustomNode {
 		}
 	}
 
-	@Override public List<String> getDefaultInputNames() { return Collections.singletonList("x"); }	
-	@Override public List<String> getDefaultOutputNames() { return Arrays.asList("f", "checkpointName"); }
+	@Override public List<InputPortInfo> getDefaultInputs() { return Collections.singletonList(new InputPortInfo("x")); }	
+	@Override public List<OutputPortInfo> getDefaultOutputs() { return Arrays.asList(new OutputPortInfo("f"), new OutputPortInfo("checkpointName")); }
 
 	@Override
 	public String getCategory() {

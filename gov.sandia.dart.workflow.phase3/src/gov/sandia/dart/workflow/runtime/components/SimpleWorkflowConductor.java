@@ -15,10 +15,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
 import gov.sandia.dart.workflow.runtime.core.WorkflowProcess;
 
 public class SimpleWorkflowConductor implements WorkflowConductor {
-	private boolean firstTime = false;
+	protected boolean firstTime = false;
 	private Map<String, Object> responses;
 	public SimpleWorkflowConductor() {
 	}
@@ -26,7 +27,7 @@ public class SimpleWorkflowConductor implements WorkflowConductor {
 	@Override
 	public boolean hasNext() {
 		try {
-			return firstTime == true;
+			return firstTime;
 		} finally {
 			firstTime = false;
 		}
@@ -62,13 +63,7 @@ public class SimpleWorkflowConductor implements WorkflowConductor {
 	}
 
 	@Override
-	public List<String> getDefaultProperties() {
-		return Collections.emptyList();
-				
-	}
-	
-	@Override
-	public List<String> getDefaultPropertyTypes() {
+	public List<PropertyInfo> getDefaultProperties() {
 		return Collections.emptyList();
 	}
 }

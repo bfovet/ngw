@@ -44,10 +44,10 @@ public class useExisitingParameter extends ParameterHandler implements IHandler 
 			int length = endOffset - startOffset;
 	
 			// nothing is selected
-			if (length == 0) {
-				return false;
+			//if (length == 0) {
+			//	return false;
 				// how to throw an error?
-			}
+			//}
 	
 			String text = document.get(startOffset, length);
 			ApreproSubstitutor substitutor = new JaguarExistingParameterSubstitutor(document, text, startOffset, length);

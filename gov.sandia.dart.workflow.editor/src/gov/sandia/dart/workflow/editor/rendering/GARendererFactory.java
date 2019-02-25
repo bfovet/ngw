@@ -61,6 +61,8 @@ public class GARendererFactory implements IGraphicsAlgorithmRendererFactory {
 			return new PortGARenderer(rc, fp);
 		} else if (NoteGARenderer.ID.equals(id)) {
 			return new NoteGARenderer(rc, fp);
+		} else if (ImageGARenderer.ID.equals(id)) {
+			return new ImageGARenderer(rc, fp);
 		} else if (ResponseGARenderer.ID.equals(id)) {
 			return new ResponseGARenderer(rc, fp);
 		} 

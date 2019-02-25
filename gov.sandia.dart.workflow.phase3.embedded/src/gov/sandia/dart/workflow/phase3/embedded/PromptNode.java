@@ -9,6 +9,9 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.phase3.embedded;
 
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
 import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
 import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
@@ -48,9 +51,9 @@ public class PromptNode extends SAWCustomNode {
 		return Collections.singletonMap("f", result[0]);			
 	}
 	
-	@Override public List<String> getDefaultInputNames() { return Arrays.asList("x"); }
-	@Override public List<String> getDefaultOutputNames() { return Arrays.asList("f"); }
-	@Override public List<String> getDefaultProperties() { return Arrays.asList("question"); }
+	@Override public List<InputPortInfo> getDefaultInputs() { return Arrays.asList(new InputPortInfo("x")); }
+	@Override public List<OutputPortInfo> getDefaultOutputs() { return Arrays.asList(new OutputPortInfo("f")); }
+	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo("question")); }
 	@Override public String getCategory() { return "Control"; }
 	
 }

@@ -9,6 +9,10 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.runtime.components;
 
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.NodeCategories;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
 import java.io.File;
 import java.security.MessageDigest;
 import java.util.Arrays;
@@ -110,12 +114,9 @@ public class FileNode extends SAWCustomNode {
 			return false;
 	}
 
-	@Override public List<String> getDefaultInputNames() { return Arrays.asList(FILE_NAME, DATA_IN_PORT); }
-	@Override public List<String> getDefaultOutputNames() { return Arrays.asList(FILE_OUT_PORT, DATA_OUT_PORT); }
-	@Override public List<String> getDefaultOutputTypes() { return Arrays.asList("text", "default"); }
+	@Override public List<InputPortInfo> getDefaultInputs() { return Arrays.asList(new InputPortInfo(FILE_NAME), new InputPortInfo(DATA_IN_PORT)); }
+	@Override public List<OutputPortInfo> getDefaultOutputs() { return Arrays.asList(new OutputPortInfo(FILE_OUT_PORT, "text"), new OutputPortInfo(DATA_OUT_PORT, "default")); }
+	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo(FILE_NAME, "home_file"), new PropertyInfo("append", "boolean")); }
 
-	@Override public List<String> getDefaultProperties() { return Arrays.asList(FILE_NAME, "append"); }
-	@Override public List<String> getDefaultPropertyTypes() { return Arrays.asList("home_file", "boolean"); }
-
-	@Override public String getCategory() { return "Pipes"; }
+	@Override public String getCategory() { return NodeCategories.INPUT_OUTPUT; }
 }

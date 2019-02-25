@@ -9,12 +9,37 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.editor;
 
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.viewers.LabelProvider;
 
-class DatedPathLabelProvider extends LabelProvider {
+public class DatedPathLabelProvider extends LabelProvider {
 
+	IPath rootPath;
+	
+	public DatedPathLabelProvider() {
+		rootPath = null;
+	}
+	
+	public DatedPathLabelProvider(IPath rootPath) {
+		this.rootPath = rootPath;
+	}
+	
+	public void setRootPath(IPath rootPath) {
+		this.rootPath = rootPath;
+	}
+	
 	@Override
 	public String getText(Object element) {
-		return ((DatedPath) element).path;
+		IPath path = new Path(((DatedPath) element).path);
+		if(rootPath != null && rootPath.isPrefixOf(path)) {
+			IPath relPath = path.makeRelativeTo(rootPath);
+			if(relPath.isEmpty()) {
+				return path.toOSString();
+			}
+			return relPath.toOSString();
+		} else {		
+			return path.toOSString();
+		}
 	}
 }

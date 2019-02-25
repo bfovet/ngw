@@ -15,14 +15,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.function.Function;
 
 import org.apache.commons.lang3.StringUtils;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
-import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Logger;
 import com.jcraft.jsch.Session;
 
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
@@ -32,6 +31,8 @@ public class Remote {
 	private String user;
 	private Session session;
 	private String path;
+	private String jmpHost;
+	private String jmpUser;
 
 
 	public Remote(String host, String user) {
@@ -39,116 +40,196 @@ public class Remote {
 		this.user = user;
 	}
 
+	public Remote(String host, String user, String jmpHost, String jmpUser) {
+		this.host = host;
+		this.user = user;
+		this.jmpHost = jmpHost;
+		this.jmpUser = jmpUser;
+	}	
+
 	public void setPath(String path) {
-		this.path = path;
+		this.path = path.replaceAll("\\\\", "/");
 	}
-	
-	public void connect() throws JSchException {
+
+	public String getPath() {
+		return path;
+	}
+
+	public void connect() throws IOException  {
 		if (session != null) {
-			throw new JSchException("Already connected");
+			throw new IOException("Already connected");
 		}
-		
-		Logger logger = new JSchLogger(getLogLevel());
-		JSch.setLogger(logger);
 
-		String path = RuntimeData.getWFLIB();
-		System.setProperty("java.security.krb5.conf", new File(path, "krb5.conf").getAbsolutePath());
-		System.setProperty("java.security.auth.login.config", new File(path, "jaas.conf").getAbsolutePath());
-		System.setProperty("javax.security.auth.useSubjectCredsOnly", "false");
-		// System.setProperty("sun.security.krb5.debug", "true");
+		try {
+			String path = RuntimeData.getWFLIB();
+			System.setProperty("java.security.krb5.conf", new File(path, "krb5.conf").getAbsolutePath());
+			System.setProperty("java.security.auth.login.config", new File(path, "jaas.conf").getAbsolutePath());
+			System.setProperty("javax.security.auth.useSubjectCredsOnly", "false");
+			// System.setProperty("sun.security.krb5.debug", "true");
 
-		Session aSession = SessionManager.INSTANCE.getSession(user, host);
-		session = aSession;
+			Session aSession;
+			if (StringUtils.isNoneEmpty(jmpUser, jmpHost, user, host)) {
+				aSession = SessionManager.INSTANCE.getSession(user, host, jmpUser, jmpHost);
+			} else if (StringUtils.isNoneEmpty(user, host)) {			
+				aSession = SessionManager.INSTANCE.getSession(user, host);
+			} else {
+				throw new IOException("Cannot connect; user and host must both be specified");
+			}
+			session = aSession;
+		} catch (JSchException e) {
+			throw new IOException("Error connecting to remote host", e);
+		}
 	}
 
-	public String execute(String command, OutputStream err, RuntimeData runtime) throws JSchException, IOException {
-		Channel channel = session.openChannel("exec");
-		if (!StringUtils.isEmpty(path)) {
-			command = "cd " + path + "; " + command;
-		}
-		((ChannelExec) channel).setCommand(command);
+	public String execute(String command, OutputStream err, RuntimeData runtime) throws IOException {
+		Channel channel = null;
+		try {
+			channel = session.openChannel("exec");
+			if (!StringUtils.isEmpty(path)) {
+				command = "cd " + path + "; " + command;
+			}
+			((ChannelExec) channel).setCommand(command);
 
-		channel.setInputStream(null);
-		((ChannelExec) channel).setErrStream(err);
+			channel.setInputStream(null);
+			((ChannelExec) channel).setErrStream(err);
+			((ChannelExec) channel).setOutputStream(err);
 
-		InputStream in = channel.getInputStream();
-		channel.connect();
-		byte[] tmp = new byte[1024];
-		StringBuilder output = new StringBuilder();
-		while (!runtime.isCancelled()) {
-			while (in.available() > 0) {
-				int i = in.read(tmp, 0, 1024);
-				if (i < 0)
+
+			InputStream in = channel.getInputStream();
+			channel.connect();
+			byte[] tmp = new byte[1024];
+			StringBuilder output = new StringBuilder();
+			while (!runtime.isCancelled()) {
+				while (in.available() > 0) {
+					int i = in.read(tmp, 0, 1024);
+					if (i < 0)
+						break;
+					output.append(new String(tmp, 0, i));
+				}
+				if (channel.isClosed()) {
 					break;
-				output.append(new String(tmp, 0, i));
+				}
+				try {
+					Thread.sleep(1000);
+				} catch (Exception ee) {
+				}
 			}
-			if (channel.isClosed()) {
-				break;
-			}
-			try {
-				Thread.sleep(1000);
-			} catch (Exception ee) {
+			return output.toString();
+		} catch (JSchException e) {
+			throw new IOException("Error executing remote command", e);
+		} finally {
+			if (channel != null && 	channel.isConnected()) {
+				channel.disconnect();
 			}
 		}
-		channel.disconnect();
-		return output.toString();
 	}
 
-	public boolean upload(File lfile, String rfile, RuntimeData runtime)
-			throws IOException, JSchException {
-		if (!StringUtils.isEmpty(path)) {				
-			rfile = path + (path.endsWith("/") ? "" : "/") + rfile;
+	public void execute(String command, OutputStream err, Function<String, Void> callback, RuntimeData runtime) throws IOException {
+		Channel channel = null;
+		try {
+			channel = session.openChannel("exec");
+			if (!StringUtils.isEmpty(path)) {
+				command = "cd " + path + "; " + command;
+			}
+			((ChannelExec) channel).setCommand(command);
+
+			channel.setInputStream(null);
+			((ChannelExec) channel).setErrStream(err);
+			((ChannelExec) channel).setOutputStream(err);
+
+
+			InputStream in = channel.getInputStream();
+			channel.connect();
+			byte[] tmp = new byte[1024];
+			while (!runtime.isCancelled() && !Thread.interrupted()) {
+				while (in.available() > 0) {
+					int i = in.read(tmp, 0, 1024);
+					if (i < 0)
+						break;
+					callback.apply(new String(tmp, 0, i));
+				}
+				if (channel.isClosed()) {
+					break;
+				}
+				Thread.sleep(1000);
+			}
+		} catch (JSchException e) {
+			throw new IOException("Error executing remote command", e);
+		} catch (InterruptedException e) {
+			throw new IOException("Remote command interrupted", e);
+		} finally {
+			if (channel != null && channel.isConnected())
+				channel.disconnect();
 		}
-		String command = "scp -t " + rfile;
-		Channel channel = session.openChannel("exec");
-		((ChannelExec) channel).setCommand(command);
 
-		// get I/O streams for remote scp
-		OutputStream out = channel.getOutputStream();
-		InputStream in = channel.getInputStream();
+	}
 
-		channel.connect();
 
-		if (checkAck(in) != 0) {
-			return false;
-		}
+	public boolean upload(File lfile, String rfile, RuntimeData runtime) throws IOException {
+		Channel channel = null;
+		try {
+			if (!StringUtils.isEmpty(path)) {				
 
-		// send "C0644 filesize filename", where filename should not include '/'
-		long filesize = lfile.length();
-		command = "C0644 " + filesize + " " + lfile.getName() + "\n";
-		out.write(command.getBytes());
-		out.flush();
-		if (checkAck(in) != 0) {
-			return false;
-		}
+				rfile = path + (path.endsWith("/") ? "" : "/") + rfile;
+			}
+			String command = "scp -t " + rfile;
 
-		// send contents of lfile
-		FileInputStream fis = new FileInputStream(lfile);
-		byte[] buf = new byte[1024];
-		while (!runtime.isCancelled()) {
-			int len = fis.read(buf, 0, buf.length);
-			if (len <= 0)
-				break;
-			out.write(buf, 0, len);
-			out.flush();
-		}
-		fis.close();
-		fis = null;
-		if (!runtime.isCancelled()) {
-			// send '\0'
-			buf[0] = 0;
-			out.write(buf, 0, 1);
+			channel = session.openChannel("exec");
+
+			((ChannelExec) channel).setCommand(command);
+
+			// get I/O streams for remote scp
+			OutputStream out = channel.getOutputStream();
+			InputStream in = channel.getInputStream();
+
+			channel.connect();
+
+			if (checkAck(in) != 0) {
+				return false;
+			}
+
+			// send "C0644 filesize filename", where filename should not include '/'
+			long filesize = lfile.length();
+			command = "C0644 " + filesize + " " + lfile.getName() + "\n";
+			out.write(command.getBytes());
 			out.flush();
 			if (checkAck(in) != 0) {
 				return false;
 			}
-		}
-		out.close();
 
-		channel.disconnect();
-		return true;
+			// send contents of lfile
+			FileInputStream fis = new FileInputStream(lfile);
+			byte[] buf = new byte[1024];
+			while (!runtime.isCancelled()) {
+				int len = fis.read(buf, 0, buf.length);
+				if (len <= 0)
+					break;
+				out.write(buf, 0, len);
+				out.flush();
+			}
+			fis.close();
+			fis = null;
+			if (!runtime.isCancelled()) {
+				// send '\0'
+				buf[0] = 0;
+				out.write(buf, 0, 1);
+				out.flush();
+				if (checkAck(in) != 0) {
+					return false;
+				}
+			}
+			out.close();
+
+			return true;
+		} catch (JSchException e) {
+			throw new IOException("Error uploading file", e);
+		} finally {
+			if (channel != null && channel.isConnected())
+				channel.disconnect();
+		}
+
 	}
-	
+
 	public boolean disconnect() {
 		if (session != null) {
 			Session s = session;
@@ -160,22 +241,25 @@ public class Remote {
 		}
 	}
 
-	public boolean download(File lfile, String rfile, RuntimeData runtime) throws JSchException, IOException {
-		if (!StringUtils.isEmpty(path)) {				
-			rfile = path + (path.endsWith("/") ? "" : "/") + rfile;
-		}
-		String command = "scp -f " + rfile;
-		Channel channel = session.openChannel("exec");
-		((ChannelExec) channel).setCommand(command);
-
-		// get I/O streams for remote scp
-		OutputStream out = channel.getOutputStream();
-		InputStream in = channel.getInputStream();
-		FileOutputStream fos=null;
-
-		channel.connect();
-		
+	public boolean download(File lfile, String rfile, RuntimeData runtime) throws IOException {
+		Channel channel = null;
 		try {
+			if (!StringUtils.isEmpty(path)) {				
+
+				rfile = path + (path.endsWith("/") ? "" : "/") + rfile;
+			}
+			String command = "scp -f " + rfile;
+			channel = session.openChannel("exec");
+			((ChannelExec) channel).setCommand(command);
+
+			// get I/O streams for remote scp
+			OutputStream out = channel.getOutputStream();
+			InputStream in = channel.getInputStream();
+			FileOutputStream fos=null;
+
+			channel.connect();
+
+
 			byte[] buf = new byte[1024];
 
 			// send '\0'
@@ -243,7 +327,7 @@ public class Remote {
 					if (fos != null)
 						fos.close();
 				}
-				
+
 				if (!runtime.isCancelled()) {
 					if (checkAck(in) != 0) {
 						return false;
@@ -254,24 +338,22 @@ public class Remote {
 					out.flush();
 				}
 			}
-			
+
+
+			return true;
+		} catch (JSchException e) {
+			throw new IOException("Error dowloading file", e);
 		} finally {
-			channel.disconnect();
+			if (channel != null && channel.isConnected()) {	
+				channel.disconnect();
+			}
 		}
 
-		return true;
 	}
 
 
-	private int getLogLevel() {
-		String property = System.getProperty("com.jcraft.jsch.logLevel", String.valueOf(JSchLogger.WARN));
-		try {
-			return Integer.parseInt(property);
-		} catch (NumberFormatException ex) {
-			return JSchLogger.ERROR;
-		}
-	}
-	
+
+
 	private int checkAck(InputStream in) throws IOException {
 		int b=in.read();
 		// b may be 0 for success,

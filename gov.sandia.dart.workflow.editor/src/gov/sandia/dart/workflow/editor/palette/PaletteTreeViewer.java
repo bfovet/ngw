@@ -166,6 +166,7 @@ public class PaletteTreeViewer extends PaletteViewer {
 	 */
 	public Control createTreeControl(Composite parent) {
 		PatternFilter filter = new PatternFilter();
+		filter.setIncludeLeadingWildcard(true);
 		FilteredTree tree = new FilteredTree(parent, SWT.H_SCROLL | SWT.V_SCROLL, filter, true);
 		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		tree.getViewer().setContentProvider(new PaletteTreeContentProvider());

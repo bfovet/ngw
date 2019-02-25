@@ -17,10 +17,26 @@ import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.platform.ga.IGraphicsAlgorithmRenderer;
 import org.eclipse.graphiti.platform.ga.IRendererContext;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.TextLayout;
 import org.eclipse.swt.widgets.Display;
 
 public abstract class AbstractGARenderer extends RectangleFigure implements IGraphicsAlgorithmRenderer {
+
+	protected static void renderTextAbove(Graphics g, Rectangle r, String text) {
+		TextLayout tl = new TextLayout(Display.getCurrent());
+		tl.setWidth(r.width);	
+		tl.setAlignment(SWT.CENTER);
+		tl.setFont(g.getFont());
+		tl.setText(text == null ? "" : text);
+		int top = r.y;
+		int count = tl.getLineCount();
+		FontMetrics lineMetrics = tl.getLineMetrics(0);
+		top = r.y - (count * lineMetrics.getHeight()) - 5;
+		g.drawTextLayout(tl, r.x, top);	
+		
+		tl.dispose();
+	}
 
 	protected Insets defaultFigureInsets = new Insets(2);
 	protected IRendererContext rc;
@@ -36,7 +52,10 @@ public abstract class AbstractGARenderer extends RectangleFigure implements IGra
 		tl.setAlignment(SWT.CENTER);
 		tl.setFont(g.getFont());
 		tl.setText(text == null ? "" : text);
-		g.drawTextLayout(tl, r.x, r.y);	
+		FontMetrics lineMetrics = tl.getLineMetrics(0);
+		int top = r.y + r.height/2 - lineMetrics.getHeight() + 5;
+
+		g.drawTextLayout(tl, r.x, top);	
 		tl.dispose();
 	}
 

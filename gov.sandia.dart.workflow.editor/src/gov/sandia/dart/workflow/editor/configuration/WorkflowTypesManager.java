@@ -146,20 +146,29 @@ public class WorkflowTypesManager {
 		for (int i=0; i<nodeTypeElements.getLength(); ++i) {
 			Element nodeTypeE = (Element) nodeTypeElements.item(i);
 			final String name = nodeTypeE.getAttribute("name");
-			final String category = nodeTypeE.getAttribute("category");
+			//final String category = nodeTypeE.getAttribute("category");
 			String label = nodeTypeE.getAttribute("label");
 			String displayLabel = nodeTypeE.getAttribute("displayLabel");
-
-			NodeType nodeType = new NodeType(name, category);
+			
+			NodeType nodeType = new NodeType(name);
 			nodeType.setLabel(label);
 			nodeType.setDisplayLabel(displayLabel);
 			nodeTypes.put(nodeType.getName(), nodeType);
+			
+			NodeList categoryElements = nodeTypeE.getElementsByTagName("category");
+			List<String> categories = new ArrayList<>();
+			for (int j=0; j<categoryElements.getLength(); ++j) {
+				Element categoryE = (Element) categoryElements.item(j);
+				categories.add(categoryE.getAttribute("name"));
+			}
+			nodeType.setCategories(categories);
 			
 			NodeList inputElements = nodeTypeE.getElementsByTagName("input");
 			List<Input> inputs = new ArrayList<>();
 			for (int j=0; j<inputElements.getLength(); ++j) {
 				Element inputE = (Element) inputElements.item(j);
-				inputs.add(new Input(inputE.getAttribute("name"), inputE.getAttribute("type")));			}
+				inputs.add(new Input(inputE.getAttribute("name"), inputE.getAttribute("type")));
+			}
 			nodeType.setInputs(inputs);
 			
 			NodeList outputElements = nodeTypeE.getElementsByTagName("output");

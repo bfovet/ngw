@@ -14,6 +14,23 @@
       </key>
    </extension>
    
+      <extension
+         point="org.eclipse.ui.decorators">
+      <decorator
+            adaptable="false"
+            class="gov.sandia.dart.workflow.phase3.embedded.navigator.WorkflowRunDecorator"
+            id="gov.sandia.dart.workflow.phase3.embedded.workflowRunDecorator"
+            label="Workflow Run Decorator"
+            lightweight="true"
+            location="BOTTOM_RIGHT"
+            state="true">
+            <enablement>
+               <objectClass
+                     name="com.strikewire.snl.apc.projectexplorer.views.TreeObject">
+               </objectClass>
+            </enablement>
+          </decorator>
+   </extension>
    <extension
          point="org.eclipse.ui.menus">
 
@@ -176,7 +193,7 @@
                id="gov.sandia.dart.workflow.editor.toolbar">
             <command
                   commandId="gov.sandia.dart.workflow.editor.run"
-                  icon="icons/i16play.png"
+                  icon="icons/runinfolder.png"
                   style="push"
                   tooltip="Prompt for info and run the workflow inside SAW">
                <visibleWhen
@@ -219,7 +236,7 @@
                   </with>
                </visibleWhen>
             </command>
-         </toolbar>
+          </toolbar>
       </menuContribution>
      </extension>
       <extension
@@ -249,19 +266,6 @@
    		</imageProvider>
 	  </extension>
 
-	<extension
-   			point="org.eclipse.ui.newWizards">
-		<wizard
-        		category="gov.sandia.dart.workflow.wizards"
-				class="gov.sandia.dart.workflow.phase3.embedded.dakota.NewDakotaStudyWizard"
-				icon="icons/dakota16.png"
-				id="gov.sandia.dart.workflow.phase3.embedded.newDakotaWizard"
-				name="Dakota Study">
-			<description>
-				Create a new Dakota study file pre-configured to use the workflow engine as its driver.
-			</description>
-		</wizard>
-   </extension>
    
    <extension
          point="org.eclipse.ui.preferencePages">

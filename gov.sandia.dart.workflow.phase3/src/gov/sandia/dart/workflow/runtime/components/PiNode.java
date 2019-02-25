@@ -12,6 +12,7 @@ package gov.sandia.dart.workflow.runtime.components;
 import java.util.Collections;
 import java.util.Map;
 
+import gov.sandia.dart.workflow.runtime.core.NodeCategories;
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
 import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
 import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
@@ -26,6 +27,6 @@ public class PiNode extends SAWCustomNode {
 
 	@Override
 	public String getCategory() {
-		return "Trig Functions";
+		return NodeCategories.SCALAR_OPS;
 	}
 }

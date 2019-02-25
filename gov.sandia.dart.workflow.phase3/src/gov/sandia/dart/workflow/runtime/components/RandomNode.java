@@ -9,13 +9,17 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.runtime.components;
 
-import gov.sandia.dart.workflow.runtime.core.RuntimeData;
-import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
-import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
-
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.NodeCategories;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.RuntimeData;
+import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
+import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
 
 public class RandomNode extends SAWCustomNode {
 	@Override
@@ -25,8 +29,8 @@ public class RandomNode extends SAWCustomNode {
 		return Collections.singletonMap("f", result);			
 	}
 
-	@Override public List<String> getDefaultOutputNames() { return Collections.singletonList("f"); }
-	@Override public List<String> getDefaultInputNames() { return Collections.singletonList("x"); }
+	@Override public List<OutputPortInfo> getDefaultOutputs() { return Collections.singletonList(new OutputPortInfo("f")); }
+	@Override public List<InputPortInfo> getDefaultInputs() { return Collections.singletonList(new InputPortInfo("x")); }
 
-	@Override public String getCategory() { return "Sources"; }
+	@Override public List<String> getCategories() { return Arrays.asList(NodeCategories.SCALAR_OPS, "Sources"); }
 }	

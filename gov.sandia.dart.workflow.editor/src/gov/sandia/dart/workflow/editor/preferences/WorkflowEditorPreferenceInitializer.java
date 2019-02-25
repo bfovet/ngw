@@ -18,7 +18,10 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
 
 import gov.sandia.dart.workflow.editor.WorkflowEditorPlugin;
@@ -32,12 +35,10 @@ public class WorkflowEditorPreferenceInitializer extends
 	@Override
 	public void initializeDefaultPreferences() {
 		IPreferenceStore store = WorkflowEditorPlugin.getDefault().getPreferenceStore();
-		FontData[] fontData = Display.getDefault().getSystemFont().getFontData();
-		fontData[0].setHeight(9);
+		
+		FontData[] fontData = getDefaultDiagramFont();
 		PreferenceConverter.setDefault(store, FONT, fontData);
 		
-		fontData = Display.getDefault().getSystemFont().getFontData();
-		fontData[0].setHeight(9);
 		fontData[0].setStyle(SWT.ITALIC);
 		PreferenceConverter.setDefault(store, NOTES_FONT, fontData);
 
@@ -48,6 +49,33 @@ public class WorkflowEditorPreferenceInitializer extends
 		store.setDefault(PALETTE_FILE_DIR, new File(System.getProperty("user.home")).getAbsolutePath());		
 		store.setDefault(MANHATTAN_CONNECTIONS, false);
 		store.setDefault(PORT_LABELS, true);
+		store.setDefault(CONNECTIONS_BEHIND, true);
+		store.setDefault(TRANSLUCENT_COMPONENTS, true);
+
+	}
+	
+	private FontData[] getDefaultDiagramFont() {
+		// These are values for default 11-point font on Mac.
+		final int X = 36, Y = 13;
+		FontData[] fontData = Display.getDefault().getSystemFont().getFontData();
+		GC gc= new GC(Display.getDefault());		
+		FontData fd = fontData[0];
+		double lsq = Integer.MAX_VALUE;
+		int best = 5;
+		for (int i=5; i<13; i++) {
+			fd.setHeight(i);
+			Font test = new Font(Display.getDefault(), fd);
+			gc.setFont(test);
+			Point extent = gc.stringExtent("HELLO");
+			double distance = Math.pow(X-extent.x, 2) + Math.pow(Y-extent.y, 2);
+			if (distance < lsq) {
+				lsq = distance;
+				best = i;
+			}
+			test.dispose();
+		}
+		fd.setHeight(best);
+		return fontData;
 	}
 
 }

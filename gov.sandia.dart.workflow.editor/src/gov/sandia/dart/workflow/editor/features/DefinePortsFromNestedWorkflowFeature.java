@@ -33,8 +33,8 @@ import gov.sandia.dart.workflow.util.PropertyUtils;
 
 public class DefinePortsFromNestedWorkflowFeature extends AbstractFileReferenceFeature {
 
-	public DefinePortsFromNestedWorkflowFeature(IFeatureProvider fp) {
-		super(fp, "nestedWorkflow", "fileName");
+	public DefinePortsFromNestedWorkflowFeature(IFeatureProvider fp, String nodeType, String property) {
+		super(fp, nodeType, property);
 	}
 
 	@Override

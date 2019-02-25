@@ -69,7 +69,6 @@ public final class WorkflowDefinition {
 		public final String type;
 		public final List<Connection> connections = new ArrayList<>();
 		public final Map<String, Property> properties = new HashMap<>();
-		public boolean isConnected() { return connections.size() > 0; }
 	}
 	
 	public static class Connection {

@@ -9,6 +9,10 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.runtime.components;
 
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.NodeCategories;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -37,12 +41,9 @@ public class FolderNode extends SAWCustomNode {
 		return results;
 	}
 	
-	@Override public List<String> getDefaultInputNames() { return Arrays.asList(FOLDER_NAME); }
-	@Override public List<String> getDefaultOutputNames() { return Arrays.asList(FOLDER_OUT_PORT); }
-	@Override public List<String> getDefaultOutputTypes() { return Arrays.asList("text"); }
+	@Override public List<InputPortInfo> getDefaultInputs() { return Arrays.asList(new InputPortInfo(FOLDER_NAME)); }
+	@Override public List<OutputPortInfo> getDefaultOutputs() { return Arrays.asList(new OutputPortInfo(FOLDER_OUT_PORT, "text")); }
+	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo(FOLDER_NAME, "home_file")); }
 
-	@Override public List<String> getDefaultProperties() { return Arrays.asList(FOLDER_NAME); }
-	@Override public List<String> getDefaultPropertyTypes() { return Arrays.asList("home_file"); }
-
-	@Override public String getCategory() { return "Pipes"; }
+	@Override public String getCategory() { return NodeCategories.INPUT_OUTPUT; }
 }

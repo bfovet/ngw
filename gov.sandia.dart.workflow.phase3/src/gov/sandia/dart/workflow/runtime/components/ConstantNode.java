@@ -9,6 +9,9 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.runtime.components;
 
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
+import gov.sandia.dart.workflow.runtime.core.NodeCategories;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
 import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
 import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
@@ -29,8 +32,8 @@ public class ConstantNode extends SAWCustomNode {
 		return value;
 	}
 
-	@Override public List<String> getDefaultOutputNames() { return Collections.singletonList("f"); }
-	@Override public List<String> getDefaultProperties() { return Arrays.asList("value"); }
+	@Override public List<OutputPortInfo> getDefaultOutputs() { return Collections.singletonList(new OutputPortInfo("f")); }
+	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo("value")); }
 
-	@Override public String getCategory() { return "Sources"; }
+	@Override public List<String> getCategories() { return Arrays.asList(NodeCategories.WORKFLOW, "Sources"); }
 }	

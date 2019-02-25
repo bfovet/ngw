@@ -9,6 +9,10 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.runtime.components.cubit;
 
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.NodeCategories;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
@@ -65,17 +69,11 @@ public class CubitComponentNode extends SAWCustomNode {
 		}
 	}
 
-	@Override
-	public String getCategory() {
-		return "Engineering";
-	}
+	@Override public List<String> getCategories() { return Arrays.asList(NodeCategories.MESHING, "Engineering", NodeCategories.EXTERNAL_PROCESSES); }
 
-	@Override public List<String> getDefaultInputNames() { return Arrays.asList(JOURNAL_FILE, PYTHON_FILE); }
-	@Override public List<String> getDefaultInputTypes() { return Arrays.asList("input_file", "input_file"); }
-	@Override public List<String> getDefaultOutputNames() { return Arrays.asList("logFile"); }
-	@Override public List<String> getDefaultOutputTypes() { return Arrays.asList("output_file"); }
-	@Override public List<String> getDefaultProperties() { return Arrays.asList(JOURNAL_FILE, PYTHON_FILE); }
-	@Override public List<String> getDefaultPropertyTypes() { return Arrays.asList("home_file", "home_file"); }	
+	@Override public List<InputPortInfo> getDefaultInputs() { return Arrays.asList(new InputPortInfo(JOURNAL_FILE, "input_file"), new InputPortInfo(PYTHON_FILE, "input_file")); }
+	@Override public List<OutputPortInfo> getDefaultOutputs() { return Arrays.asList(new OutputPortInfo("logFile", "output_file")); }
+	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo(JOURNAL_FILE, "home_file"), new PropertyInfo(PYTHON_FILE, "home_file")); }
 
 	public File getJournalFile(RuntimeData data,  Map<String, String> properties) {
 		return getFileFromPortOrProperty(data, properties, JOURNAL_FILE, false, true);

@@ -37,12 +37,6 @@ public class EmbeddedContextButtonContributor implements IContextButtonContribut
 			{
 				IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(pathString));		
 
-				// Get node name, pass file and node name to provider
-				ContextButtonEntry button2 = new ContextButtonEntry(new ShowLocalWorkingDirectoryFeature(featureProvider, file), customContext);
-				button2.setText("Show workflow component's files");
-				button2.setIconId(EmbeddedImageProvider.FOLDER);	
-				buttons.add(button2);
-
 				ContextButtonEntry button3 = new ContextButtonEntry(new RunStartNodeFeature(featureProvider), customContext);
 				button3.setText("Run workflow starting from here");
 				button3.setIconId(EmbeddedImageProvider.RUN);	

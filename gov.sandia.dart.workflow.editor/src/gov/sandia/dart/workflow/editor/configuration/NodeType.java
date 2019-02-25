@@ -12,7 +12,9 @@ package gov.sandia.dart.workflow.editor.configuration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import gov.sandia.dart.workflow.domain.InputPort;
 import gov.sandia.dart.workflow.domain.OutputPort;
@@ -24,36 +26,46 @@ import gov.sandia.dart.workflow.util.PropertyUtils;
 
 public class NodeType {
 
-	private static final String PRIVATE_WORK_DIR = "privateWorkDir";
 	private String label;
 	private String name;
 	private String displayLabel = "";
 
-	private String category;
+	private List<String> categories;
 	private List<Input> inputs;
 	private List<Output> outputs;
 	private List<Prop> properties;
+	
+	private static Map<String, Prop> commonProps = new HashMap<>();
+	static {
+		commonProps.put("privateWorkDir", new Prop("privateWorkDir", "boolean", "false"));
+		commonProps.put("async", new Prop("async", "boolean", "false"));
+	}
+
+	public NodeType(String name) {
+		this.name = name;
+	}
 
 	public NodeType(String name, String category) {
 		this.name = name;
-		this.category = category;
+		this.categories = Arrays.asList(category);
+	}
+	
+	public NodeType(String name, List<String> categories) {
+		this.name = name;
+		this.categories = categories;
 	}
 	
 	public NodeType(WFNode node) {
-		this(node.getType(), PaletteBuilder.USER_DEFINED);
+		this(node.getType());
+		setCategories(Arrays.asList(PaletteBuilder.USER_DEFINED));
 		setLabel(node.getName());
 		setDisplayLabel(node.getLabel());
 		List<Prop> properties = new ArrayList<>();
-		// TODO This is a total hack. Need a more general mechanism to add this sort of assumed property!
-		// TODO "async" is just like this
-		boolean hasPrivateWorkDirProperty = false;
+
 		for (Property property: node.getProperties()) {
-			if (property.getName().equals(PRIVATE_WORK_DIR)) 
-				hasPrivateWorkDirProperty = true;
-			properties.add(new Prop(property.getName(), property.getType(), property.getValue()));
+ 			properties.add(new Prop(property.getName(), property.getType(), property.getValue()));
 		}
-		if (!hasPrivateWorkDirProperty)
-			properties.add(new Prop(PRIVATE_WORK_DIR, "boolean", "false"));
+
 		setProperties(properties);
 		
 		List<Input> inputs = new ArrayList<>();
@@ -83,9 +95,12 @@ public class NodeType {
 		return label;
 	}
 
+	public void setCategories(List<String> categories) {
+		this.categories = categories;
+	}
 
-	public String getCategory() {
-		return category;
+	public List<String> getCategories() {
+		return categories;
 	}
 
 	public void setInputs(List<Input> inputs) {
@@ -105,25 +120,22 @@ public class NodeType {
 	}
 
 	public void setProperties(List<Prop> properties) {
-		boolean hasPrivateWorkDirProperty = false;
+		properties = new ArrayList<>(properties);
+		Map<String, Prop> common = new HashMap<>(commonProps); 
 		for (Prop property: properties) {
-			if (property.getName().equals(PRIVATE_WORK_DIR)) 
-				hasPrivateWorkDirProperty = true;
+			if (common.containsKey(property.getName())) {
+				common.remove(property.getName());
+			}
 		}
-		if (!hasPrivateWorkDirProperty)
-			properties.add(new Prop(PRIVATE_WORK_DIR, "boolean", "false"));
-		this.properties = new ArrayList<>(properties);
+		for (Prop property: common.values()) {
+			properties.add(property);
+		}
+		
+		this.properties = properties;
 	}
 	
 	public void setProperties(Prop...  properties) {
-		boolean hasPrivateWorkDirProperty = false;
-		for (Prop property: properties) {
-			if (property.getName().equals(PRIVATE_WORK_DIR)) 
-				hasPrivateWorkDirProperty = true;
-		}
-		this.properties = new ArrayList<>(Arrays.asList(properties));
-		if (!hasPrivateWorkDirProperty)
-			this.properties.add(new Prop(PRIVATE_WORK_DIR, "boolean", "false"));
+		setProperties(Arrays.asList(properties));
 	}
 	
 	public List<Prop> getProperties() {

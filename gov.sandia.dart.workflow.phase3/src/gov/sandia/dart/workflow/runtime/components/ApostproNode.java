@@ -20,6 +20,9 @@ import java.util.regex.PatternSyntaxException;
 
 import org.apache.commons.io.FileUtils;
 
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
 import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
 import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
@@ -40,8 +43,10 @@ public class ApostproNode extends SAWCustomNode {
 		try {
 			Pattern p = Pattern.compile(getMatch(properties));
 			List<String> lines = FileUtils.readLines(inputFile);
-			for (int i=0; i<lines.size(); ++i) {
+			int i = 0;
+			for (i=0; i<lines.size(); ++i) {
 				String line = lines.get(i);
+
 				if (p.matcher(line).find()) {
 					int lineIndex = i + getSkip(properties);
 					if (lineIndex >= lines.size()) {
@@ -56,7 +61,7 @@ public class ApostproNode extends SAWCustomNode {
 					result = fields[getField(properties)];
 					break;					
 				}
-			}
+			}			
 			return Collections.singletonMap("f", result);
 
 		} catch (PatternSyntaxException e) {
@@ -66,9 +71,9 @@ public class ApostproNode extends SAWCustomNode {
 		} 
 	}
 
-	@Override public List<String> getDefaultInputNames() { return Collections.singletonList(INPUT_FILE); }
-	@Override public List<String> getDefaultInputTypes() { return Collections.singletonList("input_file"); }
-	@Override public List<String> getDefaultOutputNames() { return Collections.singletonList("f"); }
+	@Override public List<InputPortInfo> getDefaultInputs() { return Collections.singletonList(new InputPortInfo(INPUT_FILE, "input_file")); }
+//	@Override public List<String> getDefaultInputTypes() { return Collections.singletonList("input_file"); }
+	@Override public List<OutputPortInfo> getDefaultOutputs() { return Collections.singletonList(new OutputPortInfo("f")); }
 	@Override public String getCategory() { return "Engineering"; }
 
 	public File getInputFile(Map<String, String> properties, RuntimeData runtime) {
@@ -87,8 +92,9 @@ public class ApostproNode extends SAWCustomNode {
 		return Integer.parseInt(properties.get(SKIP));
 	}
 
-	@Override public List<String> getDefaultProperties() { return Arrays.asList(INPUT_FILE, MATCH, FIELD, SKIP); }
-	@Override public List<String> getDefaultPropertyTypes() { return Arrays.asList("home_file", "default", "default", "default"); }
+	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo(INPUT_FILE, "home_file"), new PropertyInfo(MATCH, "default"), new PropertyInfo(FIELD, "default"), new PropertyInfo(SKIP, "default")); }
+//	@Override public List<String> getDefaultProperties() { return Arrays.asList(INPUT_FILE, MATCH, FIELD, SKIP); }
+//	@Override public List<String> getDefaultPropertyTypes() { return Arrays.asList("home_file", "default", "default", "default"); }
 	
 	
 

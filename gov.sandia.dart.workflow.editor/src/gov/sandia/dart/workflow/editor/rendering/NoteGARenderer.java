@@ -24,12 +24,17 @@ import org.eclipse.swt.widgets.Display;
 
 import gov.sandia.dart.workflow.domain.Note;
 import gov.sandia.dart.workflow.editor.WorkflowEditorPlugin;
+import gov.sandia.dart.workflow.editor.preferences.IWorkflowEditorPreferences;
 
 public class NoteGARenderer extends AbstractGARenderer implements IGraphicsAlgorithmRenderer {
 
-	private static final int CORNER = 10;
+	public static final int CORNER = 10;
 	public static final String ID = "wfnote";
-	private static Color color;
+	// TODO Use a map instead
+	private static Color red, yellow, blue, orange, green, purple;
+	public static String[] COLORS = {
+			"red", "yellow", "blue", "orange", "green", "purple"
+	};
 	public NoteGARenderer(IRendererContext rc, IFeatureProvider fp) {
 		setRc(rc);
 		setFp(fp);
@@ -37,27 +42,59 @@ public class NoteGARenderer extends AbstractGARenderer implements IGraphicsAlgor
 
 	@Override
 	protected void fillShape(Graphics g) {
+		PictogramElement pe = rc.getPlatformGraphicsAlgorithm().getPictogramElement();
+		Note note = (Note) fp.getBusinessObjectForPictogramElement(pe);
+
 		Font f = WorkflowEditorPlugin.getDefault().getNotesFont();
 		g.setFont(f);
 		Rectangle r = getInnerBounds();
 		int[] poly = { r.x + CORNER, r.y, r.x + r.width, r.y, r.x + r.width, r.y + r.height, r.x, r.y + r.height, r.x, r.y+CORNER, r.x+CORNER, r.y+CORNER, r.x+CORNER, r.y, r.x, r.y+CORNER };
-		Color yellow = getColor();
+		Color yellow = getColor(note.getColor());
 		g.setBackgroundColor(yellow);
 		g.setForegroundColor(ColorConstants.black);
+		if (WorkflowEditorPlugin.getDefault().getPreferenceStore().getBoolean(IWorkflowEditorPreferences.CONNECTIONS_BEHIND)) {
+			g.setAlpha(100);
+		}
 		g.fillPolygon(poly);
-		PictogramElement pe = rc.getPlatformGraphicsAlgorithm().getPictogramElement();
-		Note note = (Note) fp.getBusinessObjectForPictogramElement(pe);
+		g.setAlpha(255);
+
 		TextLayout tl = new TextLayout(Display.getCurrent());
 		tl.setWidth(r.width - 15);	
 		tl.setFont(g.getFont());
 		tl.setText(note.getText());
 		g.drawTextLayout(tl, r.x + CORNER + 2, r.y);	}
 
-	private synchronized static Color getColor() {
-		if (color == null) {
-			color = new Color(Display.getCurrent(), new RGB(255, 255, 200));
+	public synchronized static Color getColor(String colorName) {
+		if (yellow == null) {	
+			initColors();
 		}
-		return color;
+		if (colorName == null)
+			return yellow;
+		
+		switch (colorName) {
+		case "red" :
+			return red;
+		case "blue" :
+			return blue;
+		case "green" :
+			return green;
+		case "orange" :
+			return orange;
+		case "purple" :
+			return purple;
+		case "yellow" :
+		default:
+			return yellow;
+		}
+	}
+	
+	private static void initColors() {
+		red = new Color(Display.getCurrent(), new RGB(255, 200, 200));
+		yellow = new Color(Display.getCurrent(), new RGB(255, 255, 200));
+		blue = new Color(Display.getCurrent(), new RGB(200, 200, 255));		
+		green = new Color(Display.getCurrent(), new RGB(200, 244, 181));
+		orange = new Color(Display.getCurrent(), new RGB(255, 200, 150));
+		purple = new Color(Display.getCurrent(), new RGB(255, 200, 255));		
 	}
 
 	@Override

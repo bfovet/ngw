@@ -113,85 +113,7 @@
                class="com.strikewire.snl.apc.GUIs.HideEditorAreaListener$HideEditorRegistryInitializer">
          </startup>
       </extension>
-      <extension
-            point="org.eclipse.ui.activities">
-         <activity
-               description="Job submission administrative settings"
-               id="com.strikewire.snl.apc.Common.jobSubmissionInternals"
-               name="Job Submission Internals">
-         </activity>
-         <activityPatternBinding
-               activityId="com.strikewire.snl.apc.Common.jobSubmissionInternals"
-               isEqualityPattern="true"
-               pattern="com.strikewire.snl.apc.Common/com.strikewire.snl.apc.Common.dateformats">
-         </activityPatternBinding>
-         <category
-               description="Tools for DART administration"
-               id="com.strikewire.snl.apc.Common.administrativeSettings"
-               name="Administrative Settings">
-         </category>
-         <categoryActivityBinding
-               activityId="com.strikewire.snl.apc.Common.jobSubmissionInternals"
-               categoryId="com.strikewire.snl.apc.Common.administrativeSettings">
-         </categoryActivityBinding>
-         
-         
-         
-      <category
-            id="gov.sandia.dart.common"
-            name="Disabled Eclipse UI">
-      </category>
-      <activity
-            id="gov.sandia.apc.editor.calore.debug_activity"
-            name="Eclipse Debug UI">
-      </activity>
-      <activity
-            id="gov.sandia.apc.editor.calore.team_enablement"
-            name="Eclipse Team UI">
-      </activity>     
-      <categoryActivityBinding
-            activityId="gov.sandia.apc.editor.calore.debug_activity"
-            categoryId="gov.sandia.dart.common">
-      </categoryActivityBinding>
-      <categoryActivityBinding
-            activityId="gov.sandia.apc.editor.calore.team_enablement"
-            categoryId="gov.sandia.dart.common">
-      </categoryActivityBinding>
-      <activityPatternBinding
-            activityId="gov.sandia.apc.editor.calore.debug_activity"
-            pattern="org\.eclipse\.ui\.ide/org\.eclipse\.ui\.wizards\.new\.project">
-      </activityPatternBinding>
-      <activityPatternBinding
-            activityId="gov.sandia.apc.editor.calore.team_enablement"
-            pattern="org\.eclipse\.team\.ui/org\.eclipse\.team\.ui\.applyPatch">
-      </activityPatternBinding>
-      <activityPatternBinding
-            activityId="gov.sandia.apc.editor.calore.team_enablement"
-            pattern="org\.eclipse\.team\.ui/nonbound\.org\.eclipse\.team\.ui\.ConfigureProject">
-      </activityPatternBinding>
-      <activityPatternBinding
-            activityId="gov.sandia.apc.editor.calore.debug_activity"
-            pattern="org\.eclipse\.team\.ui/org\.eclipse\.team\.ui\.showLocalHistory">
-      </activityPatternBinding>	
-      <activityPatternBinding
-            activityId="gov.sandia.apc.editor.calore.debug_activity"
-            pattern="org\.eclipse\.debug\.ui/org\.eclipse\.debug\.ui\.contextualLaunch\.debug\.submenu">
-      </activityPatternBinding>
-      <activityPatternBinding
-            activityId="gov.sandia.apc.editor.calore.debug_activity"
-            pattern="org\.eclipse\.debug\.ui/org\.eclipse\.debug\.ui\.contextualLaunch\.profile\.submenu">
-      </activityPatternBinding>
-      <activityPatternBinding
-            activityId="gov.sandia.apc.editor.calore.team_enablement"
-            pattern="org\.eclipse\.ui\.navigator\.resources/org\.eclipse\.ui\.navigator\.ProjectExplorer">
-      </activityPatternBinding>
-           
-       <activityPatternBinding
-            activityId="gov.sandia.apc.editor.calore.team_enablement"
-            pattern="org\.eclipse\.ui\.ide/org\.eclipse\.ui\.views\.ResourceNavigator">
-      </activityPatternBinding>
-       
-   </extension>
+
     <extension
         point="org.eclipse.ui.propertiesView">
       <excludeSources
@@ -226,6 +148,12 @@
               listener="com.strikewire.snl.apc.resources.PreWorkbenchResourceEventListener">
            <Event
                  Event="PRE: WORKBENCH_ADVISOR_CONSTRUCT">
+           </Event>
+        </DARTApplicationListener>
+        <DARTApplicationListener
+              listener="com.strikewire.snl.apc.Common.UpdateSiteRegistrationManager">
+           <Event
+                 Event="PRE: WORKBENCH_ADVISOR_INITIALIZE">
            </Event>
         </DARTApplicationListener>
      </extension>

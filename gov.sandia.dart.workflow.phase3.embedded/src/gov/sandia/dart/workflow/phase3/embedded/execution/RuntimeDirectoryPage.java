@@ -11,12 +11,13 @@ package gov.sandia.dart.workflow.phase3.embedded.execution;
 
 import java.io.File;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -24,19 +25,22 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
-import org.eclipse.swt.widgets.Text;
+
+import gov.sandia.dart.workflow.editor.SubdirSelectionCombo;
 
 class RuntimeDirectoryPage extends WizardPage {
 	private Composite container;
-	private Text mText;
+	private SubdirSelectionCombo mCombo;
 	private Button mButton;
-	private IPath suggested;
+	private IFile workflowFile;
+	private IPath defaultPath;
 
-	public RuntimeDirectoryPage(IPath suggested) {
+	public RuntimeDirectoryPage(IFile workflowFile, IPath defaultPath) {
 		super("Choose Directory");
 		setTitle("Choose Runtime Directory");
 		setDescription("Choose a location for the workflow's runtime directory");
-		this.suggested = suggested;
+		this.workflowFile = workflowFile;
+		this.defaultPath = defaultPath;
 	}
 
 	@Override
@@ -44,21 +48,27 @@ class RuntimeDirectoryPage extends WizardPage {
 		container = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout(2, false);
 		container.setLayout(layout);
-
-		mText = new Text(container, SWT.SINGLE | SWT.BORDER);
-		mText.addKeyListener(new KeyAdapter() {
+		
+		CCombo combo = new CCombo(container, SWT.BORDER);
+		mCombo = new SubdirSelectionCombo(combo);
+		mCombo.getCCombo().addModifyListener(new ModifyListener() {
+			
 			@Override
-			public void keyReleased(KeyEvent e) {
-				File location = new File(mText.getText());
+			public void modifyText(ModifyEvent e) {
+				File location = new File(mCombo.getCCombo().getText());
 				setPageComplete(validateLocation(location));
 			}
-
 		});
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 		gd.grabExcessHorizontalSpace = true;
 		gd.horizontalAlignment = GridData.FILL;
-		mText.setLayoutData(gd);
-		mText.setText(suggested.toPortableString());
+		mCombo.getCCombo().setLayoutData(gd);
+		mCombo.setInput(workflowFile);
+		
+		if(mCombo.getItemCount() <= 0) {
+			mCombo.setText(defaultPath.toPortableString());
+		}
+		
 		mButton = new Button(container, SWT.NONE);
 		mButton.setText("...");
 		mButton.addSelectionListener(new SelectionAdapter() {
@@ -66,10 +76,10 @@ class RuntimeDirectoryPage extends WizardPage {
 			public void widgetSelected(SelectionEvent e) {
 				DirectoryDialog dlg = new DirectoryDialog(mButton.getShell(),  SWT.OPEN | SWT.SINGLE);
 				dlg.setText("Choose Runtime Directory");
-				dlg.setFilterPath(suggested.toPortableString());
+				dlg.setFilterPath(defaultPath.toPortableString());
 				String path = dlg.open();
 				if (path == null) return;
-				mText.setText(path);
+				mCombo.getCCombo().setText(path);
 				setPageComplete(validateLocation(new File(path)));
 			}
 		});
@@ -84,6 +94,6 @@ class RuntimeDirectoryPage extends WizardPage {
 	}
 
 	public IPath getPath() {
-		return new Path(mText.getText());
+		return mCombo.getPath();
 	}
 }

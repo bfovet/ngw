@@ -9,6 +9,10 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.phase3.embedded;
 
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.NodeCategories;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
 import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
 import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
@@ -73,9 +77,10 @@ public class AskYesNoNode extends SAWCustomNode {
 		return Collections.singletonMap(name[0], arg1);			
 	}
 	
-	@Override public List<String> getDefaultInputNames() { return Arrays.asList("x"); }
-	@Override public List<String> getDefaultOutputNames() { return Arrays.asList("yes", "no"); }
-	@Override public List<String> getDefaultProperties() { return Arrays.asList("question"); }
-	@Override public String getCategory() { return "Control"; }
+	@Override public List<InputPortInfo> getDefaultInputs() { return Arrays.asList(new InputPortInfo("x")); }
+	@Override public List<OutputPortInfo> getDefaultOutputs() { return Arrays.asList(new OutputPortInfo("yes"), new OutputPortInfo("no")); }
+	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo("question")); }
+//	@Override public List<String> getDefaultProperties() { return Arrays.asList("question"); }
+	@Override public List<String> getCategories() { return Arrays.asList(NodeCategories.CONTROL, NodeCategories.GUI); }
 	
 }

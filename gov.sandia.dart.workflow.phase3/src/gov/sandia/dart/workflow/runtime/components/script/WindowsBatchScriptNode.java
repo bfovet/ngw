@@ -38,9 +38,11 @@ public class WindowsBatchScriptNode extends AbstractExternalScriptNode {
 		File scriptFile = new File(workDir, scriptName);
 		commandArgs.add(scriptName);
 		PrintWriter fos = new PrintWriter(scriptFile);
+		fos.println("@echo off");
 		fos.println("REM ##################################################################");
 		fos.println("REM ## DO NOT EDIT - WILL BE OVERWRITTEN ON EACH SCRIPT EXECUTION ###");
 		fos.println("REM ##################################################################");
+
 		fos.println();
 
 		fos.println("REM beginning of workflow node variable definitions for ports and properties");
@@ -50,19 +52,19 @@ public class WindowsBatchScriptNode extends AbstractExternalScriptNode {
 	@Override
 	protected
 	void addInputPortToScript(PrintWriter scriptStream, String portName, String fileName) throws IOException {
-		scriptStream.write("SET " + portName + "=" + fileName);		
+		scriptStream.println("SET " + portName + "=" + fileName);		
 	}
 
 	@Override
 	protected
 	void addOutputPortToScript(PrintWriter scriptStream, String portName, String fileName) throws IOException {
-		scriptStream.write("@echo %" + portName + "%> " + fileName);				
+		scriptStream.println("@echo %" + portName + "%> " + fileName);				
 	}
 
 	@Override
 	protected
 	void addPropertyToScript(PrintWriter scriptStream, String name, String value) throws IOException {
-		scriptStream.write("SET " + name + "=" + value);				
+		scriptStream.println("SET " + name + "=" + value);				
 	}
 
 	@Override

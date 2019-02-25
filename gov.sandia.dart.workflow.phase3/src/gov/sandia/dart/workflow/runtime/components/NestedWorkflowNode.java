@@ -1,3 +1,12 @@
+/*******************************************************************************
+ * Sandia Analysis Workbench Integration Framework (SAW)
+ * Copyright 2018 National Technology & Engineering Solutions of Sandia, LLC (NTESS).
+ * Under the terms of Contract DE-NA0003525 with NTESS, the U.S. Government retains
+ * certain rights in this software.
+ *  
+ * This software is distributed under the Eclipse Public License.  For more
+ * information see the files copyright.txt and license.txt included with the software.
+ ******************************************************************************/
 package gov.sandia.dart.workflow.runtime.components;
 
 import java.io.File;
@@ -20,7 +29,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang3.StringUtils;
 
 import gov.sandia.dart.workflow.runtime.core.ICancelationListener;
+import gov.sandia.dart.workflow.runtime.core.LoggingWorkflowMonitor;
+import gov.sandia.dart.workflow.runtime.core.NodeCategories;
 import gov.sandia.dart.workflow.runtime.core.NodeDatabase;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
 import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
 import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
@@ -38,7 +51,7 @@ public class NestedWorkflowNode extends SAWCustomNode {
 	private static final String FAIL = "fail";
 	private static final String IGNORE = "ignore";
 	private static final String RETRY = "retry";
-	protected final String FILENAME = "fileName";
+	public static final String FILENAME = "fileName";
 
 	@Override
 	public Map<String, Object> doExecute(Map<String, String> properties, WorkflowDefinition workflow, RuntimeData runtime) {								
@@ -48,16 +61,16 @@ public class NestedWorkflowNode extends SAWCustomNode {
 		AtomicReference<Exception> error = new AtomicReference<>();
 
 		
-		Map<String, String> paramsFromOuterScope = new TreeMap<>();
+		Map<String, Object> paramsFromOuterScope = new TreeMap<>();
 		for (Map.Entry<String, Object> entry: runtime.getParameters().entrySet()) {
-			paramsFromOuterScope.put(entry.getKey(), String.valueOf(entry.getValue()));
+			paramsFromOuterScope.put(entry.getKey(), entry.getValue());
 		}
 
 		List<WorkflowConductor> conductors = getConductors(properties, workflow, runtime);
 
 		try (UsedPrintStream ps = new UsedPrintStream(new File(getComponentWorkDir(runtime, properties), getResponseFileName()))) {		
 			ExecutorService service = Executors.newFixedThreadPool(getConcurrency(properties));
-			executeSamples(conductors, paramsFromOuterScope, 0, properties, workflow, runtime, id, responses, ps, service, error);
+			executeSamples(conductors, paramsFromOuterScope, 0, properties, workflow, runtime,   id, responses, ps, service, error);
 			service.shutdown();
 			// TODO We may need to fail faster if there is an exception?
 			service.awaitTermination(1, TimeUnit.DAYS);
@@ -81,7 +94,7 @@ public class NestedWorkflowNode extends SAWCustomNode {
 		return getName() + ".responses.csv";
 	}	
 	
-	void executeSamples(List<WorkflowConductor> conductors, Map<String, String> paramsFromOuterScope, int depth,
+	void executeSamples(List<WorkflowConductor> conductors, Map<String, Object> paramsFromOuterScope, int depth,
 			Map<String, String> properties, WorkflowDefinition workflow, RuntimeData runtime, AtomicInteger id,
 			Map<String, Map<Integer, Object>> responses, UsedPrintStream ps, ExecutorService service, AtomicReference<Exception> error) {
 		WorkflowConductor conductor = conductors.get(depth);
@@ -108,43 +121,49 @@ public class NestedWorkflowNode extends SAWCustomNode {
 		} else {
 			for (Map<String, String> paramsFromConductor: conductor) {
 				// TODO We're not passing all the parameters through!
-				Map<String, String> runParams = new TreeMap<>(paramsFromOuterScope);
+				Map<String, Object> runParams = new TreeMap<>(paramsFromOuterScope);
 				runParams.putAll(paramsFromConductor);
 				executeSamples(conductors, runParams, depth + 1, properties, workflow, runtime, id, responses, ps, service, error);
 			}
 		}
 	}
 
-	private void runOneSample(Map<String, String> paramsFromOuterScope, Map<String, String> paramsFromConductor,
+	protected void runOneSample(Map<String, Object> paramsFromOuterScope, Map<String, String> paramsFromConductor,
 			WorkflowConductor conductor, Map<String, String> properties, WorkflowDefinition workflow,
-			RuntimeData runtime, Map<String, Map<Integer, Object>> responses, int index, UsedPrintStream ps) {
-		Map<String, String> runParams = new TreeMap<>(paramsFromOuterScope);
+			RuntimeData runtime, Map<String, Map<Integer, Object>> responses, int index, UsedPrintStream ps) throws IOException {
+		Map<String, Object> runParams = new TreeMap<>(paramsFromOuterScope);
 		runParams.putAll(paramsFromConductor);
 		String sampleId = conductor instanceof SimpleWorkflowConductor ? "DEFAULT" : String.valueOf(index);
 		WorkflowProcess process = createWorkflowProcess(properties, runtime, sampleId);		
-		transferParameters(properties, workflow, runtime, process);				
+		process.addMonitor(new NestingMonitor(runtime, this));
+		transferParametersAndInputs(properties, workflow, runtime, process);				
 		transferEnvVars(runtime, process);
 		File workDirectory = process.getWorkDir();
 		try (FileWriter w = new FileWriter(new File(workDirectory, "workflow.properties"))) {
 			Properties p = new Properties();
-			p.putAll(runParams);
+			runParams.keySet().forEach(k -> p.put(k, String.valueOf(runParams.get(k))));
 			p.store(w, "props");
 		} catch (IOException ioe) {
 			// Whatever
 		}
 		defaultStageUserDefinedInputFiles(properties, workflow, runtime, workDirectory);
 		process.setParameters(runParams);
-		runWithCancellation(runtime, properties, process);
+		try (LoggingWorkflowMonitor monitor = new LoggingWorkflowMonitor(new File(workDirectory, LoggingWorkflowMonitor.DEFAULT_NAME))) {			
+			process.addMonitor(monitor);
+			runWithCancellation(runtime, properties, process);
+		}
 		accumulateResponses(responses, process, index);
 		recordResults(responses, ps, index, runParams, process);		
 	}
 
 	private synchronized void recordResults(Map<String, Map<Integer, Object>> responses, UsedPrintStream ps, int index,
-			Map<String, String> runParams, WorkflowProcess process) {
+			Map<String, Object> runParams, WorkflowProcess process) {
 		if (!ps.isUsed()) {
 			ps.print("Sample");
 			for (String key: runParams.keySet()) {
-				ps.print(","+ key);
+				if (!RuntimeData.isBuiltIn(key)) {
+					ps.print(","+ key);
+				}
 			}
 			for (String key: responses.keySet()) {
 				ps.print(","+ key);
@@ -153,7 +172,9 @@ public class NestedWorkflowNode extends SAWCustomNode {
 		}
 		ps.print(index);
 		for (String key: runParams.keySet()) {
-			ps.print(","+ runParams.get(key));
+			if (!RuntimeData.isBuiltIn(key)) {
+				ps.print(","+ runParams.get(key));
+			}
 		}
 		for (String key: responses.keySet()) {
 			ps.print(","+ process.getRuntime().getResponses().get(key));
@@ -182,8 +203,14 @@ public class NestedWorkflowNode extends SAWCustomNode {
 		for (String responseName : responses.keySet()) {
 			Map<Integer, Object> values = responses.get(responseName);
 			Object oneValue = values.values().iterator().next();
-			Class<?> responseType = inferResponseType(responseName, oneValue);
-			nestedResponses.put(responseName, typedArray(responseType, values, values.size()));
+			if (values.size() == 0 || oneValue == null) {
+				throw new SAWWorkflowException(getName() + ": no value for response " + responseName);
+			} else if (values.size() == 1) {
+				nestedResponses.put(responseName, oneValue);
+			} else {
+				Class<?> responseType = inferResponseType(responseName, oneValue);
+				nestedResponses.put(responseName, typedArray(responseType, values, values.size()));
+			}
 		}
 		return nestedResponses;
 	}
@@ -247,8 +274,7 @@ public class NestedWorkflowNode extends SAWCustomNode {
 		return mode;	
 	}
 
-	@Override
-	public String getCategory() { return "Control"; }
+	@Override public List<String> getCategories() { return Arrays.asList(NodeCategories.CONTROL, NodeCategories.WORKFLOW); }
 
 	/**		
 	 * The new workflow gets its parameters from four places, in increasing order of priority:
@@ -259,7 +285,7 @@ public class NestedWorkflowNode extends SAWCustomNode {
 	
 	// TODO We actually only want to set parameters that exist in the workflow definition; we
 	// will need to rearrange containment somewhat to make this possible.
-	private void transferParameters(Map<String, String> properties, WorkflowDefinition workflow, RuntimeData runtime, WorkflowProcess process) {
+	private void transferParametersAndInputs(Map<String, String> properties, WorkflowDefinition workflow, RuntimeData runtime, WorkflowProcess process) {
 		properties.forEach( (name, value) -> {
 			if (!FILENAME.equals(name) && !"parameter".equals(name) && !"values".equals(name)) {
 					process.setParameter(name, value);
@@ -267,9 +293,9 @@ public class NestedWorkflowNode extends SAWCustomNode {
 		});
 		
 		for (WorkflowDefinition.InputPort port : workflow.getNode(getName()).inputs.values()) {
-			Object value = runtime.getInput(getName(), port.name, String.class);
+			Object value = runtime.getInput(getName(), port.name, Object.class);
 			if (value != null)
-				process.setParameter(port.name, (String) value );
+				process.setParameter(port.name, value );
 		}
 	}
 
@@ -317,24 +343,38 @@ public class NestedWorkflowNode extends SAWCustomNode {
 		}	
 	}
 
-	private WorkflowProcess createWorkflowProcess(Map<String, String> properties, RuntimeData runtime, String sampleId) {
+	protected WorkflowProcess createWorkflowProcess(Map<String, String> properties, RuntimeData runtime, String sampleId) throws IOException {
 		File workDir = getComponentWorkDir(runtime, properties);
 		if (!"DEFAULT".equals(sampleId)) {
 			workDir = new File(workDir, "workdir" + sampleId);
 			workDir.mkdirs();
 		}
-		String filename = getFilename(properties);
-		File subworkflowFile = new File(filename);
-		if (!subworkflowFile.isAbsolute())
-			subworkflowFile = new File(runtime.getHomeDir(), filename);
-		File subHomeDir = subworkflowFile.getParentFile();
+		File subworkflowFile = getSubWorkflowFile(properties, runtime);
+		File subHomeDir = getSubWorkflowHomeDir(subworkflowFile, runtime);
 		WorkflowProcess process = new WorkflowProcess()
-			.setMonitor(runtime.getWorkflowMonitor())
 			.setWorkflowFile(subworkflowFile)
 			.setHomeDir(subHomeDir)
 			.setWorkDir(workDir)
+			.setSampleId(sampleId)
 			.setOut(runtime.getOut());
 		return process;
+	}
+	
+	protected File getSubWorkflowFile(Map<String, String> properties, RuntimeData runtime) throws IOException
+	{
+		String filename = getFilename(properties);
+		File subworkflowFile = new File(filename);
+		if (!subworkflowFile.isAbsolute())
+		{
+			subworkflowFile = new File(runtime.getHomeDir(), filename);
+		}
+		
+		return subworkflowFile;
+	}
+	
+	protected File getSubWorkflowHomeDir(File subWorkflowFile, RuntimeData runtime)
+	{
+		return subWorkflowFile.getParentFile();
 	}
 
 	protected List<WorkflowConductor> getConductors(Map<String, String> properties2, WorkflowDefinition workflow, RuntimeData runtime) {
@@ -366,8 +406,7 @@ public class NestedWorkflowNode extends SAWCustomNode {
 	}
 
 	// TODO We don't have a mechanism for enum-valued properties anymore; do we need one?
-	@Override public List<String> getDefaultProperties() { return Arrays.asList(FILENAME, CONCURRENCY, ERROR_MODE); }
-	@Override public List<String> getDefaultPropertyTypes() { return Arrays.asList("home_file", "integer", "text"); }	
-	@Override public List<String> getDefaultOutputNames() { return Collections.singletonList(RESPONSE_PORT);}
+	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo(FILENAME, "home_file"), new PropertyInfo(CONCURRENCY, "integer"), new PropertyInfo(ERROR_MODE, "text")); }
+	@Override public List<OutputPortInfo> getDefaultOutputs() { return Collections.singletonList(new OutputPortInfo(RESPONSE_PORT));}
 
 }

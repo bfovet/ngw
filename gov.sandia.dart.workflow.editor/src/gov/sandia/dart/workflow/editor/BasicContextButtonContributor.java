@@ -31,6 +31,7 @@ public class BasicContextButtonContributor implements IContextButtonContributor 
 		List<ContextButtonEntry> buttons = new ArrayList<>(); 
 		
 		PictogramElement[] pe = customContext.getPictogramElements();
+		
 		if (pe.length == 1 && featureProvider.getBusinessObjectForPictogramElement(pe[0]) instanceof WFNode) {
 			ContextButtonEntry button = new ContextButtonEntry(new CopyToPaletteFeature(featureProvider), customContext);
 			button.setText("Copy to Palette");

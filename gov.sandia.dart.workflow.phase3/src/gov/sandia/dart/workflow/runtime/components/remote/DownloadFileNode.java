@@ -9,6 +9,10 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.runtime.components.remote;
 
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.NodeCategories;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
@@ -59,33 +63,18 @@ public class DownloadFileNode extends SAWCustomNode {
 	}
 
 	@Override
-	public List<String> getDefaultProperties() {
-		return Arrays.asList("hostname", "localFile", "remoteFile", "remotePath");
+	public List<PropertyInfo> getDefaultProperties() {
+		return Arrays.asList(new PropertyInfo("hostname"), new PropertyInfo("localFile"), new PropertyInfo("remoteFile"), new PropertyInfo("remotePath"));
 	}
 
 	@Override
-	public List<String> getDefaultOutputNames() {
-		return Collections.singletonList("file");
-	}
+	public List<OutputPortInfo> getDefaultOutputs() { return Collections.singletonList(new OutputPortInfo("file", "output_file"));	}
 	
 	@Override
-	public List<String> getDefaultOutputTypes() {
-		return Collections.singletonList("output_file");
-	}
-	
-	@Override
-	public List<String> getDefaultInputNames() {
-		return Collections.singletonList("trigger");
-	}
+	public List<InputPortInfo> getDefaultInputs() { return Collections.singletonList(new InputPortInfo("trigger", "default")); }
 	
 	//TODO Optionally get file on input?
-	@Override
-	public List<String> getDefaultInputTypes() {
-		return Collections.singletonList("default");
-	}
 	
-	@Override
-	public String getCategory() {
-		return "Control";
-	}
+	@Override public List<String> getCategories() { return Arrays.asList(NodeCategories.REMOTE); }
+
 }

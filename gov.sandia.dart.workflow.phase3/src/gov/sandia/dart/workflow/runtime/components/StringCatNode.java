@@ -9,14 +9,35 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.runtime.components;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
-public class StringCatNode extends AbstractBinaryFunctionNode {
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.NodeCategories;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.RuntimeData;
+import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
+import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
 
+public class StringCatNode extends SAWCustomNode {
+	
 	@Override
-	protected String getCustomCode(Map<String, String> properties) {
-		return "var f = function(arg1, arg2) { return arg1.concat(arg2); }";
+	protected Map<String, Object> doExecute(Map<String, String> properties, WorkflowDefinition workflow,
+			RuntimeData runtime) {
+		StringBuilder result = new StringBuilder();
+		String myNodeName = getName();
+				
+		List<String> inputNames = new ArrayList<>(runtime.getInputNames(myNodeName));
+		Collections.sort(inputNames);
+		inputNames.stream().forEach(portName -> result.append(runtime.getInput(myNodeName, portName, String.class)));
+		
+		return Collections.singletonMap("f", result.toString());
 	}
-
-	@Override public String getCategory() { return "String Functions"; }
+	
+	@Override public List<InputPortInfo> getDefaultInputs() { return Arrays.asList(new InputPortInfo("x"), new InputPortInfo("y")); }
+	@Override public List<OutputPortInfo> getDefaultOutputs() { return Collections.singletonList(new OutputPortInfo("f")); }
+	@Override public String getCategory() { return NodeCategories.TEXT_DATA; }
 }

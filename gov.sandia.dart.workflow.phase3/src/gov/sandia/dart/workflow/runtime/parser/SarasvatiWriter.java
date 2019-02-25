@@ -15,16 +15,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 
+import gov.sandia.dart.workflow.runtime.parser.Domain.IWFArc;
 import gov.sandia.dart.workflow.runtime.parser.Domain.IWFConductor;
 import gov.sandia.dart.workflow.runtime.parser.Domain.IWFInputPort;
+import gov.sandia.dart.workflow.runtime.parser.Domain.IWFNode;
 import gov.sandia.dart.workflow.runtime.parser.Domain.IWFOutputPort;
 import gov.sandia.dart.workflow.runtime.parser.Domain.IWFParameter;
 import gov.sandia.dart.workflow.runtime.parser.Domain.IWFProperty;
 import gov.sandia.dart.workflow.runtime.parser.Domain.IWFResponse;
 import gov.sandia.dart.workflow.runtime.parser.Domain.IWFResponseArc;
-import gov.sandia.dart.workflow.runtime.parser.Domain.IWFArc;
-import gov.sandia.dart.workflow.runtime.parser.Domain.IWFNode;
 import gov.sandia.dart.workflow.runtime.util.Indenter;
 
 public class SarasvatiWriter {
@@ -67,11 +68,15 @@ public class SarasvatiWriter {
 				// TODO Error Checking
 				// TODO Uniquify node names somehow
 
-				// Normal node
-				out.printAndIndent(String.format("<node name=\"%s\" joinType=\"and\" type=\"%s\" isStart=\"%s\">",
+				String joinType = getJoinType(node);
+				String joinParam = getJoinParam(node);
+				out.printAndIndent(String.format("<node name=\"%s\" joinType=\"%s\" type=\"%s\" isStart=\"%s\">",
 						escapeXml(node.name), 
+						joinType,
 						escapeXml(node.type),
 						String.valueOf(node.isStart)));
+				if (StringUtils.isNotEmpty(joinParam))
+					out.printIndented(String.format("<join>%s</join>", joinParam));
 				// TODO Omit LEND / LBEGIN connections
 				for (IWFOutputPort port: node.outputPorts) {
 					if (port.name.equals("_LEND_")) {
@@ -104,6 +109,16 @@ public class SarasvatiWriter {
 
 		
 	}
+
+	// if joinType is "class", then this can return the name of a class implementing the joinType
+	private static String getJoinParam(IWFNode node) {
+		return null;
+	}
+	
+	private static String getJoinType(IWFNode node) {
+		return "or".equals(node.type) ? "or" : "and";
+	}
+
 
 	private static void emitParameterInfo(List<?> objects, Indenter out) {
 		out.printAndIndent("<parameters>");

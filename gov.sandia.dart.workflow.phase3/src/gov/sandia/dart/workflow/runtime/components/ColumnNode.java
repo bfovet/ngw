@@ -9,12 +9,9 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.runtime.components;
 
-import gov.sandia.dart.workflow.runtime.core.RuntimeData;
-import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
-import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
-import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
-
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Arrays;
@@ -25,17 +22,27 @@ import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.NodeCategories;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
+import gov.sandia.dart.workflow.runtime.core.RuntimeData;
+import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
+import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
+import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
+import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition.InputPort;
+
 public class ColumnNode extends SAWCustomNode {
 	private static String[] SEPARATORS = {"\\s+", ","};
 	@Override
 	public Map<String, Object> doExecute(Map<String, String> properties, WorkflowDefinition workflow, RuntimeData runtime) {		
-		Reader data = (Reader) runtime.getInput(getName(), "stdin", Reader.class);
-		
-		int headerLines = getHeaderLines(properties);
-		int columnIndex = getColumnIndex(properties);
-		String separator = getSeparator(properties);
-
 		try {
+			Reader data = getCSVInput(runtime, workflow);
+			
+			int headerLines = getHeaderLines(properties);
+			int columnIndex = getColumnIndex(properties);
+			String separator = getSeparator(properties);
+
 			String result = extractColumn(data, headerLines, columnIndex, separator);
 			
 			return Collections.singletonMap("stdout", result.getBytes());
@@ -47,6 +54,21 @@ public class ColumnNode extends SAWCustomNode {
 		} 
 		
 		
+	}
+
+	private Reader getCSVInput(RuntimeData runtime, WorkflowDefinition workflow) throws FileNotFoundException {
+		InputPort port = workflow.getNode(getName()).inputs.get("stdin");
+		if (port != null && port.isConnected())
+			return (Reader) runtime.getInput(getName(), "stdin", Reader.class);
+		port = workflow.getNode(getName()).inputs.get("data");
+		if (port != null && port.isConnected())
+			return (Reader) runtime.getInput(getName(), "data", Reader.class);
+		port = workflow.getNode(getName()).inputs.get("fileName");
+		if (port != null && port.isConnected()) {
+			String path = (String) runtime.getInput(getName(), "fileName", String.class); 
+			return new FileReader(path);
+		}
+		throw new SAWWorkflowException("No input available for node " + getName());
 	}
 
 	public static String extractColumn(Reader data, int headerLines,
@@ -89,10 +111,10 @@ public class ColumnNode extends SAWCustomNode {
 		return builder.toString();
 	}
 	
-	@Override public List<String> getDefaultInputNames() { return Arrays.asList("stdin"); }
-	@Override public List<String> getDefaultOutputNames() { return Arrays.asList("stdout"); }
-	@Override public List<String> getDefaultProperties() { return Arrays.asList("columnIndex", "headerLines", "separator"); }
-	@Override public String getCategory() { return "Arrays"; }
+	@Override public List<InputPortInfo> getDefaultInputs() { return Arrays.asList(new InputPortInfo("data"), new InputPortInfo("fileName")); }
+	@Override public List<OutputPortInfo> getDefaultOutputs() { return Arrays.asList(new OutputPortInfo("stdout")); }
+	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo("columnIndex"), new PropertyInfo("headerLines"), new PropertyInfo("separator")); }
+	@Override public String getCategory() { return NodeCategories.SEQ_DATA; }
 	
 	public int getColumnIndex(Map<String, String> properties) {
 		try {
@@ -110,7 +132,7 @@ public class ColumnNode extends SAWCustomNode {
 		try {
 			String raw = properties.get("headerLines");
 			if (StringUtils.isEmpty(raw))
-				return 2;
+				return 1;
 			else
 				return (int) Double.parseDouble(raw);
 		} catch (Exception e) {

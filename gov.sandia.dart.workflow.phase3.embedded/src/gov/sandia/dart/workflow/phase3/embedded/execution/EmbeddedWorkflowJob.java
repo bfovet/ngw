@@ -14,6 +14,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,19 +23,23 @@ import java.util.Map.Entry;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.output.TeeOutputStream;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProduct;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
@@ -48,12 +53,16 @@ import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.console.MessageConsole;
 
+import com.strikewire.snl.apc.Common.MappingsUtil;
 import com.strikewire.snl.apc.util.ExtensionPointUtils;
 
 import gov.sandia.dart.aprepro.util.ApreproUtil;
 import gov.sandia.dart.workflow.phase3.embedded.EmbeddedWorkflowPlugin;
 import gov.sandia.dart.workflow.phase3.embedded.GraphicalWorkflowMonitor;
 import gov.sandia.dart.workflow.phase3.embedded.preferences.EmbeddedExecutionEnvironmentVariables;
+import gov.sandia.dart.workflow.phase3.embedded.preferences.IEmbeddedExecutionPreferenceConstants;
+import gov.sandia.dart.workflow.runtime.core.LoggingWorkflowMonitor;
+import gov.sandia.dart.workflow.runtime.core.ResponsesOutWriter;
 import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
 import gov.sandia.dart.workflow.runtime.core.WorkflowProcess;
 
@@ -86,30 +95,51 @@ public class EmbeddedWorkflowJob extends Job {
 			File homeDir = iwfFile.getParentFile();
 			File workDir = directory.toFile();
 
-			 MessageConsole myConsole = findConsole(CONSOLE_NAME);
-		     OutputStream out = myConsole.newMessageStream();
-
+			MessageConsole myConsole = findConsole(CONSOLE_NAME);
+			OutputStream out = myConsole.newMessageStream();		    
+		     
 			File log = new File(workDir, FilenameUtils.getBaseName(iwfFile.getName()) + ".log");
+			File status = new File(workDir, LoggingWorkflowMonitor.DEFAULT_NAME);
+
 			FileOutputStream fos = new FileOutputStream(log);
 			TeeOutputStream tos = new TeeOutputStream(out, fos);
-			try (GraphicalWorkflowMonitor m = new GraphicalWorkflowMonitor(file.getName(), monitor);
+			try (GraphicalWorkflowMonitor m1 = new GraphicalWorkflowMonitor(file.getName(), monitor);
+				 LoggingWorkflowMonitor m2 = new LoggingWorkflowMonitor(status);
 				 PrintWriter err = new  PrintWriter(myConsole.newMessageStream(), true);
 			     PrintWriter writer = new PrintWriter(tos, true)) {
-				workflow = new WorkflowProcess().setMonitor(m) 
+				WorkflowProcess.setWorkflowVersion(getWorkflowVersion());
+				workflow = new WorkflowProcess()
+				.addMonitor(m1)
+				.addMonitor(m2)
 				.setWorkflowFile(iwfFile)
 				.setHomeDir(homeDir)
 				.setWorkDir(workDir)
 				.setOut(writer)
 				.setErr(err)
 				.setStartNode(startNode);
+				
+				final IPreferenceStore preferenceStore = EmbeddedWorkflowPlugin.getDefault().getPreferenceStore();
+				boolean validate = preferenceStore.getBoolean(IEmbeddedExecutionPreferenceConstants.VALIDATE_UNDEFINED);
+				workflow.setValidateUndefined(validate);
+				
 				Map<String, Class<? extends SAWCustomNode>> customNodes = getCustomNodes();
 				for (Entry<String, Class<? extends SAWCustomNode>> entry: customNodes.entrySet()) {
 					workflow.addCustomNode(entry.getKey(), entry.getValue());
 				}
+
 				workflow.addEnvVar("APREPRO_PATH", getApreproPath());
 				EmbeddedExecutionEnvironmentVariables.getInstance().
 					getAllProperties(false).forEach(p-> workflow.addEnvVarWithSystemSubs(p.getName(), p.getValue()));
 				workflow.run();
+				writer.flush();
+				Map<String, Object> responses = workflow.getRuntime().getResponses();
+				PrintWriter console = new PrintWriter(out, true);
+				if (responses.size() > 0)
+					console.println("Responses:");
+				
+				for (String name: responses.keySet()) {
+					console.println("  " + name + " = " + ResponsesOutWriter.format(responses.get(name)));
+				}
 				file.getParent().refreshLocal(IResource.DEPTH_INFINITE, monitor);
 				return Status.OK_STATUS;
 			}
@@ -131,7 +161,27 @@ public class EmbeddedWorkflowJob extends Job {
 			EmbeddedRunDatabase.INSTANCE.remove(file);
 		}
 	}
-	
+
+	private static volatile String workflowVersion;
+	private static String getWorkflowVersion() {
+		if (workflowVersion == null) {
+			workflowVersion = "Embedded (unknown)";
+			IProduct product = Platform.getProduct();
+			String app = null;
+			String ver = null;
+			if (product != null) {
+				app = product.getName();
+				ver = product.getProperty("appVersion");
+				if (StringUtils.isNotEmpty(app) && StringUtils.isNotEmpty(ver)) {
+					Object[] mappings = MappingsUtil.getMappings(product.getDefiningBundle());
+					ver = MessageFormat.format(ver, mappings);
+					workflowVersion = app + " (" + ver + ")";
+				}
+			}
+		}
+		return workflowVersion;
+	}
+
 	private IStatus createMultiStatus(Throwable t) {
 	    StringWriter sw = new StringWriter();
 	    PrintWriter pw = new PrintWriter(sw);
@@ -156,6 +206,9 @@ public class EmbeddedWorkflowJob extends Job {
 	@Override
 	protected void canceling() {
 		workflow.cancel();
+		Thread runThread = getThread();
+		if (runThread != null)
+			runThread.interrupt();
 	}
 	
 	private String getApreproPath()

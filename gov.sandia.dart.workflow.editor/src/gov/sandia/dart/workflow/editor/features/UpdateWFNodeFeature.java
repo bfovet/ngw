@@ -28,7 +28,6 @@ import org.eclipse.graphiti.mm.pictograms.FixPointAnchor;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 
 import gov.sandia.dart.workflow.domain.InputPort;
-import gov.sandia.dart.workflow.domain.NamedObject;
 import gov.sandia.dart.workflow.domain.OutputPort;
 import gov.sandia.dart.workflow.domain.WFNode;
 
@@ -50,61 +49,6 @@ public class UpdateWFNodeFeature extends AbstractUpdateFeature {
 	public IReason updateNeeded(IUpdateContext context) {		
 		return Reason.createTrueReason();
 	}
-
-	private boolean portsNeedChanging(IUpdateContext context) {		
-		PictogramElement pictogramElement = context.getPictogramElement();
-		Object bo = getBusinessObjectForPictogramElement(pictogramElement);
-		if (!(bo instanceof WFNode)) {
-			return false;
-		}
-		WFNode dartNode = (WFNode) bo;
-		Collection<String> inputPortNames = new ArrayList<>();
-		dartNode.getInputPorts().forEach(p -> inputPortNames.add(p.getName()));
-		Collection<String> outputPortNames = new ArrayList<>();
-		dartNode.getOutputPorts().forEach(p -> outputPortNames.add(p.getName()));
-		boolean portsChanged = false;
-		if (pictogramElement instanceof ContainerShape) {
-			ContainerShape cs = (ContainerShape) pictogramElement;
-			for (Anchor a : new ArrayList<>(cs.getAnchors())) {
-				InputPort ip = getInputPort(a);
-				if (ip != null) {
-					if (!inputPortNames.contains(ip.getName())) {	
-						portsChanged = true;
-
-					} else {
-						// Input Exists
-						inputPortNames.remove(ip.getName());
-					}
-				}
-				OutputPort op = getOutputPort(a);
-				if (op != null) {
-					if (!outputPortNames.contains(op.getName())) {    		
-						portsChanged = true;
-
-					} else {
-						// Output Exists
-						outputPortNames.remove(op.getName());
-					}
-				}
-			}            
-			for (String inputName: inputPortNames) {
-				InputPort port = getInputPort(dartNode, inputName);
-				if (port != null) {
-					portsChanged = true;
-				}
-			}
-
-			for (String outputName: outputPortNames) {
-				OutputPort port = getOutputPort(dartNode, outputName);
-				if (port != null) {
-					portsChanged = true;
-				}
-			}
-		}
-
-		return portsChanged;
-	}
-	
 	
 	@Override
 	public boolean update(IUpdateContext context) {		
@@ -115,9 +59,6 @@ public class UpdateWFNodeFeature extends AbstractUpdateFeature {
 		}
 		WFNode dartNode = (WFNode) bo;
 		
-		if (!portsNeedChanging(context))
-			return false;
-
 		Collection<String> inputPortNames = new ArrayList<>();
 		dartNode.getInputPorts().forEach(p -> inputPortNames.add(p.getName()));
 		Collection<String> outputPortNames = new ArrayList<>();
@@ -170,7 +111,7 @@ public class UpdateWFNodeFeature extends AbstractUpdateFeature {
 				InputPort port = getInputPort(dartNode, inputName);
 				if (port != null) {
 					contents.add(port);
-					adder.createInputAnchor(cs, cs.getGraphicsAlgorithm(), 3, port);
+					adder.createInputAnchor(cs, cs.getGraphicsAlgorithm(), dartNode.getInputPorts().size(), port);
 					portsChanged = true;
 				}
 			}
@@ -179,29 +120,31 @@ public class UpdateWFNodeFeature extends AbstractUpdateFeature {
 				OutputPort port = getOutputPort(dartNode, outputName);
 				if (port != null) {
 					contents.add(port);
-					adder.createOutputAnchor(cs, cs.getGraphicsAlgorithm(), 3, port);
+					adder.createOutputAnchor(cs, cs.getGraphicsAlgorithm(), dartNode.getOutputPorts().size(), port);
 					portsChanged = true;
 				}
 			}
 		}
 
-		if (portsChanged) {
-			// Now, there may be overlapping anchors, or gaps. Need to make a pass over them and position them well.
-			ContainerShape cs = (ContainerShape) pictogramElement;
-			int inputIndex = 0, outputIndex = 0;
-			AddWFNodeFeature adder = new AddWFNodeFeature(getFeatureProvider());
-			for (Anchor anchor : new ArrayList<>(cs.getAnchors())) {
-				if (anchor instanceof FixPointAnchor) {
-					FixPointAnchor a = (FixPointAnchor) anchor;
-					Object abo = getBusinessObjectForPictogramElement(a);
-					if (abo instanceof InputPort) {
-						String name = ((NamedObject)abo).getName();
-						adder.positionInputAnchor(name, a, cs.getGraphicsAlgorithm(), inputIndex++);
-					} else if (abo instanceof OutputPort) {
-						String name = ((NamedObject)abo).getName();
-						adder.positionOutputAnchor(name, a, cs.getGraphicsAlgorithm(), dartNode, outputIndex++);                	
-					}
-				}
+		// Now, there may be overlapping anchors, or gaps. Need to make a pass over them and position them well.
+		ContainerShape cs = (ContainerShape) pictogramElement;
+		int index = 0;
+		AddWFNodeFeature adder = new AddWFNodeFeature(getFeatureProvider());
+		for (InputPort port: dartNode.getInputPorts()) {
+			Object anchor = getFeatureProvider().getPictogramElementForBusinessObject(port);
+			if (anchor instanceof FixPointAnchor) {
+				FixPointAnchor a = (FixPointAnchor) anchor;
+				String name = port.getName();
+				portsChanged &= adder.positionInputAnchor(name, a, cs.getGraphicsAlgorithm(), index++);					
+			} 
+		}
+		index = 0;
+		for (OutputPort port: dartNode.getOutputPorts()) {
+			Object anchor = getFeatureProvider().getPictogramElementForBusinessObject(port);
+			if (anchor instanceof FixPointAnchor) {
+				FixPointAnchor a = (FixPointAnchor) anchor;
+				String name = port.getName();
+				portsChanged &= adder.positionOutputAnchor(name, a, cs.getGraphicsAlgorithm(), dartNode, index++);					
 			}
 		}
 

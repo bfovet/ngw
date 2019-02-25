@@ -9,15 +9,18 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.runtime.components;
 
-import gov.sandia.dart.workflow.runtime.core.RuntimeData;
-import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
-import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.math3.stat.StatUtils;
+
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.NodeCategories;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.RuntimeData;
+import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
+import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
 
 public class MeanNode extends SAWCustomNode {
 
@@ -30,18 +33,14 @@ public class MeanNode extends SAWCustomNode {
 	}
 	
 	@Override
-	public List<String> getDefaultInputNames() {
-		return Collections.singletonList("x");
-	}
+	public List<InputPortInfo> getDefaultInputs() { return Collections.singletonList(new InputPortInfo("x"));	}
 
 	@Override
-	public List<String> getDefaultOutputNames() {
-		return Collections.singletonList("f");
-	}
+	public List<OutputPortInfo> getDefaultOutputs() { return Collections.singletonList(new OutputPortInfo("f")); }
 
 	@Override
 	public String getCategory() {
-		return "Arrays";
+		return NodeCategories.SEQ_DATA;
 	}
 
 

@@ -15,6 +15,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,20 +37,25 @@ import com.googlecode.sarasvati.env.Env;
 
 import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition.Node;
 import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition.OutputPort;
-import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition.Parameter;
 import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition.Property;
 import gov.sandia.dart.workflow.runtime.util.OSValidator;
 
 public abstract class SAWCustomNode extends CustomNode {
-	private static final String LINK_INCOMING_FILE_TO_TARGET = "linkIncomingFileToTarget";
-	private static final String EXPAND_WILDCARDS = "expandWildcards";
-	private static final String READ_IN_FILE = "readInFile";
+	protected static final int UNSET = 1234567890;
+	protected static final String LINK_INCOMING_FILE_TO_TARGET = "linkIncomingFileToTarget";
+	protected static final String COPY_INCOMING_FILE_TO_TARGET = "copyIncomingFileToTarget";
 
-	private static final String PRIVATE_WORK_DIR = "privateWorkDir";
+	protected static final String EXPAND_WILDCARDS = "expandWildcards";
+	protected static final String READ_IN_FILE = "readInFile";
+	protected static final String NOT_A_LOCAL_PATH = "notALocalPath";
+
+	protected static final String CLEAR_NODE_DIR = "clear private work directory";
 	private static int delay = 0;
 	public static final String DEFAULT_INPUT = "x";
 	public static final String WORKFLOW_DEFINITION = "workflowDefinition";
 	public static final String RUNTIME_DATA = "runtimeData";	
+	public static final String PRIVATE_WORK_DIR = "privateWorkDir";
+	public static final String ASYNC = "async";
 	private static class Context {
 		Engine engine;
 		NodeToken token;
@@ -62,7 +68,6 @@ public abstract class SAWCustomNode extends CustomNode {
 	}
 	
 	private Stack<Context> contexts = new Stack<>();
-	
 	@Override
 	public void execute(Engine engine, NodeToken token) {
 		Env env = token.getFullEnv();
@@ -70,15 +75,25 @@ public abstract class SAWCustomNode extends CustomNode {
 		RuntimeData runtime = (RuntimeData) env.getTransientAttribute(RUNTIME_DATA);
 		WorkflowDefinition.Node node = workflow.getNode(getName());
 
-		runtime.getWorkflowMonitor().enterNode(this, runtime);
-		Context context = new Context(engine, token);
-		contexts.push(context);
-		Map<String, String> properties = context.properties;
-		setUpProperties(properties, workflow, runtime);
-		stageUserDefinedInputFiles(properties, workflow, runtime);
-		slowdownForDemo(engine, runtime, token);
-
-		if (isAsync(properties.get("async"))) {
+		runtime.enterNode(this);
+		Map<String, String> properties;
+		try {
+			Context context = new Context(engine, token);
+			contexts.push(context);
+			properties = context.properties;
+			setUpProperties(properties, workflow, runtime);
+			if (shouldClearComponentWorkDir(properties))
+				FileUtils.cleanDirectory(getComponentWorkDir(runtime, properties));
+			stageUserDefinedInputFiles(properties, workflow, runtime);
+			slowdownForDemo(engine, runtime, token);
+		} catch (RuntimeException e) {
+			runtime.abortNode(this, e);
+			throw e;
+		} catch (IOException e) {
+			runtime.abortNode(this, e);
+			throw new SAWWorkflowException("IOException", e);
+		}
+		if (isAsync(properties.get(ASYNC))) {
 			executeAsync(engine, token, properties, workflow, runtime, node);
 		} else {
 			executeSync(engine, token, properties, workflow, runtime, node);
@@ -95,7 +110,7 @@ public abstract class SAWCustomNode extends CustomNode {
 		try {
 			Thread.sleep(delay);
 		} catch (InterruptedException e) {
-			runtime.getWorkflowMonitor().abortNode(SAWCustomNode.this, runtime, e);
+			runtime.abortNode(SAWCustomNode.this, e);
 			engine.cancelProcess(token.getProcess());
 			throw new SAWWorkflowException("Delay interrupted");
 		}
@@ -115,7 +130,7 @@ public abstract class SAWCustomNode extends CustomNode {
 						doActualExecute(properties, workflow, runtime, node);
 					} catch (Exception e) {
 						runtime.log().error("Error during asynchronous execution", e);
-						runtime.getWorkflowMonitor().abortNode(SAWCustomNode.this, runtime, e);
+						runtime.abortNode(SAWCustomNode.this, e);
 						engine.cancelProcess(token.getProcess());
 					} finally {					
 						contexts.pop();
@@ -127,7 +142,7 @@ public abstract class SAWCustomNode extends CustomNode {
 		
 		} catch (RuntimeException e) {
 			contexts.pop();
-			runtime.getWorkflowMonitor().exitNode(SAWCustomNode.this, runtime);
+			runtime.exitNode(SAWCustomNode.this);
 			throw e;
 		}
 	} 
@@ -137,11 +152,11 @@ public abstract class SAWCustomNode extends CustomNode {
 			doActualExecute(properties, workflow, runtime, node);
 			
 		} catch (SAWWorkflowException e) {		
-			runtime.getWorkflowMonitor().abortNode(SAWCustomNode.this, runtime, e);
+			runtime.abortNode(SAWCustomNode.this, e);
 			throw e;
 			
 		} catch (RuntimeException e) {		
-			runtime.getWorkflowMonitor().abortNode(SAWCustomNode.this, runtime, e);
+			runtime.abortNode(SAWCustomNode.this, e);
 			throw new SAWWorkflowException(String.format("Error in node %s", getName()), e);		
 			
 		} finally {
@@ -155,22 +170,22 @@ public abstract class SAWCustomNode extends CustomNode {
 		// TODO Make this optional
 		// recordInputs(node, properties, runtime);
 		
-		// Execute the actual node implementation
-		Map<String, Object> outputs = doExecute(properties, workflow, runtime);
-
-		// We're making a copy of the returned map since we want to be able to change it,
-		// and node implementations may return immutable maps
-		Map<String, Object> results = new HashMap<>(outputs);	
 		
-		// This may add data to the "results" map	
-		transmitOutputs(node, results, workflow, runtime, properties);
 		
 		// Record the outputs. For now, this is only for debugging.
 	    // recordOutputs(results, runtime);
 		
-		// Set the Responses, and notify the engine of completed token
-		complete(results, workflow, runtime);		
-		runtime.getWorkflowMonitor().exitNode(SAWCustomNode.this, runtime);
+			// Execute the actual node implementation
+			Map<String, Object> outputs = doExecute(properties, workflow, runtime);
+			// We're making a copy of the returned map since we want to be able to change it,
+			// and node implementations may return immutable maps
+			Map<String, Object> results = new HashMap<>(outputs);
+			// This may add data to the "results" map	
+			transmitOutputs(node, results, workflow, runtime, properties);
+			// Set the Responses, and notify the engine of completed token
+			complete(results, workflow, runtime);
+			runtime.exitNode(SAWCustomNode.this);
+
 	} 
 
 	
@@ -229,23 +244,26 @@ public abstract class SAWCustomNode extends CustomNode {
 	// 3) A list of standard variables.
 	private void setUpProperties(Map<String, String> properties, WorkflowDefinition workflow, RuntimeData runtime) {
 		WorkflowDefinition.Node node = workflow.getNode(getName());
+
+		// fill in map before making substitutions so that we know if
+		// privateWorkDir is true
 		for (Map.Entry<String, Property> entry: node.properties.entrySet()) {			
 			String propertyValue = entry.getValue().value;
-
-			propertyValue = performStandardSubstitutions(workflow, runtime, propertyValue, properties);
-
 			properties.put(entry.getKey(), propertyValue);
+		}
+		
+		for (Map.Entry<String, String> entry: properties.entrySet()) {			
+			properties.put(entry.getKey(), performStandardSubstitutions(workflow, runtime, entry.getValue(), properties));
 		}
 	}
 
 	protected String  performStandardSubstitutions(WorkflowDefinition workflow, RuntimeData runtime, String propertyValue, Map<String, String> properties) {
-		// "properties" just here so we know if there's a per-node workdir or not. Be careful with it.
-		
+		// "properties" just here so we know if there's a per-node workdir or not. Be careful with it.		
 		// Substitute global parameter contents, if parameter name appears as variable in property
-		for (Map.Entry<String, Parameter> pEntry: workflow.getParameters().entrySet())  {
+		for (Map.Entry<String, Object> pEntry: runtime.getParameters().entrySet())  {
 			String name = pEntry.getKey();
-			if (propertyValue.contains("${" + name + "}")) {
-				if (pEntry.getValue().global) {
+			if (runtime.isGlobal(name)) {
+				if (propertyValue.contains("${" + name + "}")) {
 					String value = String.valueOf(runtime.getParameter(name));
 					propertyValue = propertyValue.replaceAll("\\$\\{" + name + "\\}", Matcher.quoteReplacement(value));
 				}
@@ -260,14 +278,9 @@ public abstract class SAWCustomNode extends CustomNode {
 			}
 		}
 
-		// Some magic system variables
-		propertyValue = propertyValue.replaceAll("\\$\\{user.name\\}",        Matcher.quoteReplacement(System.getProperty("user.name")));
-		propertyValue = propertyValue.replaceAll("\\$\\{user.home\\}",        Matcher.quoteReplacement(System.getProperty("user.home")));
-		propertyValue = propertyValue.replaceAll("\\$\\{workflow.homedir\\}", Matcher.quoteReplacement(runtime.getHomeDir().getAbsolutePath()));
-		propertyValue = propertyValue.replaceAll("\\$\\{workflow.workdir\\}", Matcher.quoteReplacement(runtime.getWorkDirectory().getAbsolutePath()));
+		// Some magic system variables		
 		propertyValue = propertyValue.replaceAll("\\$\\{workflow.nodedir\\}", Matcher.quoteReplacement(getComponentWorkDir(runtime, properties).getAbsolutePath()));
-		propertyValue = propertyValue.replaceAll("\\$\\{workflow.filename\\}", Matcher.quoteReplacement(runtime.getWorkflowFile().getName()));
-		propertyValue = propertyValue.replaceAll("\\$\\{java.version\\}", System.getProperty("java.version"));
+
 		return propertyValue;
 	}
 	
@@ -299,24 +312,31 @@ public abstract class SAWCustomNode extends CustomNode {
 
 			Property expandWildcards = conn.properties.get(EXPAND_WILDCARDS);
 			if (expandWildcards != null && "true".equals(expandWildcards.value)) {
-				String value = (String) runtime.getInput(getName(), ip.name, String.class);	
+				String value = (String) runtime.getInput(getName(), ip.name, String.class);
+				if (value == null)
+					throw new SAWWorkflowException("No input at port " + ip.name + " for node " + getName());
 				if (isGlobPattern(value)) {					
 					List<String> matches = new ArrayList<>();
 					try {						
 						File patternFile = new File(value);
 						File container = patternFile.isAbsolute() ? patternFile.getParentFile() : runtime.getHomeDir();
 						glob(new File(value).getName(), container, matches);
-						runtime.putInput(getName(), ip.name, "array", (String[]) matches.toArray(new String[matches.size()]));
-					} catch (IOException e) {
-						runtime.log().warn("Error expanding wildcards in path", e.getMessage());
+						runtime.putInput(getType().equals("or"), getName(), ip.name, "array", (String[]) matches.toArray(new String[matches.size()]));
+					} catch (Exception e) {
+						runtime.log().warn("Error in node ''{0}'' expanding wildcards in path for input ''{1}'': {2}",
+								getName(), ip.name, 
+								e.getMessage());
 					}
 				}						
 			}
-			Property property = conn.properties.get(LINK_INCOMING_FILE_TO_TARGET);
-			if (property != null && "true".equals(property.value)) {
+			Property linkFile = conn.properties.get(LINK_INCOMING_FILE_TO_TARGET);
+			if (linkFile != null && "true".equals(linkFile.value)) {
 				// TODO Could allow File, Path, other objects as well. Need to revisit the API here.
 				Object value = runtime.getInput(getName(), ip.name, String[].class);	
+				if (value == null)
+					throw new SAWWorkflowException("No input at port " + ip.name + " for node " + getName());
 				if (value instanceof String[]) {
+					List<String> newFiles = new ArrayList<>();
 					for (String filename: (String[]) value) {
 						File original = new File(filename);
 						if (!original.isAbsolute()) {
@@ -324,11 +344,41 @@ public abstract class SAWCustomNode extends CustomNode {
 							original = new File(runtime.getHomeDir(), filename); // TODO: Why isn't this relative to workdir?
 						}
 						if (original.exists()) {
-							linkFile(componentWorkDir, original);
+							File newFile = linkFile(componentWorkDir, original, runtime);
+							runtime.log().info("retargeting filename to {0}", newFile.getAbsolutePath());
+							newFiles.add(newFile.getAbsolutePath());
 						} else {
 							throw new SAWWorkflowException(getName() + ": user-defined input file " + filename + " missing for node \"" + getName() + "\"");
 						}
 					}
+					runtime.putInput(getType().equals("or"), getName(), ip.name, "array", (String[]) newFiles.toArray(new String[newFiles.size()]));
+				} 
+				// Else warn, or error?
+			}
+			
+			// TODO Link and Copy should be mutually exclusive
+			Property copyFile = conn.properties.get(COPY_INCOMING_FILE_TO_TARGET);
+			if (copyFile != null && "true".equals(copyFile.value)) {
+				// TODO Could allow File, Path, other objects as well. Need to revisit the API here.
+				Object value = runtime.getInput(getName(), ip.name, String[].class);	
+				if (value == null)
+					throw new SAWWorkflowException("No input at port " + ip.name + " for node " + getName());
+				if (value instanceof String[]) {
+					List<String> newFiles = new ArrayList<>();
+					for (String filename: (String[]) value) {
+						File original = new File(filename);
+						if (!original.isAbsolute()) {
+							runtime.log().info("resolving relative pathname \"{0}\" from port \"{1}\" relative to workflow homedir", filename, ip.name);
+							original = new File(runtime.getHomeDir(), filename); // TODO: Why isn't this relative to workdir?
+						}
+						if (original.exists()) {
+							File newFile = copyFile(componentWorkDir, original);
+							newFiles.add(newFile.getAbsolutePath());
+						} else {
+							throw new SAWWorkflowException(getName() + ": user-defined input file " + filename + " missing for node \"" + getName() + "\"");
+						}
+					}
+					runtime.putInput(getType().equals("or"), getName(), ip.name, "array", (String[]) newFiles.toArray(new String[newFiles.size()]));
 				} 
 				// Else warn, or error?
 			}
@@ -337,6 +387,8 @@ public abstract class SAWCustomNode extends CustomNode {
 			if (readInFile != null && "true".equals(readInFile.value)) {
 				// TODO Could allow File, Path, other objects as well. Need to revisit the API here.
 				Object value = runtime.getInput(getName(), ip.name, String[].class);	
+				if (value == null)
+					throw new SAWWorkflowException("No input at port " + ip.name + " for node " + getName());
 				if (value instanceof String[]) {
 					String[] values = (String[]) value;
 					String[] newValues = new String[values.length];
@@ -346,6 +398,7 @@ public abstract class SAWCustomNode extends CustomNode {
 						if (!original.isAbsolute()) {
 							runtime.log().info("resolving relative pathname \"{0}\" from port \"{1}\" relative to workflow homedir", filename, ip.name);
 							original = new File(runtime.getHomeDir(), filename); // TODO: Why isn't this relative to workdir?
+
 						}
 						if (original.exists()) {
 							try {
@@ -357,7 +410,7 @@ public abstract class SAWCustomNode extends CustomNode {
 							throw new SAWWorkflowException(getName() + ": user-defined input file " + filename + " missing for node \"" + getName() + "\"");
 						}
 					}
-					runtime.putInput(getName(), ip.name, "array", newValues);
+					runtime.putInput(getType().equals("or"),getName(), ip.name, "array", newValues);
 				} 
 				// Else warn, or error?
 			}
@@ -369,7 +422,7 @@ public abstract class SAWCustomNode extends CustomNode {
 		
 		// TODO: Delete this magic stuff next 
 		for (WorkflowDefinition.InputPort port: node.inputs.values()) {
-			if (getDefaultInputNames().contains(port.name))
+			if (propertiesContains(getDefaultInputs(), port.name))
 				continue;
 			if ("input_file".equals(port.type)) {
 				Object value = runtime.getInput(getName(), port.name, String.class);
@@ -377,7 +430,7 @@ public abstract class SAWCustomNode extends CustomNode {
 					// TODO -- should we reset the value of the input to point to the linked file?
 					File inputFile = new File(value.toString());
 					if (inputFile.exists()) {
-						linkFile(componentWorkDir, inputFile);
+						linkFile(componentWorkDir, inputFile, runtime);
 					} else {
 						// TODO Throw an exception?
 					}
@@ -388,7 +441,7 @@ public abstract class SAWCustomNode extends CustomNode {
 					// TODO -- should we reset the value of the input to point to the linked file?
 					File inputFile = new File(value.toString());
 					if (inputFile.exists()) {
-						linkFile(componentWorkDir, inputFile);
+						linkFile(componentWorkDir, inputFile, runtime);
 					}
 					// If there are spread files, do those too
 					File dir = inputFile.getParentFile();
@@ -397,9 +450,9 @@ public abstract class SAWCustomNode extends CustomNode {
 
 					for (String name : dir.list()) {
 						if (FilenameUtils.wildcardMatchOnSystem(name, spreadPattern)) {
-							linkFile(componentWorkDir, new File(dir, name));
+							linkFile(componentWorkDir, new File(dir, name), runtime);
 						} else if (name.equals(nemPattern)) {
-							linkFile(componentWorkDir, new File(dir, name));
+							linkFile(componentWorkDir, new File(dir, name), runtime);
 						}
 					}
 				} else {
@@ -476,24 +529,29 @@ public abstract class SAWCustomNode extends CustomNode {
 			// Output set by calling routine
 			if (result != null) {
 				for (WorkflowDefinition.Connection conn: port.connections) {
-					runtime.putInput(conn.node, conn.port, port.type, result);
+					runtime.putInput(getType().equals("or"), conn.node, conn.port, port.type, result);
 					runtime.log().debug("Sending {0} to {1}.{2}",  render(result), conn.node, conn.port);
 				}
 				
 			// Special handling for user-defined outputs, not set by caller
 			} else if ("output_file".equals(port.type)) {
 				String filename = getFilenameForOutputPort(properties, workflow, runtime, port);
-				
-				if (port.connections.size() > 0) {
+				boolean hasResponse = hasConnectedResponse(node, port);
+				if (port.connections.size() > 0 || hasResponse) {
 					File file = new File(getComponentWorkDir(runtime, properties), filename);
 					if (file.exists() || isGlobPattern(filename)) {
+						// Inputs of other nodes
 						for (WorkflowDefinition.Connection conn: port.connections) {
-							runtime.putInput(conn.node, conn.port, port.type, file.getAbsolutePath());
+							runtime.putInput(getType().equals("or"), conn.node, conn.port, port.type, file.getAbsolutePath());
 							runtime.log().debug("Sending {0} to {1}.{2}",  render(file.getAbsolutePath()), conn.node, conn.port);
 						}
+						if (hasResponse) {
+							runtime.log().debug("Sending {0} to connected responses",  render(file.getAbsolutePath()));
+						}
+
 						results.put(port.name, file.getAbsolutePath());
 					} else {
-						throw new SAWWorkflowException(getName() + ": user-defined output file " + filename + " was not created");
+						throw new SAWWorkflowException(getName() + ": user-defined output file " + file.getAbsolutePath() + " was not created");
 					}
 				}
 
@@ -504,7 +562,7 @@ public abstract class SAWCustomNode extends CustomNode {
 					File file = new File(getComponentWorkDir(runtime, properties), filename);
 					if (fileOrSpreadFilesExist(file)) {
 						for (WorkflowDefinition.Connection conn: port.connections) {
-							runtime.putInput(conn.node, conn.port, port.type, file.getAbsolutePath());
+							runtime.putInput(getType().equals("or"), conn.node, conn.port, port.type, file.getAbsolutePath());
 							runtime.log().debug("Sending {0} to {1}.{2}",  render(file.getAbsolutePath()), conn.node, conn.port);
 						}
 						results.put(port.name, file.getAbsolutePath());
@@ -518,6 +576,17 @@ public abstract class SAWCustomNode extends CustomNode {
 			}
 		}
 		return results;
+	}
+
+	private boolean hasConnectedResponse(Node node, OutputPort port) {
+		for (WorkflowDefinition.Response response: node.responses.values()) {
+			for (Pair<String, String> pair:response.inputs ) {
+				if (pair.equals(Pair.of(node.name, port.name))) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	protected String getFilenameForOutputPort(Map<String, String> properties,
@@ -580,63 +649,49 @@ public abstract class SAWCustomNode extends CustomNode {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * @return The default list of properties built into this node. The runtime
 	 *         property list derived from the diagram may be larger or smaller.
 	 */
-	public List<String> getDefaultProperties() {
+	public List<PropertyInfo> getDefaultProperties() {
 		return Collections.emptyList();
 	}
-
-	/**
-	 * @return The data types of the default list of properties built into this node. The runtime
-	 *         property list derived from the diagram may be larger or smaller.
-	 */
-	public List<String> getDefaultPropertyTypes() {
-		List<String> types = new ArrayList<>();
-		getDefaultProperties().forEach(unused -> types.add(RuntimeData.DEFAULT_TYPE)); 			
-		return types;
-	}
 	
+	public static List<PropertyInfo> reservedProperties = Collections.unmodifiableList(Arrays.asList(
+				new PropertyInfo(ASYNC, "boolean"),
+				new PropertyInfo(PRIVATE_WORK_DIR, "boolean")));
+	
+	static public List<PropertyInfo> getReservedProperties() {
+		return reservedProperties;
+	}
+
 	/**
 	 * @return The default list of input ports built into this node. The runtime
 	 *         port list derived from the diagram may be larger or smaller.
 	 */
-	public List<String> getDefaultInputNames() {
+	public List<InputPortInfo> getDefaultInputs() {
 		return Collections.emptyList();
 	}
 	
+//	public List<String> getDefaultInputNames() {
+//		return Collections.emptyList();
+//	}
+
 	/**
-	 * @return The data types of the default list of input ports built into this node. The runtime
+	 * @return The default list of output ports and their types built into this node. The runtime
 	 *         port list derived from the diagram may be larger or smaller.
 	 */
-	public List<String> getDefaultInputTypes() {
-		List<String> types = new ArrayList<>();
-		getDefaultInputNames().forEach(unused -> types.add(RuntimeData.DEFAULT_TYPE));
-		return types;
-	}
-	
-	/**
-	 * @return The default list of output ports built into this node. The runtime
-	 *         port list derived from the diagram may be larger or smaller.
-	 */
-	public List<String> getDefaultOutputNames() {
+	public List<OutputPortInfo> getDefaultOutputs() {
 		return Collections.emptyList();
-	}
-	
-	/**
-	 * @return The data types of the default list of output ports built into this node. The runtime
-	 *         port list derived from the diagram may be larger or smaller.
-	 */
-	public List<String> getDefaultOutputTypes() {
-		List<String> types = new ArrayList<>();
-		getDefaultOutputNames().forEach(unused -> types.add(RuntimeData.DEFAULT_TYPE));
-		return types;
 	}
 
 	public String getCategory() {
 		return "Miscellaneous";
+	}
+	
+	public List<String> getCategories() {
+		return Arrays.asList(getCategory());
 	}
 
 	protected String confirmExists(String key, Map<String, String> properties) {
@@ -655,6 +710,7 @@ public abstract class SAWCustomNode extends CustomNode {
 			if (!result.isAbsolute()) {
 				runtime.log().info("resolving relative pathname \"{0}\" in property \"{1}\" relative to workflow homedir {2}", fInProps, name, runtime.getHomeDir());
 				result = new File(runtime.getHomeDir(), fInProps);
+
 			}
 		}
 		return result;
@@ -668,7 +724,7 @@ public abstract class SAWCustomNode extends CustomNode {
 			result = new File(fOnInput);
 			if (!result.isAbsolute()) {
 				runtime.log().info("resolving relative pathname \"{0}\" from port \"{1}\" relative to workflow homedir", fOnInput, name);
-				result = new File(runtime.getHomeDir(), fOnInput); // TODO: Why isn't this relative to workdir?
+				result = new File(runtime.getHomeDir(), fOnInput);
 			}
 		}
 		
@@ -695,7 +751,7 @@ public abstract class SAWCustomNode extends CustomNode {
 		}
 		
 		if (linkFile && result != null && result.exists()) {
-			result = linkFile(getComponentWorkDir(runtime, properties), result);
+			result = linkFile(getComponentWorkDir(runtime, properties), result, runtime);
 		}
 
 		if (reportErrors) {
@@ -712,7 +768,7 @@ public abstract class SAWCustomNode extends CustomNode {
 		return getFileFromPortOrProperty(data, properties, name, false, true);
 	}
 	
-	protected File linkFile(File componentWorkDir, File inputFile) {
+	protected File linkFile(File componentWorkDir, File inputFile, RuntimeData runtime) {
 		File newFile = new File(componentWorkDir, inputFile.getName());	
 		try {
 			if (inputFile.getCanonicalFile().equals(newFile.getCanonicalFile())) {
@@ -723,14 +779,25 @@ public abstract class SAWCustomNode extends CustomNode {
 		}
 
 		if (shouldLink()) {
-			ProcessBuilder builder = new ProcessBuilder("ln", "-s", inputFile.getAbsolutePath(), inputFile.getName());
+			File obstruction = new File(componentWorkDir, inputFile.getName());
+			if (obstruction.exists() && !obstruction.delete())
+				throw new SAWWorkflowException(obstruction.getAbsolutePath() + " is in the way and cannot be deleted.");
+			ProcessBuilder builder = new ProcessBuilder().command("ln", "-s", inputFile.getAbsolutePath(), inputFile.getName());
 			builder.directory(componentWorkDir);
 			try {
-				Process start = builder.start();
-				start.waitFor();
+				Process p = builder.start();
+				int exitStatus = UNSET;
+				while (exitStatus == UNSET && !runtime.isCancelled()) {
+					try {
+						exitStatus = p.waitFor();
+						break;
+					} catch (InterruptedException ex) {
+						// May be a spurious wakeup. Check for cancellation, and go check exit status again.
+					}
+				}
 				return new File(componentWorkDir, inputFile.getName());
 
-			} catch (IOException | InterruptedException e) {
+			} catch (IOException e) {
 				throw new SAWWorkflowException(getName() + ": error linking file", e);
 			}
 		} else {
@@ -742,6 +809,24 @@ public abstract class SAWCustomNode extends CustomNode {
 			}
 		}
 	}
+	
+	protected File copyFile(File componentWorkDir, File inputFile) {
+		File newFile = new File(componentWorkDir, inputFile.getName());	
+		try {
+			if (inputFile.getCanonicalFile().equals(newFile.getCanonicalFile())) {
+				return newFile;
+			}
+			File obstruction = new File(componentWorkDir, inputFile.getName());
+			if (obstruction.exists() && !obstruction.delete())
+				throw new SAWWorkflowException(obstruction.getAbsolutePath() + " is in the way and cannot be deleted.");
+
+			FileUtils.copyFile(inputFile, newFile);
+			return newFile;
+		} catch (IOException e) {
+			throw new SAWWorkflowException(getName() + ": error copying file", e);
+		}
+	}
+
 
 	private boolean shouldLink() {
 		return (OSValidator.isMac() || OSValidator.isUnix());
@@ -762,7 +847,14 @@ public abstract class SAWCustomNode extends CustomNode {
 		String privateWorkDir = properties.get(PRIVATE_WORK_DIR);
 		return !StringUtils.isEmpty(privateWorkDir) && !"false".equals(privateWorkDir);
 	}
-
+	
+	// only clear if there's a private node workdir
+	protected boolean shouldClearComponentWorkDir(Map<String, String> properties) {
+		String clearNodeDir = properties.get(CLEAR_NODE_DIR);
+		return shouldCreateComponentWorkDir(properties) && !StringUtils.isEmpty(clearNodeDir) && !"false".equals(clearNodeDir);
+		
+	}
+	
 	public static void setDelay(int delay) {
 		SAWCustomNode.delay = delay;
 	}
@@ -811,6 +903,18 @@ public abstract class SAWCustomNode extends CustomNode {
 		return result;
 	}
 	
+	protected String getOptionalStringFromPortOrProperty(RuntimeData data, Map<String, String> properties, String name) {
+		String result = (String) data.getInput(getName(), name, String.class);
+
+		return result != null ? result : properties.get(name);
+	}
+	
+	protected boolean getOptionalBooleanProperty(Map<String, String> properties, String name) {
+		String result = properties.get(name);
+		return "true".equals(result);
+	}
+
+	
 	protected String getStringFromPortOrProperty(RuntimeData data,
 			Map<String, String> properties,
 			String name) {
@@ -840,12 +944,20 @@ public abstract class SAWCustomNode extends CustomNode {
 		return null;
 	}
 	
-	protected  int getRequiredIntPropery(Map<String, String> properties, String name) {
+	protected String getRequiredProperty(Map<String, String> properties, String name) {
+		String raw = properties.get(name);	
+		if (StringUtils.isEmpty(raw))
+			throw new SAWWorkflowException("Value missing for required parameter '" + name + "' in node " + getName());
+		return raw;
+	}
+	
+	protected  int getRequiredIntProperty(Map<String, String> properties, String name) {
 		String raw = properties.get(name);	
 		if (StringUtils.isEmpty(raw) || !StringUtils.isNumeric(raw))
 			throw new SAWWorkflowException("Value missing for required parameter '" + name + "' in node " + getName());
 		return Integer.parseInt(raw);
 	}
+
 
 	// ----------------------------------
 	// EXPERIMENTAL LOOPING IMPLEMENTATION
@@ -883,10 +995,12 @@ public abstract class SAWCustomNode extends CustomNode {
 
 	protected boolean isConnectedOutput(String port, WorkflowDefinition workflow) {
 		Node node = workflow.getNode(getName());
+						
 		if (!node.outputs.containsKey(port))
 			return false;
-		else
-			return node.outputs.get(port).isConnected();
+		if (!node.outputs.get(port).connections.isEmpty())
+			return true;
+		return hasConnectedResponse(node, node.outputs.get(port));
 	}
 
 	protected boolean isConnectedInput(String port, WorkflowDefinition workflow) {
@@ -896,4 +1010,13 @@ public abstract class SAWCustomNode extends CustomNode {
 		else
 			return node.inputs.get(port).isConnected();
 	}
+	
+	public static boolean propertiesContains(List<? extends IPropertyInfo> props, String name) {
+		for (IPropertyInfo prop : props) {
+			if (prop.getName().equals(name))
+				return true;
+		}
+		return false;
+	}
+	
 }

@@ -11,11 +11,13 @@ package gov.sandia.dart.workflow.editor.features;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.graphiti.features.IDirectEditingInfo;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.IAddContext;
 import org.eclipse.graphiti.features.impl.AbstractAddFeature;
 import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
 import org.eclipse.graphiti.mm.algorithms.PlatformGraphicsAlgorithm;
+import org.eclipse.graphiti.mm.algorithms.styles.Point;
 import org.eclipse.graphiti.mm.pictograms.ContainerShape;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
 import org.eclipse.graphiti.mm.pictograms.FixPointAnchor;
@@ -37,7 +39,7 @@ public class AddWFNodeFeature extends AbstractAddFeature {
 	
 	public static final String LEND = "_LEND_";
 	public static final String LBEGIN = "_LBEGIN_";
-	static final int TOP_PORT = 25;
+	static final int TOP_PORT = 32;
 	static final int PORT_SPACING = 15;
 
 	public AddWFNodeFeature(IFeatureProvider fp) {
@@ -59,7 +61,7 @@ public class AddWFNodeFeature extends AbstractAddFeature {
 		ga.setHeight(height);
 		ga.setX(context.getX());
 		ga.setY(context.getY());
-		link(shape, context.getNewObject());
+		link(shape, addednode);
 		layoutPictogramElement(shape);
 		addToDiagram(addednode);
 				
@@ -75,7 +77,14 @@ public class AddWFNodeFeature extends AbstractAddFeature {
 			createOutputAnchor(shape, ga, i, port);
 		}
 
-
+		if (ParameterUtils.isParameter(addednode)) {
+			IDirectEditingInfo directEditingInfo = getFeatureProvider().getDirectEditingInfo();
+			directEditingInfo.setMainPictogramElement(shape);
+			directEditingInfo.setPictogramElement(shape);
+			directEditingInfo.setGraphicsAlgorithm(ga);
+		}
+		
+		
 		return shape;
 	}
 
@@ -109,7 +118,7 @@ public class AddWFNodeFeature extends AbstractAddFeature {
 		
 		int numPorts = Math.max(addednode.getInputPorts().size(), addednode.getOutputPorts().size());
 		// Minimum height is tall enough for several lines of text
-		return Math.max(75, 25 * (1 + numPorts));
+		return Math.max(75, TOP_PORT + (PORT_SPACING * numPorts));
 	}
 
 	private int computeNodeWidth(WFNode addednode) {
@@ -174,23 +183,36 @@ public class AddWFNodeFeature extends AbstractAddFeature {
 		link(anchor, port);
 	}
 
-	public void positionInputAnchor(String name, FixPointAnchor a, GraphicsAlgorithm rect, int index) {
+	public boolean positionInputAnchor(String name, FixPointAnchor a, GraphicsAlgorithm rect, int index) {
 		boolean isLoop = LBEGIN.equals(name);
 		ICreateService createService = Graphiti.getCreateService();
-		if (isLoop)
-			a.setLocation(createService.createPoint(rect.getWidth()/2, rect.getHeight()-10));
+		Point oldLocation = a.getLocation();
+		Point newLocation;
+		if (isLoop) 
+			newLocation = createService.createPoint(rect.getWidth()/2, rect.getHeight()-10);
 		else
-			a.setLocation(createService.createPoint(0, TOP_PORT + (index*PORT_SPACING)));
+			newLocation = createService.createPoint(0, TOP_PORT + (index*PORT_SPACING));
+		
+		if (!oldLocation.equals(newLocation)) {
+			a.setLocation(newLocation);
+		}
+		return !oldLocation.equals(newLocation);
 	}
 
-	public void positionOutputAnchor(String name, FixPointAnchor a, GraphicsAlgorithm rect, WFNode dartNode, int index) {
+	public boolean positionOutputAnchor(String name, FixPointAnchor a, GraphicsAlgorithm rect, WFNode dartNode, int index) {
 		boolean isLoop = LEND.equals(name);
 		ICreateService createService = Graphiti.getCreateService();
+		Point oldLocation = a.getLocation();
+		Point newLocation;
 		if (isLoop)
-			a.setLocation(createService.createPoint(rect.getWidth()/2, rect.getHeight()-10));
+			newLocation = createService.createPoint(rect.getWidth()/2, rect.getHeight()-10);
 		else
-			a.setLocation(createService.createPoint(rect.getWidth(), getTopPortHeight(dartNode) + (index*PORT_SPACING)));
-
+			newLocation = createService.createPoint(rect.getWidth(), getTopPortHeight(dartNode) + (index*PORT_SPACING));
+		
+		if (!oldLocation.equals(newLocation)) {
+			a.setLocation(newLocation);
+		}
+		return !oldLocation.equals(newLocation);
 	}
 
 	

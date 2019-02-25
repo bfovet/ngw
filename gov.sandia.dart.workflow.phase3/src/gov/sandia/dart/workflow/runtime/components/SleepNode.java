@@ -13,6 +13,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
+
 public class SleepNode extends AbstractUnaryFunctionNode {
 	@Override
 	protected String getCustomCode(Map<String, String> properties) {	
@@ -28,7 +30,8 @@ public class SleepNode extends AbstractUnaryFunctionNode {
 	
 	@Override public String getCategory() { return "Control"; }
 
-	@Override public List<String> getDefaultProperties() { return Arrays.asList("ms"); }
-	@Override public List<String> getDefaultPropertyTypes() { return Arrays.asList("integer"); }
+	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo("ms", "integer")); }
+//	@Override public List<String> getDefaultProperties() { return Arrays.asList("ms"); }
+//	@Override public List<String> getDefaultPropertyTypes() { return Arrays.asList("integer"); }
 
 }

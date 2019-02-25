@@ -15,72 +15,63 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Properties;
-import java.util.jar.JarFile;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.FilenameUtils;
 
 public class PluginLoader {
 	
-	static void loadPlugins(File pluginDir, SAWWorkflowLogger log) {
-				
-		if  (!pluginDir.exists()) {
-			log.info("Plugin dir {0} does not exist", pluginDir.getAbsolutePath());
-			return;
-		}
-			
-		File[] files = pluginDir.listFiles(f -> {return f.getName().endsWith(".jar");});
-		
-		if  (files.length == 0) {
-			log.info("No extensions found in plugin dir {0}", pluginDir.getAbsolutePath());
-			return;
-		}
-		
+	public static void loadPlugins(File[] plugins, SAWWorkflowLogger log) {
+						
 		// For each jar file
-		for (File file: files) {
-			JarFile jarFile = null;
+		for (File file: plugins) {
 			try {
-				jarFile = new JarFile(file);
-				URL[] urls = { new URL("jar:file:" + file.getAbsolutePath()+"!/") };
-				URLClassLoader cl = URLClassLoader.newInstance(urls, SAWCustomNode.class.getClassLoader());
-
-				InputStream stream = cl.getResourceAsStream("/META-INF/iwf.properties");
-				if (stream == null) {
-					log.warn("Jar file {0} does not contain /META-INF/iwf.properties file", file.getName());
-					continue;
-				}
-
-				Properties props = new Properties();
-				props.load(stream);
-
-				for (String key: props.stringPropertyNames()) {
-					if (key.endsWith(".node")) {
-						String typeName = key.substring(0, key.length() - ".node".length());
-						String className = props.getProperty(key);
-						try {
-							Class c = Class.forName(className);
-							if (SAWCustomNode.class.isAssignableFrom(c)) {
-								log.info("Added node type {0} from plugin jar {1}", typeName, file.getName());
-								NodeDatabase.addNodeType(typeName, c);
-							} else {
-								log.warn("Node class {0} in jar file {1} does not extend SAWCustomNode", className, file.getName());
-								continue;
-							}		
-						} catch (ClassNotFoundException e1) {
-							log.warn("Class not found error \"{0}\" while processing jar file {1}", e1.getMessage(), file.getName());
-						}
-					}
-				}
-				cl.close();
+				loadOne(file,log);
 
 			} catch (IOException e1){
-				log.warn("I/O error \"{0}\" while processing jar file {1}", e1.getMessage(), file.getName());
+				log.warn("I/O error \"{0}\" while processing plugin {1}", e1.getMessage(), file.getName());
+			} 
+		}
+	}
 
-			} finally {
-				if (jarFile != null) {
-					IOUtils.closeQuietly(jarFile);
+	private static void loadOne(File file, SAWWorkflowLogger log) throws IOException {
+		String urlText = FilenameUtils.isExtension(file.getName(), "jar") ?
+				"jar:file:" + file.getCanonicalPath()+"!/" :
+					file.isDirectory() ?
+							file.toURI().toURL().toString() :
+							null;
+		if (urlText == null)
+			return;
+		URL[] urls = { new URL(urlText) };
+		URLClassLoader cl = URLClassLoader.newInstance(urls, SAWCustomNode.class.getClassLoader());
+		URL propsURL = cl.findResource("META-INF/iwf.properties");
+		if (propsURL == null)
+			propsURL = cl.findResource("resources/iwf.properties");
+		if (propsURL == null) {
+			log.warn("Plugin {0} does not contain iwf.properties file", file.getName());
+			return;
+		}
+		InputStream stream = propsURL.openStream();
+		Properties props = new Properties();
+		props.load(stream);
+
+		for (String key: props.stringPropertyNames()) {
+			if (key.endsWith(".node")) {
+				String typeName = key.substring(0, key.length() - ".node".length());
+				String className = props.getProperty(key);
+				try {
+					Class c = cl.loadClass(className);
+					if (SAWCustomNode.class.isAssignableFrom(c)) {
+						log.info("Added node type {0} from plugin {1}", typeName, file.getName());
+						NodeDatabase.addNodeType(typeName, c);
+					} else {
+						log.warn("Node class {0} in plugin {1} does not extend SAWCustomNode", className, file.getName());
+						continue;
+					}		
+				} catch (ClassNotFoundException e1) {
+					log.warn("Class not found error \"{0}\" while processing plugin {1}", e1.getMessage(), file.getName());
 				}
 			}
-
 		}
+		cl.close();		
 	}
 }

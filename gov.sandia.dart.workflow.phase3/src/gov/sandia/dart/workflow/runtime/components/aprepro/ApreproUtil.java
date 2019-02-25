@@ -9,11 +9,6 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.runtime.components.aprepro;
 
-import gov.sandia.dart.workflow.runtime.components.Squirter;
-import gov.sandia.dart.workflow.runtime.core.ICancelationListener;
-import gov.sandia.dart.workflow.runtime.core.RuntimeData;
-import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +20,15 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 
+import gov.sandia.dart.workflow.runtime.components.Squirter;
+import gov.sandia.dart.workflow.runtime.core.ICancelationListener;
+import gov.sandia.dart.workflow.runtime.core.RuntimeData;
+import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
+import gov.sandia.dart.workflow.runtime.util.ProcessUtils;
+
 public class ApreproUtil {
+	private static final int UNSET = 1234567890;
+
 	static File createApreproParamsFile(File file, String commentChar, Map<String, String> properties) {
 		try (PrintWriter pw = new PrintWriter(file)) {
 			for (String prop: properties.keySet()) {
@@ -56,11 +59,10 @@ public class ApreproUtil {
 
 	static int doTransform(File paramsFile, File definitionFile, File outputFile, File workingDir, String commentChar, RuntimeData runtime) throws IOException, InterruptedException {
 
-		ProcessBuilder builder = new ProcessBuilder().directory(workingDir);
+		ProcessBuilder builder = ProcessUtils.createProcess(runtime).directory(workingDir);
 		Map<String, String> environment = builder.environment();
-		environment.putAll(runtime.getenv());
 
-		List<String> commands = new ArrayList<String>();	
+		List<String> commands = new ArrayList<>();	
 		String apreproCommand = environment.get("APREPRO_PATH");
 		if (apreproCommand == null)
 			throw new SAWWorkflowException("Required environment variable APREPRO_PATH not defined.");
@@ -94,13 +96,21 @@ public class ApreproUtil {
 			Thread outGobbler = new Thread(new Squirter(process.getInputStream(), log));
 			errGobbler.start();
 			outGobbler.start();
-			int retCode = process.waitFor();
+			int exitStatus = UNSET;
+			while (exitStatus == UNSET && !runtime.isCancelled()) {
+				try {
+					exitStatus = process.waitFor();
+					break;
+				} catch (InterruptedException ex) {
+					// May be a spurious wakeup. Check for cancellation, and go check exit status again.
+				}
+			}
 			errGobbler.join(1000);
 			outGobbler.join(1000);
 			File logFile = new File(workingDir, "aprepro.log");
 			log.flush();		
 			FileUtils.write(logFile, out.toString());
-			return retCode;
+			return exitStatus;
 		} finally {
 			runtime.removeCancelationListener(listener);
 		}

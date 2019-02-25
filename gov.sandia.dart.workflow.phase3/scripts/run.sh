@@ -1,7 +1,6 @@
 #!/bin/sh
 
-# export WFLIB=`dirname $BASH_SOURCE`
-export WFLIB=~/wflib
+export WFLIB=${WFLIB:-`dirname $BASH_SOURCE`}
 PATH=${WFLIB}:${PATH}
 
 if [ -f ${WFLIB}/environment ] ; then

@@ -42,11 +42,8 @@ public class IWFLoader {
 			RuntimeData data) {
 		String sarasvatiData = SarasvatiWriter.emitSarasvatiWorkflow(objects);
 	
-		// Save Sarasvati input when needed for debugging
-		//if (false) {
-		//	String path = iwfFile + ".sarasvati";		
-		//	FileUtils.write(new File(path), sarasvatiData);
-		//}
+		// Show Sarasvati input when needed for debugging
+		// System.out.println(sarasvatiData);
 			
 		StreamXmlLoader xmlLoader = new StreamXmlLoader();
 		XmlProcessDefinition def = xmlLoader.translate(IOUtils.toInputStream(sarasvatiData));		

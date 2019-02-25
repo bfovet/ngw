@@ -31,6 +31,7 @@ import org.eclipse.graphiti.palette.impl.PaletteCompartmentEntry;
 import gov.sandia.dart.workflow.editor.configuration.NodeType;
 import gov.sandia.dart.workflow.editor.configuration.WorkflowTypesManager;
 import gov.sandia.dart.workflow.editor.extensions.IWorkflowEditorPaletteContributor;
+import gov.sandia.dart.workflow.editor.features.CreateImageFeature;
 import gov.sandia.dart.workflow.editor.features.CreateNoteFeature;
 import gov.sandia.dart.workflow.editor.features.CreateResponseFeature;
 import gov.sandia.dart.workflow.editor.features.CreateWFNodeFeature;
@@ -44,7 +45,7 @@ public class PaletteBuilder {
 		
 		Map<String, PaletteCompartmentEntry> compartmentsByName = new HashMap<>();
 		List<IPaletteCompartmentEntry> compartments = new ArrayList<>();
-		PaletteCompartmentEntry compartmentEntry = getCompartment("Miscellaneous", compartments, compartmentsByName);
+		PaletteCompartmentEntry compartmentEntry = getCompartment("Workflow Organization", compartments, compartmentsByName);
 
 		ICreateFeature noteFeature = new CreateNoteFeature(featureProvider);   
 		ObjectCreationToolEntry noteToolEntry = new ObjectCreationToolEntry(
@@ -53,6 +54,14 @@ public class PaletteBuilder {
 				null,
 				noteFeature);
 		compartmentEntry.addToolEntry(noteToolEntry);		
+		
+		ICreateFeature imageFeature = new CreateImageFeature(featureProvider);   
+		ObjectCreationToolEntry imageToolEntry = new ObjectCreationToolEntry(
+				"Image", "An image on the workflow canvas",
+				null,
+				null,
+				imageFeature);
+		compartmentEntry.addToolEntry(imageToolEntry);		
 		
 		ICreateFeature responseFeature = new CreateResponseFeature(featureProvider);   
 		ObjectCreationToolEntry responseToolEntry = new ObjectCreationToolEntry(
@@ -67,34 +76,40 @@ public class PaletteBuilder {
 		
 		for (NodeType nodeType: nodeTypes.values()) {
 			// These are added back elsewhere
-			if ("Uncategorized".equals(nodeType.getCategory())) {
+			List<String> categories = nodeType.getCategories();
+			if (categories.size() == 1 && "Uncategorized".equals(categories.get(0))) {
 				continue;
 			}
-			PaletteCompartmentEntry compartment = getCompartment(nodeType.getCategory(), compartments, compartmentsByName);
-			String name = nodeType.getName();
-	    	ICreateFeature functionFeature = new CreateWFNodeFeature(featureProvider, nodeType);   
-	    	ObjectCreationToolEntry functionToolEntry = new ObjectCreationToolEntry(
-					name, name,
-					functionFeature.getCreateImageId(),
-					functionFeature.getCreateLargeImageId(),
-					functionFeature);
-			compartment.addToolEntry(functionToolEntry);
+			for (String category : categories) {
+				PaletteCompartmentEntry compartment = getCompartment(category, compartments, compartmentsByName);
+				String name = nodeType.getName();
+				ICreateFeature functionFeature = new CreateWFNodeFeature(featureProvider, nodeType);   
+				ObjectCreationToolEntry functionToolEntry = new ObjectCreationToolEntry(
+						name, name,
+						functionFeature.getCreateImageId(),
+						functionFeature.getCreateLargeImageId(),
+						functionFeature);
+				compartment.addToolEntry(functionToolEntry);
+			}
 		}
-			
+		
 		for (NodeType nodeType: UserCustomNodeLibrary.getNodes()) {
-			PaletteCompartmentEntry compartment = getCompartment(nodeType.getCategory(), compartments, compartmentsByName);
-			String name = nodeType.getLabel();
-			if (StringUtils.isEmpty(name))
-				name = nodeType.getName();
-	    	ICreateFeature functionFeature = new CreateWFNodeFeature(featureProvider, nodeType);   	    	
-	    	// Using the description as a backdoor to allow us to find and delete the nodeType later. This is an ugly kludge, but not
-	    	// Graphiti makes this very hard; this tool entry is pulled apart and discarded rather than actually being used on the palette.
-	    	ObjectCreationToolEntry functionToolEntry = new ObjectCreationToolEntry(
-					name, String.valueOf(System.identityHashCode(nodeType)),
-					functionFeature.getCreateImageId(),
-					functionFeature.getCreateLargeImageId(),
-					functionFeature);
-			compartment.addToolEntry(functionToolEntry);
+			List<String> categories = nodeType.getCategories();
+			for (String category : categories) {
+				PaletteCompartmentEntry compartment = getCompartment(category, compartments, compartmentsByName);
+				String name = nodeType.getLabel();
+				if (StringUtils.isEmpty(name))
+					name = nodeType.getName();
+				ICreateFeature functionFeature = new CreateWFNodeFeature(featureProvider, nodeType);   	    	
+				// Using the description as a backdoor to allow us to find and delete the nodeType later. This is an ugly kludge, but not
+				// Graphiti makes this very hard; this tool entry is pulled apart and discarded rather than actually being used on the palette.
+				ObjectCreationToolEntry functionToolEntry = new ObjectCreationToolEntry(
+						name, String.valueOf(System.identityHashCode(nodeType)),
+						functionFeature.getCreateImageId(),
+						functionFeature.getCreateLargeImageId(),
+						functionFeature);
+				compartment.addToolEntry(functionToolEntry);
+			}
 		}
 		
 		

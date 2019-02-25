@@ -19,6 +19,7 @@ import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.ui.features.DefaultDeleteFeature;
 
 import gov.sandia.dart.workflow.domain.InputPort;
+import gov.sandia.dart.workflow.domain.NamedObjectWithProperties;
 import gov.sandia.dart.workflow.domain.OutputPort;
 import gov.sandia.dart.workflow.domain.WFNode;
 
@@ -36,18 +37,26 @@ public class DeleteWFNodeFeature extends DefaultDeleteFeature {
 			WFNode node = (WFNode) bo;
 			Set<EObject> toDelete = new HashSet<>();
 			for (InputPort port: node.getInputPorts()) {
-				toDelete.addAll(port.getArcs());
+				for (NamedObjectWithProperties obj: port.getArcs()) {
+					toDelete.addAll(obj.getProperties());
+					toDelete.add(obj);
+				}
+				toDelete.addAll(port.getProperties());
+				toDelete.add(port);
 			}			
-
-			toDelete.addAll(node.getInputPorts());
+			
 			for (OutputPort port: node.getOutputPorts()) {
-				toDelete.addAll(port.getArcs());
-			}
-
-			for (OutputPort port: node.getOutputPorts()) {
-				toDelete.addAll(port.getResponseArcs());
-			}			
-			toDelete.addAll(node.getOutputPorts());
+				for (NamedObjectWithProperties obj: port.getArcs()) {
+					toDelete.addAll(obj.getProperties());
+					toDelete.add(obj);
+				}
+				for (NamedObjectWithProperties obj: port.getResponseArcs()) {
+					toDelete.addAll(obj.getProperties());
+					toDelete.add(obj);
+				}
+				toDelete.addAll(port.getProperties());
+				toDelete.add(port);
+			}	
 			
 			toDelete.addAll(node.getProperties());			
 			

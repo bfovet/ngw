@@ -47,17 +47,17 @@ public class GrabOutputVariableFeature extends AbstractCustomFeature {
 		if (bo instanceof WFNode) {
 			Shell shell = PlatformUI.getWorkbench().getWorkbenchWindows()[0].getShell();
 			MultipleInputDialog dialog = new MultipleInputDialog(shell, "Grab Output Variable from Script");
-		    dialog.addTextField(VAR_NAME, "", false);
+			dialog.addTextField(VAR_NAME, "", false);
 
 			if (dialog.open() == InputDialog.OK) {
 				WFNode node = (WFNode) bo;
 				String name = NOWPSettingsEditorUtils.createUniqueName(dialog.getStringValue(VAR_NAME), node.getOutputPorts());					
 				if (name.equals(dialog.getStringValue(VAR_NAME))) {
-				OutputPort port = DomainFactory.eINSTANCE.createOutputPort();
-				port.setName(name);
-				port.setType("default");	
-				node.getOutputPorts().add(port);
-				node.eResource().getContents().add(port);
+					OutputPort port = DomainFactory.eINSTANCE.createOutputPort();
+					port.setName(name);
+					port.setType("default");	
+					node.getOutputPorts().add(port);
+					node.eResource().getContents().add(port);
 				} else {
 					Display.getCurrent().beep();
 				}

@@ -13,6 +13,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import gov.sandia.dart.workflow.runtime.core.NodeCategories;
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
+
 public class StringSearchNode extends AbstractUnaryFunctionNode {
 	@Override
 	protected String getCustomCode(Map<String, String> properties) {			
@@ -22,8 +25,11 @@ public class StringSearchNode extends AbstractUnaryFunctionNode {
 				+ "}";
 	}
 	
-	@Override public String getCategory() { return "String Functions"; }
+	@Override public String getCategory() { return NodeCategories.TEXT_DATA; }
 
-	@Override public List<String> getDefaultProperties() { return Arrays.asList("searchValue"); }
-	@Override public List<String> getDefaultPropertyTypes() { return Arrays.asList("default"); }
+
+	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo("searchValue", "default")); }
+//	@Override public List<String> getDefaultProperties() { return Arrays.asList("searchvalue"); }
+//	@Override public List<String> getDefaultPropertyTypes() { return Arrays.asList("default"); }
+
 }

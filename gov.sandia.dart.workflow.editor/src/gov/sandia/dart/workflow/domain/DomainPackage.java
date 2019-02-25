@@ -186,6 +186,56 @@ public interface DomainPackage extends EPackage {
 	int ARC = 15;
 
 	/**
+	 * The meta object id for the '{@link gov.sandia.dart.workflow.domain.impl.ResponseArcImpl <em>Response Arc</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see gov.sandia.dart.workflow.domain.impl.ResponseArcImpl
+	 * @see gov.sandia.dart.workflow.domain.impl.DomainPackageImpl#getResponseArc()
+	 * @generated
+	 */
+	int RESPONSE_ARC = 11;
+
+	/**
+	 * The meta object id for the '{@link gov.sandia.dart.workflow.domain.impl.ConductorImpl <em>Conductor</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see gov.sandia.dart.workflow.domain.impl.ConductorImpl
+	 * @see gov.sandia.dart.workflow.domain.impl.DomainPackageImpl#getConductor()
+	 * @generated
+	 */
+	int CONDUCTOR = 12;
+
+	/**
+	 * The meta object id for the '{@link gov.sandia.dart.workflow.domain.impl.ParameterImpl <em>Parameter</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see gov.sandia.dart.workflow.domain.impl.ParameterImpl
+	 * @see gov.sandia.dart.workflow.domain.impl.DomainPackageImpl#getParameter()
+	 * @generated
+	 */
+	int PARAMETER = 13;
+
+	/**
+	 * The meta object id for the '{@link gov.sandia.dart.workflow.domain.impl.RunnerImpl <em>Runner</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see gov.sandia.dart.workflow.domain.impl.RunnerImpl
+	 * @see gov.sandia.dart.workflow.domain.impl.DomainPackageImpl#getRunner()
+	 * @generated
+	 */
+	int RUNNER = 14;
+
+	/**
+	 * The meta object id for the '{@link gov.sandia.dart.workflow.domain.impl.ImageImpl <em>Image</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see gov.sandia.dart.workflow.domain.impl.ImageImpl
+	 * @see gov.sandia.dart.workflow.domain.impl.DomainPackageImpl#getImage()
+	 * @generated
+	 */
+	int IMAGE = 16;
+
+	/**
 	 * The feature id for the '<em><b>Name</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -861,16 +911,6 @@ public interface DomainPackage extends EPackage {
 	int NAMED_OBJECT_WITH_PROPERTIES_OPERATION_COUNT = DomainPackage.NAMED_OBJECT_OPERATION_COUNT + 0;
 
 	/**
-	 * The meta object id for the '{@link gov.sandia.dart.workflow.domain.impl.ResponseArcImpl <em>Response Arc</em>}' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see gov.sandia.dart.workflow.domain.impl.ResponseArcImpl
-	 * @see gov.sandia.dart.workflow.domain.impl.DomainPackageImpl#getResponseArc()
-	 * @generated
-	 */
-	int RESPONSE_ARC = 11;
-
-	/**
 	 * The feature id for the '<em><b>Name</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -924,17 +964,6 @@ public interface DomainPackage extends EPackage {
 	 */
 	int RESPONSE_ARC_OPERATION_COUNT = DomainPackage.ARC_OPERATION_COUNT + 0;
 
-
-	/**
-	 * The meta object id for the '{@link gov.sandia.dart.workflow.domain.impl.ConductorImpl <em>Conductor</em>}' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see gov.sandia.dart.workflow.domain.impl.ConductorImpl
-	 * @see gov.sandia.dart.workflow.domain.impl.DomainPackageImpl#getConductor()
-	 * @generated
-	 */
-	int CONDUCTOR = 12;
-
 	/**
 	 * The feature id for the '<em><b>Name</b></em>' attribute.
 	 * <!-- begin-user-doc -->
@@ -980,17 +1009,6 @@ public interface DomainPackage extends EPackage {
 	 */
 	int CONDUCTOR_OPERATION_COUNT = DomainPackage.NAMED_OBJECT_WITH_PROPERTIES_OPERATION_COUNT + 0;
 
-
-	/**
-	 * The meta object id for the '{@link gov.sandia.dart.workflow.domain.impl.ParameterImpl <em>Parameter</em>}' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see gov.sandia.dart.workflow.domain.impl.ParameterImpl
-	 * @see gov.sandia.dart.workflow.domain.impl.DomainPackageImpl#getParameter()
-	 * @generated
-	 */
-	int PARAMETER = 13;
-
 	/**
 	 * The feature id for the '<em><b>Name</b></em>' attribute.
 	 * <!-- begin-user-doc -->
@@ -1035,17 +1053,6 @@ public interface DomainPackage extends EPackage {
 	 * @ordered
 	 */
 	int PARAMETER_OPERATION_COUNT = DomainPackage.NAMED_OBJECT_OPERATION_COUNT + 0;
-
-
-	/**
-	 * The meta object id for the '{@link gov.sandia.dart.workflow.domain.impl.RunnerImpl <em>Runner</em>}' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see gov.sandia.dart.workflow.domain.impl.RunnerImpl
-	 * @see gov.sandia.dart.workflow.domain.impl.DomainPackageImpl#getRunner()
-	 * @generated
-	 */
-	int RUNNER = 14;
 
 	/**
 	 * The feature id for the '<em><b>Name</b></em>' attribute.
@@ -1127,6 +1134,42 @@ public interface DomainPackage extends EPackage {
 	 * @ordered
 	 */
 	int ARC_OPERATION_COUNT = DomainPackage.NAMED_OBJECT_WITH_PROPERTIES_OPERATION_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Text</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int IMAGE__TEXT = 0;
+
+	/**
+	 * The feature id for the '<em><b>Color</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int IMAGE__COLOR = 1;
+
+	/**
+	 * The number of structural features of the '<em>Image</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int IMAGE_FEATURE_COUNT = 2;
+
+	/**
+	 * The number of operations of the '<em>Image</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int IMAGE_OPERATION_COUNT = 0;
 
 
 	/**
@@ -1686,6 +1729,38 @@ public interface DomainPackage extends EPackage {
 	EClass getArc();
 
 	/**
+	 * Returns the meta object for class '{@link gov.sandia.dart.workflow.domain.Image <em>Image</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Image</em>'.
+	 * @see gov.sandia.dart.workflow.domain.Image
+	 * @generated
+	 */
+	EClass getImage();
+
+	/**
+	 * Returns the meta object for the attribute '{@link gov.sandia.dart.workflow.domain.Image#getText <em>Text</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Text</em>'.
+	 * @see gov.sandia.dart.workflow.domain.Image#getText()
+	 * @see #getImage()
+	 * @generated
+	 */
+	EAttribute getImage_Text();
+
+	/**
+	 * Returns the meta object for the attribute '{@link gov.sandia.dart.workflow.domain.Image#getColor <em>Color</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Color</em>'.
+	 * @see gov.sandia.dart.workflow.domain.Image#getColor()
+	 * @see #getImage()
+	 * @generated
+	 */
+	EAttribute getImage_Color();
+
+	/**
 	 * Returns the factory that creates the instances of the model.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -2155,6 +2230,32 @@ public interface DomainPackage extends EPackage {
 		 * @generated
 		 */
 		EClass ARC = eINSTANCE.getArc();
+
+		/**
+		 * The meta object literal for the '{@link gov.sandia.dart.workflow.domain.impl.ImageImpl <em>Image</em>}' class.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see gov.sandia.dart.workflow.domain.impl.ImageImpl
+		 * @see gov.sandia.dart.workflow.domain.impl.DomainPackageImpl#getImage()
+		 * @generated
+		 */
+		EClass IMAGE = eINSTANCE.getImage();
+
+		/**
+		 * The meta object literal for the '<em><b>Text</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute IMAGE__TEXT = eINSTANCE.getImage_Text();
+
+		/**
+		 * The meta object literal for the '<em><b>Color</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute IMAGE__COLOR = eINSTANCE.getImage_Color();
 
 	}
 

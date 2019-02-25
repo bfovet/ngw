@@ -9,6 +9,10 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.phase3.embedded;
 
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.NodeCategories;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -213,13 +217,9 @@ public class EmbeddedBrowserNode extends SAWCustomNode {
 			return Collections.singletonMap("f", "");
 	}
 	
-	@Override public List<String> getDefaultProperties() { return Arrays.asList("instantiate browser", "browser ID", "URL", "wait for event", "expression"); }
-	@Override public List<String> getDefaultInputNames() { return Arrays.asList("x"); }
-	@Override public List<String> getDefaultOutputNames() { return Arrays.asList("f"); }
-	
-	@Override
-	public String getCategory() {
-		return "Miscellaneous";
-	}
+	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo("instantiate browser"), new PropertyInfo("browser ID"), new PropertyInfo("URL"), new PropertyInfo("wait for event"), new PropertyInfo("expression")); }
+	@Override public List<InputPortInfo> getDefaultInputs() { return Arrays.asList(new InputPortInfo("x")); }
+	@Override public List<OutputPortInfo> getDefaultOutputs() { return Arrays.asList(new OutputPortInfo("f")); }
+	@Override public List<String> getCategories() { return Arrays.asList(NodeCategories.GUI); }
 
 }

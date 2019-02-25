@@ -23,10 +23,8 @@ public class ResponsesOutWriter implements IResponseWriter {
 	private PrintWriter writer;
 	private RuntimeData aRuntime;
 	private WorkflowDefinition workflow;
-	private int sampleId;
 	
 	public ResponsesOutWriter(File sink, WorkflowDefinition workflow, RuntimeData runtime) throws IOException {
-		sampleId = 1;
 		writer = new PrintWriter(new FileWriter(sink), true);
 		this.aRuntime = runtime;
 		this.workflow = workflow;
@@ -35,8 +33,10 @@ public class ResponsesOutWriter implements IResponseWriter {
 
 		writer.print("Sample, ");
 		for (String parameter: parameters.keySet()) {
-			writer.print(parameter);
-			writer.print(", ");
+			if (!RuntimeData.isBuiltIn(parameter)) {
+				writer.print(parameter);
+				writer.print(", ");
+			}
 		}
 		for (Response response: responses.values()) {
 			writer.print(response.name);
@@ -57,8 +57,11 @@ public class ResponsesOutWriter implements IResponseWriter {
 		writer.print(aRuntime.getSampleId());
 		
 		for (String parameter: parameters.keySet()) {
-			writer.print(", ");
-			writer.print(parameterValues.get(parameter));
+			if (!RuntimeData.isBuiltIn(parameter)) {
+
+				writer.print(", ");
+				writer.print(parameterValues.get(parameter));
+			}
 		}
 		
 		for (Response response: responses.values()) {
@@ -79,8 +82,10 @@ public class ResponsesOutWriter implements IResponseWriter {
 		writer.print(runtime.getSampleId());
 		
 		for (String parameter: parameters.keySet()) {
-			writer.print(", ");
-			writer.print(parameterValues.get(parameter));
+			if (!RuntimeData.isBuiltIn(parameter)) {
+				writer.print(", ");
+				writer.print(parameterValues.get(parameter));
+			}
 		}
 				
 		for (Response response: responses.values()) {
@@ -96,9 +101,10 @@ public class ResponsesOutWriter implements IResponseWriter {
 		writer.close();
 	}
 	
-	@Override
-	public synchronized int getNextSampleId() {
-		return sampleId++;
+	public static Object format(Object object) {
+		if (object == null)
+			return "null";		
+		Datum datum = new Datum("text", object, object.getClass());
+		return datum.getAs(String.class);
 	}
-
 }

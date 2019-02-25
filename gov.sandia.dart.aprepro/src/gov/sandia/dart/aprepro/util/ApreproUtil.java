@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -80,7 +81,7 @@ public class ApreproUtil {
 	// implemented the current way to deal with issue where user has a gigantic file represented as one long string
 	public static Map<String, ApreproVariableData> processIResource(IResource resource) throws CoreException
 	{		
-		Map<String, ApreproVariableData> list = new HashMap<String, ApreproVariableData>();
+		Map<String, ApreproVariableData> list = new HashMap<>();
 		IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(resource.getFullPath());
 		
 		if(!file.exists())
@@ -367,6 +368,22 @@ public class ApreproUtil {
 		}
 	}
 	
+	public static String transform(String input, File workingDir) throws IOException, InterruptedException {
+		File inputFile = File.createTempFile("apreproTemp", null);
+		File paramsFile = File.createTempFile("apreproTemp", null);
+		File outputFile = File.createTempFile("apreproTemp", null);
+		try {
+			FileUtils.writeStringToFile(inputFile, input, Charset.defaultCharset());		
+			doTransform(paramsFile, inputFile, outputFile, workingDir);
+			String results = FileUtils.readFileToString(outputFile, Charset.defaultCharset());
+			return results;
+		} finally {
+			inputFile.delete();
+			paramsFile.delete();
+			outputFile.delete();
+		}
+	}
+	
 	public static String getApreproCommand()
 	{
 		IPreferenceStore store = ApreproPlugin.getDefault().getPreferenceStore();        
@@ -376,7 +393,7 @@ public class ApreproUtil {
 	
 	private static int doTransform(File paramsFile, File definitionFile, File outputFile, File workingDir) throws IOException, InterruptedException
 	{
-		List<String> commands = new ArrayList<String>();
+		List<String> commands = new ArrayList<>();
 		
 		// aprepro command
 		String apreproCommand = getApreproCommand();

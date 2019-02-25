@@ -41,7 +41,7 @@ public class WorkflowEditorSettingsUtils {
 					{
 						return;
 					}
-					String value = theText.getText();
+					String value = theText.getText().trim();
 					String name = (String) PropertyUtils.getSimpleProperty(node.get(), propertyName);
 					if (Objects.equals(value, name))
 						return;

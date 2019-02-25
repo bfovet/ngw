@@ -16,8 +16,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.swt.widgets.Display;
 
-import gov.sandia.dart.workflow.phase3.embedded.AbstractEmbeddedWorkflowHandler;
-
 public class StopEmbeddedWorkflowHandler extends AbstractEmbeddedWorkflowHandler {
 
 	@Override

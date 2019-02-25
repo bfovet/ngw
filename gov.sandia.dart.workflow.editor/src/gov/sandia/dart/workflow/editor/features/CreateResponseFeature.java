@@ -9,15 +9,17 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.editor.features;
 
-import gov.sandia.dart.workflow.domain.DomainFactory;
-import gov.sandia.dart.workflow.domain.Response;
-
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.ICreateContext;
 import org.eclipse.graphiti.features.impl.AbstractCreateFeature;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
+
+import gov.sandia.dart.workflow.domain.DomainFactory;
+import gov.sandia.dart.workflow.domain.Response;
  
 public class CreateResponseFeature extends AbstractCreateFeature {		
+	private boolean duplicating;
+	
 	public CreateResponseFeature(IFeatureProvider featureProvider) {
     	super(featureProvider, "Response", "Create Response");
     }
@@ -36,7 +38,15 @@ public class CreateResponseFeature extends AbstractCreateFeature {
         // do the add
         addGraphicalRepresentation(context, newResponse);
          
+        // activate direct editing after object creation
+        if (!duplicating)
+        	getFeatureProvider().getDirectEditingInfo().setActive(true);
+
         // return newly created business object(s)
         return new Object[] { newResponse };	
-     }   
+     }
+
+	public void setDuplicating() {
+		duplicating = true;		
+	}   
  }

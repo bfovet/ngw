@@ -14,13 +14,18 @@ import java.util.Objects;
 import org.eclipse.emf.transaction.RecordingCommand;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.emf.transaction.util.TransactionUtil;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.widgets.Section;
@@ -30,14 +35,18 @@ import com.strikewire.snl.apc.GUIs.settings.IContextMenuRegistrar;
 import com.strikewire.snl.apc.GUIs.settings.IMessageView;
 import com.strikewire.snl.apc.selection.MultiControlSelectionProvider;
 
+import gov.sandia.dart.common.preferences.CommonPreferencesPlugin;
+import gov.sandia.dart.common.preferences.settings.ISettingsViewPreferences;
 import gov.sandia.dart.workflow.domain.Note;
 import gov.sandia.dart.workflow.editor.WorkflowEditorPlugin;
+import gov.sandia.dart.workflow.editor.rendering.NoteGARenderer;
 
 public class NoteSettingsEditor extends AbstractSettingsEditor<Note> {
 
 	private Note note;
 	private Image image;
-	private Text text;	
+	private Text text;
+	private Combo color;	
 	/**
 	 * Font and color stuff commented out for now.
 	 */
@@ -78,22 +87,76 @@ public class NoteSettingsEditor extends AbstractSettingsEditor<Note> {
 					WorkflowEditorPlugin.getDefault().logError("Can't find property in object", e2);
 				}
 			}
+		});
+		textSection.setClient(text);		
+		
+		color = createComboControl(form.getBody(), NoteGARenderer.COLORS);
+
+	}
+
+	protected Combo createComboControl(Composite composite, String[] items) {
+		String propertyName = "Color";		
+		Composite row = toolkit.createComposite(composite);
+		IPreferenceStore store = CommonPreferencesPlugin.getDefault().getPreferenceStore();
+		if (store.getBoolean(ISettingsViewPreferences.DRAW_BORDERS)) {
+			toolkit.paintBordersFor(row);
+		}
+
+		row.setLayout(new GridLayout(2, false));
+		row.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
+
+		toolkit.createLabel(row, propertyName);
+
+		Combo combo = new Combo(row, SWT.READ_ONLY | SWT.DROP_DOWN);
+		combo.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
+		combo.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				widgetDefaultSelected(e);
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				try {
+					if (note == null)
+					{
+						return;
+					}
+					String value = combo.getText();
+					String current = note.getColor(); 
+					if (Objects.equals(value, current))
+						return;
+
+					TransactionalEditingDomain domain = TransactionUtil.getEditingDomain(note);
+	        			domain.getCommandStack().execute(new RecordingCommand(domain) {
+						@Override
+						public void doExecute() { 
+							note.setColor(value);
+						}
+					});
+
+				} catch (Exception e2) {
+					WorkflowEditorPlugin.getDefault().logError("Can't process note color ", e2);
+				}
+			}
 
 
 		});
-		textSection.setClient(text);
-		
-/*
-		updateBackgroundSwatch();
-		updateForegroundSwatch();
-		*/
-	}
+		 
+		combo.setItems(items);			
+		return combo;
+	}	
 
+	
+	
+	
 	@Override
 	public void setNode(Note node) {
 		form.setText("Workflow Annotation");
 		this.note = node;		
 		text.setText(node.getText());
+		color.setText(node.getColor() == null ? "yellow" : node.getColor());
+
 	}
 
 	@Override

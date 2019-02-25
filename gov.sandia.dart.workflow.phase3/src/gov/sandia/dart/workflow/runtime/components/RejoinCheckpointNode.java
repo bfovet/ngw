@@ -9,6 +9,8 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.runtime.components;
 
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
 import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
 import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
@@ -53,9 +55,9 @@ public class RejoinCheckpointNode extends SAWCustomNode {
 		return Collections.emptyMap();
 	}
 
-	@Override public List<String> getDefaultProperties() { return Collections.singletonList("nameOfCheckpoint"); }
-	@Override public List<String> getDefaultPropertyTypes() { return Collections.singletonList("text"); }
-	@Override public List<String> getDefaultInputNames() { return Collections.singletonList("x"); }
+	@Override public List<PropertyInfo> getDefaultProperties() { return Collections.singletonList(new PropertyInfo("nameOfCheckpoint", "text")); }
+//	@Override public List<String> getDefaultPropertyTypes() { return Collections.singletonList("text"); }
+	@Override public List<InputPortInfo> getDefaultInputs() { return Collections.singletonList(new InputPortInfo("x")); }
 
 	@Override
 	public String getCategory() {

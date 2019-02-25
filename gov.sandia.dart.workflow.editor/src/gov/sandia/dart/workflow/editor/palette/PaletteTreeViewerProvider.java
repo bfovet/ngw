@@ -53,6 +53,9 @@ public class PaletteTreeViewerProvider extends PaletteViewerProvider {
 	@Override
 	public void configurePaletteViewer(PaletteViewer viewer) {
 		super.configurePaletteViewer(viewer);
+		// Trying to deal with missing help menu on Linux and Windows!
+		// viewer.getControl().setMenu(viewer.getContextMenu().createContextMenu(viewer.getControl()));
+
 		viewer.addDragSourceListener(new TemplateTransferDragSourceListener(viewer));
 		
 		MenuManager menu = viewer.getContextMenu();

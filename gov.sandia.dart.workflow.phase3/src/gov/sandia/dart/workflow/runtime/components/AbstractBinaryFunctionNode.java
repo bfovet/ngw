@@ -9,11 +9,6 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.runtime.components;
 
-import gov.sandia.dart.workflow.runtime.core.RuntimeData;
-import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
-import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
-import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
-
 import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,6 +20,14 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.NodeCategories;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.RuntimeData;
+import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
+import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
+import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
+
 public abstract class AbstractBinaryFunctionNode extends SAWCustomNode {
 
 	@Override
@@ -35,13 +38,12 @@ public abstract class AbstractBinaryFunctionNode extends SAWCustomNode {
 			scriptEngine.eval(new StringReader(getCustomCode(properties)));
 
 			String arg1 = (String) runtime.getInput(getName(), "x", String.class);
-
 			if (arg1 == null)
-				arg1 = "0";
-			String arg2 = (String) runtime.getInput(getName(), "y", String.class);
-		    
+				throw new SAWWorkflowException("No input 'x' for node " + getName());
+
+			String arg2 = (String) runtime.getInput(getName(), "y", String.class);		    
 			if (arg2 == null)
-				arg2 = "0";
+				throw new SAWWorkflowException("No input 'y' for node " + getName());
 			
 			Invocable invocable = (Invocable) scriptEngine;
 
@@ -55,8 +57,8 @@ public abstract class AbstractBinaryFunctionNode extends SAWCustomNode {
 
 	protected abstract String getCustomCode(Map<String, String> properties);
 	
-	@Override public List<String> getDefaultInputNames() { return Arrays.asList("x", "y"); }
-	@Override public List<String> getDefaultOutputNames() { return Collections.singletonList("f"); }
-	@Override public String getCategory() { return "Binary Functions"; }
+	@Override public List<InputPortInfo> getDefaultInputs() { return Arrays.asList(new InputPortInfo("x"), new InputPortInfo("y")); }
+	@Override public List<OutputPortInfo> getDefaultOutputs() { return Collections.singletonList(new OutputPortInfo("f")); }
+	@Override public String getCategory() { return NodeCategories.SCALAR_OPS; }
 	
 }

@@ -19,68 +19,61 @@ import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.platform.ga.IGraphicsAlgorithmRenderer;
-import org.eclipse.graphiti.platform.ga.IVisualState;
-import org.eclipse.graphiti.platform.ga.IVisualStateChangeListener;
-import org.eclipse.graphiti.platform.ga.IVisualStateHolder;
-import org.eclipse.graphiti.platform.ga.VisualState;
-import org.eclipse.graphiti.platform.ga.VisualStateChangedEvent;
 import org.eclipse.graphiti.tb.IToolBehaviorProvider;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Pattern;
-import org.eclipse.swt.graphics.TextLayout;
-import org.eclipse.swt.widgets.Display;
 
 import gov.sandia.dart.workflow.domain.WFNode;
 import gov.sandia.dart.workflow.editor.WorkflowEditorPlugin;
 import gov.sandia.dart.workflow.editor.WorkflowImageProvider;
 import gov.sandia.dart.workflow.editor.WorkflowToolBehaviorProvider;
+import gov.sandia.dart.workflow.editor.WorkflowToolBehaviorProvider.NodeExecutionStatus;
 import gov.sandia.dart.workflow.editor.preferences.IWorkflowEditorPreferences;
 
-public class GenericWFNodeGARenderer extends AbstractGARenderer implements IGraphicsAlgorithmRenderer, IVisualStateHolder, IVisualStateChangeListener {
+public class GenericWFNodeGARenderer extends AbstractGARenderer implements IGraphicsAlgorithmRenderer {
 
     public static final String ID = "wfnode";
 	static final int CLEARANCE = 100;
 	static final int MORE_CLEARANCE = 24;
-	private IVisualState visualState;
-	private Color topColor = ColorConstants.white;
 	
 	static Map<String, Image> images = new ConcurrentHashMap<>();
-
-	@Override
-	public IVisualState getVisualState() {
-		if (visualState == null) {
-			visualState = new VisualState();
-			visualState.addChangeListener(this);
-		}
-		return visualState;
-	}
 	
 	@Override
 	protected void fillShape(Graphics g) {		
 		Rectangle innerBounds = getInnerBounds();
-
-		Pattern pattern = new Pattern(Display.getCurrent(), innerBounds.getTopLeft().x,
-				innerBounds.getTopLeft().y, innerBounds.getBottomLeft().x, innerBounds.getBottomLeft().y,
-				topColor, ColorConstants.cyan);
-		g.setAntialias(SWT.ON);
-		g.setBackgroundPattern(pattern);
-		g.fillRoundRectangle(new Rectangle(innerBounds.getTopLeft(), innerBounds.getBottomRight()), 10, 10);
-		g.setBackgroundPattern(null);
-		pattern.dispose();
+		Color fillColor = ColorConstants.white;
+		
 		PictogramElement pe = rc.getPlatformGraphicsAlgorithm().getPictogramElement();		
 		Object bo = fp.getBusinessObjectForPictogramElement(pe);
+
+		IToolBehaviorProvider tbp = fp.getDiagramTypeProvider().getCurrentToolBehaviorProvider();
+		if (tbp instanceof WorkflowToolBehaviorProvider) {
+			NodeExecutionStatus status = ((WorkflowToolBehaviorProvider) tbp).getExecutionStatus((WFNode) bo);
+			if (status != null) {
+				switch (status) {
+				case CURRENT: fillColor = ColorConstants.yellow; break;
+				case FAILED: fillColor = ColorConstants.red; break;
+				case PASSED: fillColor = ColorConstants.lightGreen; break;
+				case NEVER: fillColor = ColorConstants.white; break;
+				}
+			}
+		}
 		
+		g.setAntialias(SWT.ON);
+		if (WorkflowEditorPlugin.getDefault().getPreferenceStore().getBoolean(IWorkflowEditorPreferences.TRANSLUCENT_COMPONENTS)) {
+			g.setAlpha(200);
+		}
+		g.setBackgroundColor(fillColor);
+		g.fillRectangle(new Rectangle(innerBounds.getTopLeft(), innerBounds.getBottomRight()));
+		g.setAlpha(255);
 		Image image = getIcon((WFNode) bo);
 		g.drawImage(image, innerBounds.getTopLeft().translate(5, 5));
 				
 	}
 
-	// TODO We need a mechanism for contributing these icons.
 	public static Image getIcon(WFNode bo) {
 		String id = WorkflowImageProvider.PREFIX + bo.getType();
 		Image image = images.get(id);
@@ -109,7 +102,7 @@ public class GenericWFNodeGARenderer extends AbstractGARenderer implements IGrap
 		g.setForegroundColor(ColorConstants.black);
 		g.setLineStyle(Graphics.LINE_SOLID);
 		g.setLineWidth(1);
-		g.drawRoundRectangle(new Rectangle(ib.getTopLeft(), ib.getBottomRight()), 10, 10);
+		g.drawRectangle(new Rectangle(ib.getTopLeft(), ib.getBottomRight()));
 		
 		PictogramElement pe = rc.getPlatformGraphicsAlgorithm().getPictogramElement();		
 		Object bo = fp.getBusinessObjectForPictogramElement(pe);
@@ -128,41 +121,17 @@ public class GenericWFNodeGARenderer extends AbstractGARenderer implements IGrap
         			g.drawText(node.getName(), ib.x + 24, ib.y + 4);
 			
 			IToolBehaviorProvider tbp = fp.getDiagramTypeProvider().getCurrentToolBehaviorProvider();
+
 			if (tbp instanceof WorkflowToolBehaviorProvider) {
-				Boolean marker = ((WorkflowToolBehaviorProvider) tbp).getExecutionStatus((WFNode) bo);			
-				if (marker != null) {
-					g.setForegroundColor(marker ? ColorConstants.darkGreen : ColorConstants.red);
+				NodeExecutionStatus status = ((WorkflowToolBehaviorProvider) tbp).getExecutionStatus((WFNode) bo);			
+				if (status == NodeExecutionStatus.CURRENT) {
+					g.setForegroundColor(ColorConstants.darkGreen);
 					g.setLineStyle(Graphics.LINE_DASHDOT);
 					g.setLineWidth(3);
 					Point br = new Point(ib.getBottomRight().x-2, ib.getBottomRight().y-2);
-					g.drawRoundRectangle(new Rectangle(ib.getTopLeft(), br), 10, 10);
+					g.drawRectangle(new Rectangle(ib.getTopLeft(), br));
 				}
 			}
-		}
-	}
-
-	protected static void renderTextAbove(Graphics g, Rectangle r, String text) {
-		TextLayout tl = new TextLayout(Display.getCurrent());
-		tl.setWidth(r.width);	
-		tl.setAlignment(SWT.CENTER);
-		tl.setFont(g.getFont());
-		tl.setText(text == null ? "" : text);
-		int top = r.y;
-		int count = tl.getLineCount();
-		FontMetrics lineMetrics = tl.getLineMetrics(0);
-		top = r.y - (count * lineMetrics.getHeight()) - 5;
-		g.drawTextLayout(tl, r.x, top);	
-		
-		tl.dispose();
-	}
-	
-	@Override
-	public void visualStateChanged(VisualStateChangedEvent e) {
-		int selectionFeedback = getVisualState().getSelectionFeedback();
-		if (selectionFeedback == IVisualState.SELECTION_PRIMARY) {
-			topColor = ColorConstants.cyan;
-		} else  {
-			topColor = ColorConstants.white;
 		}
 	}
 }

@@ -42,8 +42,8 @@ public class Prop {
 		}
 	}
 	
-	private String name, value;
-	private TYPE type;		
+	private final String name, value;
+	private final TYPE type;		
 
 	public Prop(Property p){
 		this(p.getName(), p.getType(), p.getValue());
@@ -51,53 +51,39 @@ public class Prop {
 	
 	// Set this property to a Standard Type
 	Prop(String name, TYPE type) {
-		this.name = name;
-		this.type = type;			
-
-		if(this.type == null){
-			this.type = TYPE.DEFAULT;
-		}
-		
-		this.value = "";
+		this (name, type, "");
 	}
 	
 	public Prop(String name, TYPE type, String value) {
-		this(name, type);
+		this.name = name;
+		this.type =  type == null ? TYPE.DEFAULT : type;
 		this.value = value;		
 	}
 	
-	Prop(String name, String typeName) {
+	public Prop(String name, String typeName, String value) {
 		this.name = name;	
+		TYPE typeValue = null;
 		try {	
-			this.type = TYPE.valueOf(typeName.toUpperCase());
+			 typeValue = TYPE.valueOf(typeName.toUpperCase());
+
 		} catch (Exception ex) {
 			if ("local_file".equalsIgnoreCase(typeName))
-				this.type = TYPE.HOME_FILE;
-			else
-				System.out.println("Warning: unknown property type name " + typeName + " encountered.");
+				typeValue = TYPE.HOME_FILE;
 		}
-		
-		if(this.type == null){
-			type = TYPE.DEFAULT;
-		}
-		
-		this.value = "";
+		this.type =  typeValue == null ? TYPE.DEFAULT : typeValue;
+
+		this.value = value;
 	}
 
-	public Prop(String name, String type, String value) {
-		this(name, type);
-		this.value = value;		
+	public Prop(String name, String type) {
+		this(name, type, "");
 	}
 
 	public TYPE getType() {
 		return type;
 	}
 	
-	public String getTypeName(){		
-		if(type == null){
-			type = TYPE.DEFAULT;
-		}
-		
+	public String getTypeName(){				
 		return type.toString();
 	}
 

@@ -15,6 +15,15 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.eclipse.emf.transaction.RecordingCommand;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.emf.transaction.util.TransactionUtil;
+import org.eclipse.graphiti.features.IFeatureProvider;
+import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
+import org.eclipse.graphiti.mm.algorithms.styles.Color;
+import org.eclipse.graphiti.mm.algorithms.styles.LineStyle;
+import org.eclipse.graphiti.mm.pictograms.Diagram;
+import org.eclipse.graphiti.mm.pictograms.PictogramElement;
+import org.eclipse.graphiti.services.Graphiti;
+import org.eclipse.graphiti.util.ColorConstant;
+import org.eclipse.graphiti.util.IColorConstant;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -41,7 +50,7 @@ public class WFArcSettingsEditor extends AbstractSettingsEditor<WFArc> {
 
 	private final AtomicReference<WFArc> arc = new AtomicReference<>();
 	private Image image;
-	private Button linkToTarget, expandWildcards, readInFile;
+	private Button linkToTarget, copyToTarget, expandWildcards, readInFile, notALocalPath;
 	private Label description;
 
 	@Override
@@ -63,7 +72,8 @@ public class WFArcSettingsEditor extends AbstractSettingsEditor<WFArc> {
 		Label label = toolkit.createLabel(form.getBody(), "Link file to target");
 		label.setToolTipText("This connection transmits a file path, and "
 				+ "the workflow engine should create a link to the file into the "
-				+ "target node's working directory");
+				+ "target node's working directory. The port data will be the path "
+				+ "to the link");
 		data = new GridData();
 		data.grabExcessHorizontalSpace=false;
 		data.horizontalSpan=3;
@@ -71,6 +81,20 @@ public class WFArcSettingsEditor extends AbstractSettingsEditor<WFArc> {
 		
 		linkToTarget = toolkit.createButton(form.getBody(), "", SWT.CHECK);
 		linkToTarget.addSelectionListener(new CheckboxListener(PropertyUtils.LINK_INCOMING_FILE_TO_TARGET));
+
+		
+		label = toolkit.createLabel(form.getBody(), "Copy file to target");
+		label.setToolTipText("This connection transmits a file path, and "
+				+ "the workflow engine should copy the file into the "
+				+ "target node's working directory. The port data will be the path " 
+				+ "to the copy");
+		data = new GridData();
+		data.grabExcessHorizontalSpace=false;
+		data.horizontalSpan=3;
+		label.setLayoutData(data);
+		
+		copyToTarget = toolkit.createButton(form.getBody(), "", SWT.CHECK);
+		copyToTarget.addSelectionListener(new CheckboxListener(PropertyUtils.COPY_INCOMING_FILE_TO_TARGET));
 
 		label = toolkit.createLabel(form.getBody(), "Expand wildcards");
 		label.setToolTipText("This connection transmits a file path with "
@@ -96,6 +120,18 @@ public class WFArcSettingsEditor extends AbstractSettingsEditor<WFArc> {
 		readInFile = toolkit.createButton(form.getBody(), "", SWT.CHECK);
 		readInFile.addSelectionListener(new CheckboxListener(PropertyUtils.READ_IN_FILE));
 
+		label = toolkit.createLabel(form.getBody(), "Not a local path");
+		label.setToolTipText("This connection transmits data that may look like a file path, but " +
+				"the workflow engine should not interpret it as a path in this workflow at runtime, or attempt " +
+				"to copy, link, or transfer it automatically.");
+		data = new GridData();
+		data.grabExcessHorizontalSpace=false;
+		data.horizontalSpan=3;
+		label.setLayoutData(data);
+		
+		notALocalPath = toolkit.createButton(form.getBody(), "", SWT.CHECK);
+		notALocalPath.addSelectionListener(new CheckboxListener(PropertyUtils.NOT_A_LOCAL_PATH));
+
 	}
 	
 	protected void setEditorTitle() {
@@ -109,7 +145,8 @@ public class WFArcSettingsEditor extends AbstractSettingsEditor<WFArc> {
 		linkToTarget.setSelection(Boolean.valueOf(PropertyUtils.getProperty(node, PropertyUtils.LINK_INCOMING_FILE_TO_TARGET)));
 		expandWildcards.setSelection(Boolean.valueOf(PropertyUtils.getProperty(node, PropertyUtils.EXPAND_WILDCARDS)));
 		readInFile.setSelection(Boolean.valueOf(PropertyUtils.getProperty(node, PropertyUtils.READ_IN_FILE)));
-
+		copyToTarget.setSelection(Boolean.valueOf(PropertyUtils.getProperty(node, PropertyUtils.COPY_INCOMING_FILE_TO_TARGET)));
+		notALocalPath.setSelection(Boolean.valueOf(PropertyUtils.getProperty(node, PropertyUtils.NOT_A_LOCAL_PATH)));
 		setEditorTitle();
 	}
 	
@@ -165,7 +202,11 @@ public class WFArcSettingsEditor extends AbstractSettingsEditor<WFArc> {
 					@Override
 					public void doExecute() {
 						PropertyUtils.setProperty(getNode(), propertyName, String.valueOf(value));	
+						Diagram diagram = NOWPSettingsEditorUtils.getDiagramEditor(getNode()).getDiagramTypeProvider().getDiagram();
+						IFeatureProvider fp = NOWPSettingsEditorUtils.getFeatureProvider(getNode());
+						updateConnectionAppearance(diagram, fp, getNode());
 					}
+
 				});
 
 			} catch (Exception e2) {
@@ -173,9 +214,31 @@ public class WFArcSettingsEditor extends AbstractSettingsEditor<WFArc> {
 			}
 		}
 
+
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			widgetDefaultSelected(e);				
 		}
+	}
+	
+	public static void updateConnectionAppearance(Diagram diagram, IFeatureProvider fp ,WFArc node) {
+		boolean link = Boolean.valueOf(PropertyUtils.getProperty(node, PropertyUtils.LINK_INCOMING_FILE_TO_TARGET));
+		boolean copy = Boolean.valueOf(PropertyUtils.getProperty(node, PropertyUtils.COPY_INCOMING_FILE_TO_TARGET));
+		boolean read = Boolean.valueOf(PropertyUtils.getProperty(node, PropertyUtils.READ_IN_FILE));
+		boolean expand =  Boolean.valueOf(PropertyUtils.getProperty(node, PropertyUtils.EXPAND_WILDCARDS));
+		
+		PictogramElement pe = fp.getPictogramElementForBusinessObject(node);
+		GraphicsAlgorithm ga = pe.getGraphicsAlgorithm();
+		ga.setLineStyle(expand ? LineStyle.DASH : read ? LineStyle.DOT : LineStyle.SOLID);
+		ga.setLineWidth(expand ? 2 : read ? 2 : 1);
+		Color color = manageColor(diagram, ColorConstant.DARK_GRAY);	
+		if (copy)
+			color = manageColor(diagram, ColorConstant.DARK_GREEN);
+		else if (link)
+			color = manageColor(diagram, ColorConstant.ORANGE);
+		ga.setForeground(color);		
+	}
+	protected static Color manageColor(Diagram diagram, IColorConstant colorConstant) {
+		return Graphiti.getGaService().manageColor(diagram, colorConstant);
 	}
 }

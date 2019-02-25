@@ -136,9 +136,17 @@ public class DropResourceFeature extends AbstractAddFeature implements IAddFeatu
 		return "file" + counter;
 	}
 
-	// TODO Use path relative to workflow file? 
+	// TODO This doesn't give the right answer for nested internal workflows.
 	protected String getFilePath() {
-		return resource.getName();
+		try {
+			java.nio.file.Path iwfPath = getWorkflowFile().getLocation().toFile().getParentFile().toPath();		
+			java.nio.file.Path resourcePath = resource.getLocation().toFile().toPath();
+			java.nio.file.Path relativeResourcePath = iwfPath.relativize(resourcePath);
+			
+			return relativeResourcePath.toString().replaceAll("\\\\", "/");
+		} catch (Exception e) {
+			return resource.getName();
+		}
 	}
 
 	protected PictogramElement doDropFileOnDiagram(IAddContext context) {
@@ -346,7 +354,7 @@ public class DropResourceFeature extends AbstractAddFeature implements IAddFeatu
 			CustomContext cc = new CustomContext();
 			cc.setPictogramElements(new PictogramElement[] {pe});	
 			cc.setInnerPictogramElement(pe);
-			new DefinePortsFromNestedWorkflowFeature(getFeatureProvider()).execute(cc);
+			new DefinePortsFromNestedWorkflowFeature(getFeatureProvider(), "nestedWorkflow", "fileName").execute(cc);
 			return pe;
 		}
 		

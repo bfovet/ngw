@@ -9,16 +9,18 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.runtime.components;
 
-import gov.sandia.dart.workflow.runtime.core.RuntimeData;
-import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
-import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.RuntimeData;
+import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
+import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
 
 public class EndLoopNode extends SAWCustomNode {
 	private Map<String, List<Object>> results = new HashMap<>(); 
@@ -55,8 +57,8 @@ public class EndLoopNode extends SAWCustomNode {
 	}
 
 
-	@Override public List<String> getDefaultInputNames() { return Collections.singletonList("x"); }
-	@Override public List<String> getDefaultOutputNames() { return Arrays.asList("f","_LEND_"); }
+	@Override public List<InputPortInfo> getDefaultInputs() { return Collections.singletonList(new InputPortInfo("x")); }
+	@Override public List<OutputPortInfo> getDefaultOutputs() { return Arrays.asList(new OutputPortInfo("f"), new OutputPortInfo("_LEND_")); }
 
 	@Override
 	public String getCategory() {

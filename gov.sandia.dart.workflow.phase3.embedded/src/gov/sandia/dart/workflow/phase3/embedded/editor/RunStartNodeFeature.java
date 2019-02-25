@@ -10,16 +10,21 @@
 package gov.sandia.dart.workflow.phase3.embedded.editor;
 
 import java.io.File;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.ICustomContext;
 import org.eclipse.graphiti.features.custom.AbstractCustomFeature;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
+import org.eclipse.graphiti.tb.IDecorator;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
@@ -28,6 +33,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
 import gov.sandia.dart.workflow.domain.WFNode;
+import gov.sandia.dart.workflow.editor.DecoratorManager;
 import gov.sandia.dart.workflow.editor.WorkflowDiagramEditor;
 import gov.sandia.dart.workflow.phase3.embedded.execution.EmbeddedWorkflowJob;
 
@@ -84,8 +90,25 @@ public class RunStartNodeFeature extends AbstractCustomFeature {
 					"The workflow has been modified. Save your changes and execute?");
 			if(saveChanges) {
 				editor.doSave(new NullProgressMonitor());				
-			} 
+			} else {
+				return null;
+			}
 		}
+		
+		WorkflowDiagramEditor deditor = (WorkflowDiagramEditor) editor;
+		Map<EObject, IDecorator> decoratorMap = DecoratorManager.getDecoratorMap(deditor.getDiagramTypeProvider().getDiagram().eResource());
+		if (!decoratorMap.isEmpty()) {
+			StringBuilder msg = new StringBuilder("The workflow has some warnings. Execute anyway?");
+			Set<String> uniqueMessages = decoratorMap.values().stream().map(d -> d.getMessage()).collect(Collectors.toSet());
+			for (String m: uniqueMessages) {
+				msg.append("\n  ").append(m);
+			}
+			boolean runAnyway = MessageDialog.openQuestion(null, "Possible Problems", msg.toString());
+			if(!runAnyway) {
+				return null;
+			}
+		}
+		
 		IEditorInput input = editor.getEditorInput();
 		return (IFile) input.getAdapter(IFile.class);		
 	}

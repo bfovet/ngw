@@ -50,7 +50,11 @@
             class="gov.sandia.dart.workflow.domain.DomainPackage"
             genModel="domain.genmodel"/>
    </extension>
-   <extension
+
+null
+null
+null
+null   <extension
       	point="org.eclipse.graphiti.ui.imageProviders">
    		<imageProvider
          class="gov.sandia.dart.workflow.editor.WorkflowImageProvider"
@@ -67,6 +71,12 @@
          		</adapter>
       		</factory>
       		<factory adaptableType="gov.sandia.dart.workflow.domain.Note"
+            class="gov.sandia.dart.workflow.editor.settings.WorkflowNodeAdapterFactory">
+        		 <adapter
+             		  type="com.strikewire.snl.apc.GUIs.settings.ISettingsEditor">
+         		</adapter>
+      		</factory>
+       		<factory adaptableType="gov.sandia.dart.workflow.domain.Image"
             class="gov.sandia.dart.workflow.editor.settings.WorkflowNodeAdapterFactory">
         		 <adapter
              		  type="com.strikewire.snl.apc.GUIs.settings.ISettingsEditor">
@@ -168,8 +178,8 @@
            </contributor>
            <contributor
                  class="gov.sandia.dart.workflow.editor.NestedWorkflowContextButtonContributor">
-           </contributor>
-        </extension>
+           </contributor>           
+        </extension>        
         <extension
               point="gov.sandia.dart.workflow.editor.nodeTypeEditor">
            <editor
@@ -188,16 +198,19 @@
         <extension
               point="gov.sandia.dart.workflow.editor.nodeRenderer">
            <customRenderer
-                 class="gov.sandia.dart.workflow.editor.rendering.NestedWorkflowWFNodeGARenderer"
-                 nodeType="nestedWorkflow">
-           </customRenderer>
-           <customRenderer
-                 class="gov.sandia.dart.workflow.editor.rendering.NestedWorkflowWFNodeGARenderer"
-                 nodeType="nestedInternalWorkflow">
-           </customRenderer>
-           <customRenderer
                  class="gov.sandia.dart.workflow.editor.rendering.ParameterWFNodeGARenderer"
                  nodeType="parameter">
+           </customRenderer>
+        </extension>
+       <extension
+              point="gov.sandia.dart.workflow.editor.nodeRenderer">
+           <customRenderer
+                 class="gov.sandia.dart.workflow.editor.rendering.OnOffSwitchGARenderer"
+                 nodeType="onOffSwitch">
+           </customRenderer>
+            <customRenderer
+                 class="gov.sandia.dart.workflow.editor.rendering.ABSwitchGARenderer"
+                 nodeType="abSwitch">
            </customRenderer>
         </extension>
         <extension
@@ -205,6 +218,20 @@
            <doubleClick
                  nodeType="nestedWorkflow"
                  property="fileName">
+           </doubleClick>
+            <doubleClick
+                 nodeType="remoteNestedWorkflow"
+                 property="fileName">
+           </doubleClick>
+            <doubleClick
+                 customFeature="gov.sandia.dart.workflow.editor.features.OperateSwitchFeature$Provider"
+                 nodeType="onOffSwitch"
+                 property="onOff">
+           </doubleClick>
+            <doubleClick
+                 customFeature="gov.sandia.dart.workflow.editor.features.OperateSwitchFeature$Provider"
+                 nodeType="abSwitch"
+                 property="a">
            </doubleClick>
            <doubleClick
                  customFeature="gov.sandia.dart.workflow.editor.features.OpenInternalNestedWorkflowFeatureProvider"
@@ -230,6 +257,10 @@
            <doubleClick
                  nodeType="sierra"
                  property="inputFile">
+           </doubleClick>
+           <doubleClick
+                 nodeType="parameterFile"
+                 property="fileName">
            </doubleClick>
         </extension>
     

@@ -36,12 +36,13 @@ public class RunEmbeddedWorkflowWizard extends Wizard {
 
 	@Override
 	public void addPages() {
-		IPath suggestedPath;
+		IPath defaultPath;
 		if (runLocation != null)
-			suggestedPath = new Path(runLocation.getAbsolutePath());
+			defaultPath = new Path(runLocation.getAbsolutePath());
 		else
-			suggestedPath =  new Path(workflowFile.getParent().getLocation().toFile().getAbsolutePath());
-		page = new RuntimeDirectoryPage(suggestedPath);
+			defaultPath = new Path(workflowFile.getParent().getLocation().toFile().getAbsolutePath());
+		defaultPath.toFile().mkdirs();
+		page = new RuntimeDirectoryPage(workflowFile, defaultPath);
 		addPage(page);		
 		page.setDescription("Choose Top-Level Runtime Directory");
 		page.setTitle("Choose Directory");

@@ -48,6 +48,7 @@ public class ApreproPropertyTester extends org.eclipse.core.expressions.Property
 			{
 				return false;
 			}
+			
 			boolean expected = true;
 			if(expectedValue instanceof Boolean)
 			{
@@ -56,7 +57,8 @@ public class ApreproPropertyTester extends org.eclipse.core.expressions.Property
 				expected = Boolean.parseBoolean((String) expectedValue);
 			}
 			
-			return (sel.getLength()>0) == expected;
+			return (sel.getLength()>0) == expected;			
+			
 		} else if(CAN_USE_PARAMETER.equals(property)) {
 			TextSelection sel = getTextSelection(receiver);
 			if(sel == null)
@@ -70,10 +72,11 @@ public class ApreproPropertyTester extends org.eclipse.core.expressions.Property
 			} else if(expectedValue instanceof String) {
 				expected = Boolean.parseBoolean((String) expectedValue);
 			}
-			if(sel.getLength()>0 != expected)
-			{
-				return false;
-			}
+			//if(sel.getLength()>0 != expected)
+			//{
+			//	return false;
+			//}
+			
 			// now, even though the TextSelection has the document, we can't get it, so we have to get it manually.
 			// this is a lame solution, ripped off from useExistingParameter.
 			// get document
@@ -112,4 +115,5 @@ public class ApreproPropertyTester extends org.eclipse.core.expressions.Property
 		
 		return null;
 	}
+		
 }

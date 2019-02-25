@@ -20,14 +20,18 @@ import java.util.Map;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.NodeCategories;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
 import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
 import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
 import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
-import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition.Parameter;
 
 public class ApreproNode extends SAWCustomNode {
 
+	private static final String INPUT_PARAMETERS_MAP = "inputParametersMap";
 	private static final String TEMPLATE_FILE = "templateFile";
 
 	@Override
@@ -55,19 +59,35 @@ public class ApreproNode extends SAWCustomNode {
 		return Collections.singletonMap("outputFile", outputFile.getAbsolutePath());
 	}
 
+	//
+	// potential sources of parameters for aprepro:
+	//   (1) a map fed into the INPUT_PARAMETERS_MAP port,
+	//   (2) the name and value of any other connected ports,
+	//   (3) global parameters of the workflow
+	//
 	public Map<String, String> getParameters(WorkflowDefinition workflow, RuntimeData runtime) {
 		Map<String, String> parameters = new HashMap<>();
-		List<String> defaults = getDefaultInputNames();
+		if (isConnectedInput(INPUT_PARAMETERS_MAP, workflow)) {
+			Map<?, ?> map = (Map<?, ?>) runtime.getInput(getName(), INPUT_PARAMETERS_MAP, Map.class);
+			if (map != null) {
+				for (Map.Entry<?, ?> entry: map.entrySet()) {
+					parameters.put(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
+				}
+			}
+		}
+		
+		List<InputPortInfo> defaults = getDefaultInputs();
 		for (String name: runtime.getInputNames(getName())) {
-			if (!defaults.contains(name)) {
+			if (!propertiesContains(defaults, name)) {
 				String value = (String) runtime.getInput(getName(), name, String.class);
 				parameters.put(name, value);
 			}
 		}
-		for (Parameter p: workflow.getParameters().values()) {
-			if (p.global) {
-				String value = String.valueOf(runtime.getParameter(p.name));
-				parameters.put(p.name, value);
+		
+		for (String parameterName: runtime.getParameters().keySet()) {
+			if (runtime.isGlobal(parameterName)) {
+				String value = String.valueOf(runtime.getParameter(parameterName));
+				parameters.put(parameterName, value);
 			}
 		}
 		return parameters;		
@@ -84,12 +104,19 @@ public class ApreproNode extends SAWCustomNode {
 		}
 	}
 
-	@Override public List<String> getDefaultInputNames() { return Collections.singletonList(TEMPLATE_FILE); }	
-	@Override public List<String> getDefaultInputTypes() { return Collections.singletonList("input_file"); }	
-	@Override public List<String> getDefaultOutputNames() { return Collections.singletonList("outputFile"); }	
-	@Override public List<String> getDefaultOutputTypes() { return Collections.singletonList("output_file"); }	
-	@Override public List<String> getDefaultProperties() { return Arrays.asList(TEMPLATE_FILE, "outputFile", "commentChar"); }	
-	@Override public List<String> getDefaultPropertyTypes() { return Arrays.asList("home_file", "default", "default"); }
+	@Override public List<InputPortInfo> getDefaultInputs() {
+		return Arrays.asList(new InputPortInfo(TEMPLATE_FILE, "input_file"), new InputPortInfo(INPUT_PARAMETERS_MAP, "map"));
+		}	
+	@Override public List<OutputPortInfo> getDefaultOutputs() {
+		return Collections.singletonList(new OutputPortInfo("outputFile", "output_file"));
+		}	
+	@Override public List<PropertyInfo> getDefaultProperties() {
+		return Arrays.asList(
+			new PropertyInfo(TEMPLATE_FILE, "home_file"),
+			new PropertyInfo("outputFile", "default"),
+			new PropertyInfo("commentChar", "default")
+		);
+	}	
 		
 	public String getCommentChar(Map<String, String> properties) {
 		String raw = properties.get("commentChar");
@@ -100,7 +127,7 @@ public class ApreproNode extends SAWCustomNode {
 	}
 	
 	@Override
-	public String getCategory() {
-		return "Engineering";
+	public List<String> getCategories() {
+		return Arrays.asList("Engineering", NodeCategories.EXTERNAL_PROCESSES);
 	}
 }

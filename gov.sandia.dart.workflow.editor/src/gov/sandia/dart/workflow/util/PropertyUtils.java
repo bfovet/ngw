@@ -19,21 +19,27 @@ public class PropertyUtils {
 	public static final String LINK_INCOMING_FILE_TO_TARGET = "linkIncomingFileToTarget";
 	public static final String EXPAND_WILDCARDS = "expandWildcards";
 	public static final String READ_IN_FILE = "readInFile";
+	public static final String NOT_A_LOCAL_PATH = "notALocalPath";
 
 	public static final String SEND_PATH_OF_OUTPUT_FILE = "sendPathOfOutputFile";
 	public static final String OUTPUT_FILE_NAME = "outputFileName";
+	public static final String COPY_INCOMING_FILE_TO_TARGET = "copyIncomingFileToTarget";
 
 
 	private PropertyUtils() {}
 	
 	public static void setProperty(NamedObjectWithProperties node, String name, String value) {
+		setProperty(node, name, "default", value);
+	}
+	
+	public static void setProperty(NamedObjectWithProperties node, String name, String type, String value) {
 		Property p = getPropertyElement(node, name);
 		if (p != null) {
 			p.setValue(value);
 			return;
 		}
 		p = DomainFactory.eINSTANCE.createProperty();
-		p.setType("default");
+		p.setType(type);
 		p.setName(name);
 		p.setValue(value);
 		node.getProperties().add(p);

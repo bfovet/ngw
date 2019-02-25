@@ -9,6 +9,9 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.runtime.components;
 
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
 import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
 import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
@@ -39,10 +42,9 @@ public class ForLoopNode extends SAWCustomNode {
 		}
 		return Collections.singletonMap("f", String.valueOf(counter));
 	}	
-	@Override public List<String> getDefaultProperties() { return Arrays.asList("start", "step", "end"); }
-	@Override public List<String> getDefaultPropertyTypes() { return Arrays.asList("integer", "integer", "integer"); }
-	@Override public List<String> getDefaultInputNames() { return Arrays.asList("x", "_LBEGIN_","start", "step", "end"); }	
-	@Override public List<String> getDefaultOutputNames() { return Collections.singletonList("f"); }
+	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo("start", "integer"), new PropertyInfo("step", "integer"), new PropertyInfo("end", "integer")); }
+	@Override public List<InputPortInfo> getDefaultInputs() { return Arrays.asList(new InputPortInfo("x"), new InputPortInfo("_LBEGIN_"), new InputPortInfo("start"), new InputPortInfo("step"), new InputPortInfo("end")); }	
+	@Override public List<OutputPortInfo> getDefaultOutputs() { return Collections.singletonList(new OutputPortInfo("f")); }
 
 	@Override
 	public String getCategory() {

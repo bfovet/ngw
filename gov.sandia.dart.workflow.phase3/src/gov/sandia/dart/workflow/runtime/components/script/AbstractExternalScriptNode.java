@@ -27,17 +27,20 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.TeeOutputStream;
 import org.apache.commons.io.output.WriterOutputStream;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import gov.sandia.dart.workflow.runtime.components.AbstractExternalNode;
 import gov.sandia.dart.workflow.runtime.components.Squirter;
 import gov.sandia.dart.workflow.runtime.core.ICancelationListener;
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.NodeCategories;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
 import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
 import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
 import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition.OutputPort;
-import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition.Parameter;
+import gov.sandia.dart.workflow.runtime.util.ProcessUtils;
 
 /**
  * 
@@ -62,15 +65,15 @@ public abstract class AbstractExternalScriptNode extends AbstractExternalNode {
 	}
 
 	protected boolean isInternalInputPort(String portName) {
-		return getDefaultInputNames().contains(portName);
+		return propertiesContains(getDefaultInputs(), portName);
 	}
 	
 	protected boolean isInternalOutputPort(String portName) {
-		return getDefaultOutputNames().contains(portName);
+		return propertiesContains(getDefaultOutputs(), portName);
 	}
 	
 	protected boolean isInternalProperty(String propertyName) {
-		return getDefaultProperties().contains(propertyName);		
+		return propertiesContains(getDefaultProperties(), propertyName);
 	}
 
 	protected abstract PrintWriter initializeScript(File workDir, List<String> commandArgs, RuntimeData runtime) throws IOException;
@@ -80,7 +83,9 @@ public abstract class AbstractExternalScriptNode extends AbstractExternalNode {
 	protected abstract void finalizeScript(PrintWriter scriptStream) throws IOException;
 	protected abstract void addComment(PrintWriter scriptStream, String comment) throws IOException;
 	protected abstract void addScriptBody(PrintWriter scriptStream, String script) throws IOException;
-
+	
+	@Override
+	protected boolean excludeFromPropertiesFile(String name) { return SCRIPT.equals(name) || super.excludeFromPropertiesFile(name); }
 
 	@Override
 	public Map<String, Object> doExecute(Map<String, String> properties, WorkflowDefinition workflow, RuntimeData runtime) {
@@ -88,7 +93,7 @@ public abstract class AbstractExternalScriptNode extends AbstractExternalNode {
 		ByteArrayOutputStream errBytes = new ByteArrayOutputStream();
 
 		WorkflowDefinition.Node nodeDef = workflow.getNode(getName());
-		possiblyWritePropertiesFile(properties, runtime);
+		possiblyWritePropertiesFile(properties, workflow, runtime);
 
 		Map<String, Object> outputs = new HashMap<>();
 		Map<String, String> outputPortNameToFileName = new HashMap<>();
@@ -102,14 +107,18 @@ public abstract class AbstractExternalScriptNode extends AbstractExternalNode {
 			// Build complete script with prolog and postscript
 			List<String> commandArgs = new ArrayList<>();
 			// TODO Uniquify script name
-			try (PrintWriter fos = initializeScript(componentWorkDir, commandArgs, runtime)) {						
-				addInputPortsToScript(runtime, nodeDef, componentWorkDir, fos);
-				addPropertiesToScript(properties, propertyNames, fos);
-				addGlobalParametersToScript(workflow, runtime, fos);
-				addComment(fos, "End of definitions");
-				addScriptBody(fos, scriptText);
-				addComment(fos, "End of user script");
-				addOutputPortsToScript(workflow, runtime, properties, nodeDef, outputPortNameToFileName, fos);				
+			try (PrintWriter fos = initializeScript(componentWorkDir, commandArgs, runtime)) {		
+				if (getPropertiesFileFlag(properties)) {
+					addScriptBody(fos, scriptText); // GEORGE MODE
+				} else {
+					addInputPortsToScript(runtime, workflow, nodeDef, componentWorkDir, fos);
+					addPropertiesToScript(properties, propertyNames, fos);
+					addGlobalParametersToScript(workflow, runtime, fos);
+					addComment(fos, "End of definitions");
+					addScriptBody(fos, scriptText);
+					addComment(fos, "End of user script");
+					addOutputPortsToScript(workflow, runtime, properties, nodeDef, outputPortNameToFileName, fos);			
+				}
 				finalizeScript(fos);
 				
 			} catch (Exception e) {
@@ -133,7 +142,7 @@ public abstract class AbstractExternalScriptNode extends AbstractExternalNode {
 			}
 		}
 		
-		if (status != 0) {
+		if (status != 0 && !isConnectedOutput(EXIT_STATUS, workflow)) {
 			throw new SAWWorkflowException(String.format("Script exited with status %d", status));
 		}
 		
@@ -240,12 +249,13 @@ public abstract class AbstractExternalScriptNode extends AbstractExternalNode {
 			throws IOException, InterruptedException {
 		int status;
 		Process p;
-		ProcessBuilder proc = new ProcessBuilder();
-		proc.environment().putAll(runtime.getenv());
+		ProcessBuilder proc = ProcessUtils.createProcess(runtime);
 		proc.command(commandArgs);
 		proc.directory(componentWorkDir);
 		runtime.log().debug("about to execute command " + Arrays.toString(commandArgs.toArray()));
 		ICancelationListener listener = null;
+		int exitStatus = UNSET;
+
 		try {
 			//proc.redirectOutput(ProcessBuilder.Redirect.INHERIT);
 			p = proc.start();
@@ -271,16 +281,23 @@ public abstract class AbstractExternalScriptNode extends AbstractExternalNode {
 			t1.start();
 			t2.start();
 
-			status = p.waitFor();		
+			while (exitStatus == UNSET && !runtime.isCancelled()) {
+				try {
+					exitStatus = p.waitFor();
+					break;
+				} catch (InterruptedException ex) {
+					// May be a spurious wakeup. Check for cancellation, and go check exit status again.
+				}
+			}
 
 			t1.join(300);
 			t2.join(300);
 		} finally {
 			runtime.removeCancelationListener(listener);
 		}
-		return status;
+		return exitStatus;
 	}
-
+	
 	/**
 	 * Before the script executes, the individual properties of this script node -- except for the internal properties,
 	 * like "script" -- are prepended to the script as variable definitions. 
@@ -290,16 +307,13 @@ public abstract class AbstractExternalScriptNode extends AbstractExternalNode {
 		for (String propertyName : propertyNames) {
 			if (!isInternalProperty(propertyName)) {
 				String propertyValue = properties.get(propertyName);
-				String escaped = escapeString(propertyValue);
-				addPropertyToScript(fos, propertyName, escaped);
+				if (propertyValue != null) {
+					String escaped = escapeString(propertyValue);
+					String identifier = makeIdentifier(propertyName);
+					addPropertyToScript(fos, identifier, escaped);
+				}
 			}
 		}
-	}
-	
-	protected String escapeString(String unescaped) {
-		String value = StringEscapeUtils.escapeJava(unescaped);
-		return value.replaceAll("'", "\\\\'");
-
 	}
 
 	/**
@@ -309,11 +323,12 @@ public abstract class AbstractExternalScriptNode extends AbstractExternalNode {
 	 */
 	private void addGlobalParametersToScript(WorkflowDefinition workflow, RuntimeData runtime, PrintWriter fos)
 			throws IOException {
-		for (Parameter p: workflow.getParameters().values()) {
-			if (p.global) {
-				String propertyValue = String.valueOf(runtime.getParameter(p.name));
+		for (String name: runtime.getParameters().keySet()) {
+			if (runtime.isGlobal(name)) {
+				String identifier = makeIdentifier(name);
+				String propertyValue = String.valueOf(runtime.getParameter(name));
 				String escaped = escapeString(propertyValue);
-				addPropertyToScript(fos, p.name, escaped);	
+				addPropertyToScript(fos, identifier, escaped);	
 			}
 		}
 	}
@@ -345,26 +360,22 @@ public abstract class AbstractExternalScriptNode extends AbstractExternalNode {
 		return "output_file".equals(type) || "exodus_file".equals(type);
 	}
 
-	/**
-	 * TODO: map to legal filename so port names are less restricted?
-	 */
-	
-	private String getFileNameForInputPort(String portName) throws IOException {		
-		return portName; 
-	}
-
 
 	/**
-	 * For each input port, we define a variable (named after the port) to hold the value
+	 * For each connected input port, we define a variable (named after the port) to hold the value
 	 * (retrieved as a String) found on the port.
+	 * @param workflow TODO
 	 */
 	
-	private void addInputPortsToScript(RuntimeData runtime, WorkflowDefinition.Node nodeDef, File componentWorkDir, PrintWriter fos) throws IOException {
+	private void addInputPortsToScript(RuntimeData runtime, WorkflowDefinition workflow, WorkflowDefinition.Node nodeDef, File componentWorkDir, PrintWriter fos) throws IOException {
 		for (WorkflowDefinition.InputPort port : nodeDef.inputs.values()) {
-			if (!isInternalInputPort(port.name)) {
+			if (!isInternalInputPort(port.name) && isConnectedInput(port.name, workflow)) {
 				String value = (String) runtime.getInput(getName(), port.name, String.class);
-				String escaped = escapeString(value);
-				addInputPortToScript(fos, port.name, escaped);
+				if (value != null) {
+					String identifier = makeIdentifier(port.name);
+					String escaped = escapeString(value);
+					addInputPortToScript(fos, identifier, escaped);
+				}
 			}
 		}
 	}
@@ -383,11 +394,10 @@ public abstract class AbstractExternalScriptNode extends AbstractExternalNode {
 	}
 	
 	
-	@Override public final List<String> getDefaultInputNames() { return Arrays.asList(STDIN_PORT_NAME, SCRIPT); }
-	@Override public final List<String> getDefaultOutputNames() { return Arrays.asList(STDOUT_PORT_NAME, STDERR_PORT_NAME, EXIT_STATUS); }
-	@Override public final List<String> getDefaultProperties() { return Arrays.asList(SCRIPT, PROPERTIES_FILE_FLAG); }
-	@Override public final List<String> getDefaultPropertyTypes() { return Arrays.asList("multitext", "boolean"); }
-	@Override public String getCategory() { return "Pipes"; }
+	@Override public final List<InputPortInfo> getDefaultInputs() { return Arrays.asList(new InputPortInfo(STDIN_PORT_NAME), new InputPortInfo(SCRIPT)); }
+	@Override public final List<OutputPortInfo> getDefaultOutputs() { return Arrays.asList(new OutputPortInfo(STDOUT_PORT_NAME), new OutputPortInfo(STDERR_PORT_NAME), new OutputPortInfo(EXIT_STATUS)); }
+	@Override public final List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo(SCRIPT, "multitext"), new PropertyInfo(PROPERTIES_FILE_FLAG, "boolean") ); }
+	@Override public String getCategory() { return NodeCategories.EXTERNAL_PROCESSES; }
 
 }
 

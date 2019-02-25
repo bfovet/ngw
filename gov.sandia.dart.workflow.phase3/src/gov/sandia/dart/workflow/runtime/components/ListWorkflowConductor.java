@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
 import gov.sandia.dart.workflow.runtime.core.WorkflowProcess;
 
 public class ListWorkflowConductor implements WorkflowConductor {
@@ -100,12 +101,7 @@ public class ListWorkflowConductor implements WorkflowConductor {
 	}
 
 	@Override
-	public List<String> getDefaultProperties() {
-		return Arrays.asList("parameter", "values");
-	}
-	
-	@Override
-	public List<String> getDefaultPropertyTypes() {
-		return Arrays.asList("parameter", "default");
+	public List<PropertyInfo> getDefaultProperties() {
+		return Arrays.asList(new PropertyInfo("parameter", "parameter"), new PropertyInfo("values", "default"));
 	}
 }

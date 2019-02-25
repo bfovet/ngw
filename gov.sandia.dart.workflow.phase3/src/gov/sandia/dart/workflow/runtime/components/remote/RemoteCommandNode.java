@@ -18,6 +18,10 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.NodeCategories;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
 import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
 import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
@@ -25,13 +29,19 @@ import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
 
 public class RemoteCommandNode extends SAWCustomNode {
 
+	public static final String HOSTNAME = "hostname";
+	public static final String REMOTE_PATH = "remotePath";
+	public static final String USERNAME = "username";
+	public static final String JMPHOST = "jumphost";
+	public static final String JMPUSER = "jumpuser";
+
 	@Override
 	protected Map<String, Object> doExecute(Map<String, String> properties,
 			WorkflowDefinition workflow, RuntimeData runtime) {
-		String hostname = getStringFromPortOrProperty(runtime, properties, "hostname");
+		String hostname = getStringFromPortOrProperty(runtime, properties, HOSTNAME);
 	 	String username = System.getProperty("user.name");		
 		String command = getStringFromPortOrProperty(runtime, properties, "command");
-		String path = getStringFromPortOrProperty(runtime, properties, "remotePath");
+		String path = getStringFromPortOrProperty(runtime, properties, REMOTE_PATH);
 
 		try {
 			Remote exec = new Remote(hostname, username);
@@ -59,33 +69,14 @@ public class RemoteCommandNode extends SAWCustomNode {
 	}
 
 	@Override
-	public List<String> getDefaultProperties() {
-		return Arrays.asList("hostname", "command", "remotePath");
-	}
+	public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo(HOSTNAME), new PropertyInfo("command"), new PropertyInfo(REMOTE_PATH));	}
 	
 	@Override
-	public List<String> getDefaultOutputNames() {
-		return Arrays.asList("output", "error");
-	}
+	public List<OutputPortInfo> getDefaultOutputs() { return Arrays.asList(new OutputPortInfo("output", "default"), new OutputPortInfo("error", "default")); }
 	
 	@Override
-	public List<String> getDefaultOutputTypes() {
-		return Arrays.asList("default", "default");
-	}
+	public List<InputPortInfo> getDefaultInputs() { return Collections.singletonList(new InputPortInfo("trigger", "default")); }
 	
-	@Override
-	public List<String> getDefaultInputNames() {
-		return Collections.singletonList("trigger");
-	}
-	
-	@Override
-	public List<String> getDefaultInputTypes() {
-		return Collections.singletonList("default");
-	}
-	
-	@Override
-	public String getCategory() {
-		return "Control";
-	}
+	@Override public List<String> getCategories() { return Arrays.asList(NodeCategories.EXTERNAL_PROCESSES, NodeCategories.REMOTE); }
 	
 }

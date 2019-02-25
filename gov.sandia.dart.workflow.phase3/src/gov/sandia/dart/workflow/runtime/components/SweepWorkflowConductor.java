@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
 import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
 import gov.sandia.dart.workflow.runtime.core.WorkflowProcess;
 
@@ -154,12 +155,8 @@ public class SweepWorkflowConductor implements WorkflowConductor {
 	}
 	
 	@Override
-	public List<String> getDefaultProperties() {
-		return Arrays.asList("parameter", "start", "step", "end");
+	public List<PropertyInfo> getDefaultProperties() {
+		return Arrays.asList(new PropertyInfo("parameter", "parameter"), new PropertyInfo("start"), new PropertyInfo("step"), new PropertyInfo("end"));
 	}
-	
-	@Override
-	public List<String> getDefaultPropertyTypes() {
-		return Arrays.asList("parameter", "default", "default", "default");	}
 
 }

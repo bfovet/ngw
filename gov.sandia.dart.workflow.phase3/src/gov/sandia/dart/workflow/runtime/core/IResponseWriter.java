@@ -13,5 +13,4 @@ public interface IResponseWriter {
 	void writeRow();
 	void close();
 	void writeRow(RuntimeData runtime);
-	int getNextSampleId();
 }

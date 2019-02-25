@@ -40,14 +40,30 @@ public class NestedWorkflowContextButtonContributor implements IContextButtonCon
 					button2.setIconId(WorkflowImageProvider.IMG_WORKFLOW);	   
 					buttons.add(button2);
 				}
+				OpenReferencedFileFeature feature4 = new OpenReferencedFileFeature(featureProvider, "remoteNestedWorkflow", "fileName");
+				if (feature4.canOperateOn(node)) {
+					ContextButtonEntry button4 = new ContextButtonEntry(feature4, customContext);
+					button4.setText("Open nested workflow");
+					button4.setIconId(WorkflowImageProvider.IMG_WORKFLOW);	   
+					buttons.add(button4);
+				}
 
-				DefinePortsFromNestedWorkflowFeature feature2 = new DefinePortsFromNestedWorkflowFeature(featureProvider);
+				DefinePortsFromNestedWorkflowFeature feature2 = new DefinePortsFromNestedWorkflowFeature(featureProvider, "nestedWorkflow", "fileName");
 				if (feature2.canOperateOn(node)) {
 					ContextButtonEntry button2 = new ContextButtonEntry(feature2, customContext);
 					button2.setText("Define ports from nested workflow");
 					button2.setIconId(WorkflowImageProvider.IMG_PORTS);	   
 					buttons.add(button2);
 				}
+				
+				DefinePortsFromNestedWorkflowFeature feature3 = new DefinePortsFromNestedWorkflowFeature(featureProvider, "remoteNestedWorkflow", "fileName");
+				if (feature3.canOperateOn(node)) {
+					ContextButtonEntry button3 = new ContextButtonEntry(feature3, customContext);
+					button3.setText("Define ports from nested workflow");
+					button3.setIconId(WorkflowImageProvider.IMG_PORTS);	   
+					buttons.add(button3);
+				}
+
 			}
 		}
 		return buttons;

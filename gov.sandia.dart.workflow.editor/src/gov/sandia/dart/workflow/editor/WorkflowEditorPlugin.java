@@ -81,6 +81,16 @@ public class WorkflowEditorPlugin extends AbsReportingUIPlugin {
 		return registry.get(fontString);
 	}
 	
+//	public Font getImagesFont() {
+//		String fontString = getPreferenceStore().getString(IWorkflowEditorPreferences.IMAGES_FONT);
+//		if (registry.get(fontString) == null) {
+//			FontData[] fontData = PreferenceConverter.getFontDataArray(getPreferenceStore(), IWorkflowEditorPreferences.NOTES_FONT);	
+//			Font f = new Font(Display.getDefault(), fontData);
+//			registry.put(fontString, f);
+//		}
+//		return registry.get(fontString);
+//	}
+	
 	public Font getEditorAreaFont() {
 		String fontString = getPreferenceStore().getString(IWorkflowEditorPreferences.EDITOR_FONT);
 		if (registry.get(fontString) == null) {

@@ -138,6 +138,10 @@ public class DomainAdapterFactory extends AdapterFactoryImpl {
 				return createArcAdapter();
 			}
 			@Override
+			public Adapter caseImage(Image object) {
+				return createImageAdapter();
+			}
+			@Override
 			public Adapter caseDomain_NamedObject(NamedObject object) {
 				return createDomain_NamedObjectAdapter();
 			}
@@ -398,6 +402,20 @@ public class DomainAdapterFactory extends AdapterFactoryImpl {
 	 * @generated
 	 */
 	public Adapter createArcAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link gov.sandia.dart.workflow.domain.Image <em>Image</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see gov.sandia.dart.workflow.domain.Image
+	 * @generated
+	 */
+	public Adapter createImageAdapter() {
 		return null;
 	}
 

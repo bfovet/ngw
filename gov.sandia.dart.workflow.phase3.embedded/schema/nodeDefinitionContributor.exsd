@@ -17,8 +17,11 @@
          </appinfo>
       </annotation>
       <complexType>
-         <sequence>
-            <element ref="nodeDefinition" minOccurs="1" maxOccurs="unbounded"/>
+         <sequence minOccurs="1" maxOccurs="unbounded">
+            <choice>
+               <element ref="nodeDefinition"/>
+               <element ref="runtimeLibrary"/>
+            </choice>
          </sequence>
          <attribute name="point" type="string" use="required">
             <annotation>
@@ -59,11 +62,35 @@
          <attribute name="nodeClass" type="string" use="required">
             <annotation>
                <documentation>
-                  
+                  Provides a workfow node implementation class to the embedded runtime system.
                </documentation>
                <appinfo>
                   <meta.attribute kind="java" basedOn="gov.sandia.dart.workflow.runtime.core.SAWCustomNode:"/>
                </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="runtimeLibrary">
+      <annotation>
+         <documentation>
+            Describes a plugin whose contents should be available in the non-Eclipse runtime environment. If the plugin contains a resources/iwf.properties file, it will be used to load workflow nodes into the standalone runtime workflow engine.
+         </documentation>
+      </annotation>
+      <complexType>
+         <attribute name="name" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Convenience attribute used to describe this loadable plugin in error and log messages.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="bundleId" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The bundle id of an existing plugin.
+               </documentation>
             </annotation>
          </attribute>
       </complexType>

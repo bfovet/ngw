@@ -44,6 +44,7 @@ public class OpenReferencedFileFeature extends AbstractFileReferenceFeature {
 		if (bo instanceof WFNode) {
 			WFNode node = (WFNode)bo;	
 			if (canOperateOn(node)) {
+				// TODO Would be great if we could resolve, e.g., ${workflow.workdir} here
 				IFile diagramFile = getDiagramFolder().getFile(new Path(PropertyUtils.getProperty(node, property)));
 				java.net.URI locationURI = diagramFile.getLocationURI();
 				IFileStore fileStore = EFS.getLocalFileSystem().getStore(locationURI);

@@ -20,6 +20,7 @@ import java.io.PrintWriter;
  */
 
 public class LoggingWorkflowMonitor implements IWorkflowMonitor, AutoCloseable{
+	public static final String DEFAULT_NAME = "workflow.status.log";
 	private PrintWriter  statusLog;
 
 	public LoggingWorkflowMonitor(File logFile) throws IOException {
@@ -46,6 +47,19 @@ public class LoggingWorkflowMonitor implements IWorkflowMonitor, AutoCloseable{
 	
 	@Override
 	public synchronized void close() {
+		statusLog.println("STOP");
 		statusLog.close();
+	}
+
+	@Override
+	public void terminated(RuntimeData runtime, Throwable t) {
+		runtime.log().info("Sample {0}, Terminated: {1}", runtime.getSampleId(), t.getMessage());
+		statusLog.println("ABORT: Workflow terminated.");
+	}
+
+	@Override
+	public void status(SAWCustomNode node, RuntimeData runtime, Object status) {
+		runtime.log().info("Sample {0}, Status for node  {1}: {2}", runtime.getSampleId(), node.getName(), String.valueOf(status));
+		statusLog.println("STATUS: " + node.getName() + " . " + status);
 	}
 }

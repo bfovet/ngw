@@ -57,6 +57,12 @@ public class WorkflowEditorPreferencePage extends DefaultFieldEditorPreferencePa
                  getFieldEditorParent())); 	
 		 addField(new BooleanFieldEditor(IWorkflowEditorPreferences.PORT_LABELS,
                  "Display port names",
+                 getFieldEditorParent())); 	
+		 addField(new BooleanFieldEditor(IWorkflowEditorPreferences.CONNECTIONS_BEHIND,
+                 "Draw connections behind nodes (after close/reopen diagram)",
+                 getFieldEditorParent())); 		
+		 addField(new BooleanFieldEditor(IWorkflowEditorPreferences.TRANSLUCENT_COMPONENTS,
+                 "Draw translucent nodes",
                  getFieldEditorParent())); 		
 
 	}

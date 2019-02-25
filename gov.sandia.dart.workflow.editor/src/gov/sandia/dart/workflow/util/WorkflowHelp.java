@@ -9,30 +9,43 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.util;
 
-import gov.sandia.dart.workflow.editor.WorkflowEditorPlugin;
-
-import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.eclipse.ui.PartInitException;
+import org.eclipse.core.runtime.IExtension;
+import org.eclipse.core.runtime.IExtensionPoint;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.browser.IWebBrowser;
-import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
+import org.eclipse.ui.help.IWorkbenchHelpSystem;
+import org.osgi.framework.Bundle;
+
+import com.strikewire.snl.apc.util.ExtensionPointUtils;
+
+import gov.sandia.dart.workflow.editor.WorkflowEditorPlugin;
 
 public class WorkflowHelp {
 
 	public static  void openDocumentationWebPage(String nodeType) {
-		try {
-			URL url = new URL("https://dart.sandia.gov/wiki/display/WRKFLW/" + nodeType);			
-			IWorkbenchBrowserSupport browserSupport = PlatformUI.getWorkbench().getBrowserSupport();
-			IWebBrowser browser = browserSupport.createBrowser(IWorkbenchBrowserSupport.AS_VIEW | IWorkbenchBrowserSupport.LOCATION_BAR
-					| IWorkbenchBrowserSupport.NAVIGATION_BAR | IWorkbenchBrowserSupport.STATUS | IWorkbenchBrowserSupport.PERSISTENT,
-					"workflow.help.browser", "Web Browser", "Web Browser");
-			browser.openURL(url);
-	
-		} catch (PartInitException | MalformedURLException e1) {
-			WorkflowEditorPlugin.getDefault().logError("Error creating help browser", e1);
+		if (tryOpenDocumentationWebPage(nodeType, "gov.sandia.dart.workflow.help"))
+			return;
+		IExtensionPoint ep = ExtensionPointUtils.getExtensionPoint(WorkflowEditorPlugin.PLUGIN_ID, "nodeTypeContributor");
+		for (IExtension ext: ep.getExtensions()) {
+			String bundle = ext.getContributor().getName();
+			if (tryOpenDocumentationWebPage(nodeType, bundle))
+				return;
 		}
+	}
+	
+	private static boolean tryOpenDocumentationWebPage(String nodeType, String bundle) {
+		String href = null;
+		Bundle bndlSierraPlugin_ = Platform.getBundle(bundle);
+		final URL entry = bndlSierraPlugin_.getEntry("/components/" + nodeType + ".html");
+		if (entry == null)
+			return false;
+		href = "/" + bundle + "/components/" + nodeType + ".html";
+		
+		IWorkbenchHelpSystem helpSystem = PlatformUI.getWorkbench().getHelpSystem();
+		helpSystem.displayHelpResource(href);
+		return true;
 	}
 
 }

@@ -30,6 +30,7 @@ import com.strikewire.snl.apc.GUIs.settings.ISettingsEditor;
 import com.strikewire.snl.apc.util.ExtensionPointUtils;
 
 import gov.sandia.dart.workflow.domain.Note;
+import gov.sandia.dart.workflow.domain.Image;
 import gov.sandia.dart.workflow.domain.Response;
 import gov.sandia.dart.workflow.domain.ResponseArc;
 import gov.sandia.dart.workflow.domain.WFArc;
@@ -50,6 +51,9 @@ public class WorkflowNodeAdapterFactory implements IAdapterFactory {
 				return getSettingsEditor(cc);	
 			} else if (adaptableObject instanceof Note) {
 				Note cc = (Note) adaptableObject;
+				return getSettingsEditor(cc);	
+			} else if (adaptableObject instanceof Image) {
+				Image cc = (Image) adaptableObject;
 				return getSettingsEditor(cc);	
 			} else if (adaptableObject instanceof Response) {
 				Response cc = (Response) adaptableObject;
@@ -132,6 +136,11 @@ public class WorkflowNodeAdapterFactory implements IAdapterFactory {
 	private ISettingsEditor<? extends Object> getSettingsEditor(final Note cc)
 	{		
 		return new NoteSettingsEditor();
+	}
+
+	private ISettingsEditor<? extends Object> getSettingsEditor(final Image cc)
+	{		
+		return new ImageSettingsEditor();
 	}
 
 	private ISettingsEditor<? extends Object> getSettingsEditor(final Response cc)

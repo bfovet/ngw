@@ -20,6 +20,7 @@ import gov.sandia.dart.workflow.domain.NamedObject;
 import gov.sandia.dart.workflow.domain.WFNode;
 import gov.sandia.dart.workflow.editor.WorkflowImageProvider;
 import gov.sandia.dart.workflow.editor.configuration.NodeType;
+import gov.sandia.dart.workflow.util.ParameterUtils;
  
 public class CreateWFNodeFeature extends AbstractCreateNodeFeature {	
 	NodeType nodeType;
@@ -46,6 +47,9 @@ public class CreateWFNodeFeature extends AbstractCreateNodeFeature {
 
         addPortsAndProperties(newNode, nodeType);  
     	
+        if (ParameterUtils.isParameter(newNode))
+        	ParameterUtils.setValue(newNode, "");
+        
         // do the add
         addGraphicalRepresentation(context, newNode);
  

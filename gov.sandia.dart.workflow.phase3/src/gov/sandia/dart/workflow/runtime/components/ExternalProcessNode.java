@@ -26,11 +26,16 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import gov.sandia.dart.workflow.runtime.core.ICancelationListener;
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.NodeCategories;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
 import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
 import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
 import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition.InputPort;
 import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition.Node;
+import gov.sandia.dart.workflow.runtime.util.ProcessUtils;
 
 /**
  * 
@@ -48,10 +53,13 @@ public class ExternalProcessNode extends AbstractExternalNode {
 	private static final String COMMAND_PROPERTY = "command";
 
 	@Override
+	protected boolean excludeFromPropertiesFile(String name) { return COMMAND_PROPERTY.equals(name) || super.excludeFromPropertiesFile(name); }
+	
+	@Override
 	public Map<String, Object> doExecute(Map<String, String> properties,  WorkflowDefinition workflow, RuntimeData runtime) {
 		
 		WorkflowDefinition.Node thisNode = workflow.getNode(getName());
-		possiblyWritePropertiesFile(properties, runtime);
+		possiblyWritePropertiesFile(properties, workflow, runtime);
 		int exitStatus = 0;
 
 		// TODO This needs a rewrite. If there's an error executing the process, the outputs are lost.
@@ -72,12 +80,16 @@ public class ExternalProcessNode extends AbstractExternalNode {
 			throw new SAWWorkflowException("Problem executing external program", t);
 		}	
 
+		if (exitStatus != 0 && !isConnectedOutput(EXIT_STATUS, workflow)) {
+			throw new SAWWorkflowException(String.format("Script exited with status %d", exitStatus));
+		}
+
+		
 		return postProcessOutputs(thisNode, exitStatus, stdoutReceptor, stderrReceptor, runtime);
 	}
 
 	protected Process setUpProcess(Map<String, String> properties, RuntimeData runtime) throws IOException {
-		ProcessBuilder processBuilder = new ProcessBuilder();
-		processBuilder.environment().putAll(runtime.getenv());
+		ProcessBuilder processBuilder = ProcessUtils.createProcess(runtime);
 		List<String> commandArgs = new ArrayList<>();
 		Pattern ptn = Pattern.compile("([^\"]\\S*|\".+?\")\\s*"); // thank you, StackOverflow
 		Matcher matchPattern = ptn.matcher(getCommand(properties));
@@ -125,7 +137,15 @@ public class ExternalProcessNode extends AbstractExternalNode {
 		Thread t1, t2;
 		(t1 = new Thread(new Squirter(p.getInputStream(), stdoutPrintStream), "externalProcessNode stdout")).start();
 		(t2 = new Thread(new Squirter(p.getErrorStream(), stderrPrintStream), "externalProcessNode stderr")).start();
-		int exitStatus = p.waitFor();
+		int exitStatus = UNSET;
+		while (exitStatus == UNSET && !runtime.isCancelled()) {
+			try {
+				exitStatus = p.waitFor();
+				break;
+			} catch (InterruptedException ex) {
+				// May be a spurious wakeup. Check for cancellation, and go check exit status again.
+			}
+		}
 		t2.join();
 		t1.join();
 		return exitStatus;
@@ -153,6 +173,8 @@ public class ExternalProcessNode extends AbstractExternalNode {
 			outputMap.put(EXIT_STATUS, exitStatus);
 		}
 		
+		
+		
 		return outputMap;
 	}
 	
@@ -160,9 +182,10 @@ public class ExternalProcessNode extends AbstractExternalNode {
 		return properties.get("command");
 	}
 	
-	@Override public List<String> getDefaultInputNames() { return Arrays.asList(STDIN_PORT_NAME); }
-	@Override public List<String> getDefaultOutputNames() { return Arrays.asList(STDOUT_PORT_NAME, STDERR_PORT_NAME, EXIT_STATUS); }
-	@Override public List<String> getDefaultProperties() { return Arrays.asList(COMMAND_PROPERTY, PROPERTIES_FILE_FLAG); }
-	@Override public List<String> getDefaultPropertyTypes() { return Arrays.asList("text", "boolean"); }
-	@Override public String getCategory() { return "Pipes"; }
+	@Override public List<InputPortInfo> getDefaultInputs() { return Arrays.asList(new InputPortInfo(STDIN_PORT_NAME)); }
+	@Override public List<OutputPortInfo> getDefaultOutputs() { return Arrays.asList(new OutputPortInfo(STDOUT_PORT_NAME), new OutputPortInfo(STDERR_PORT_NAME), new OutputPortInfo(EXIT_STATUS)); }
+	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo(COMMAND_PROPERTY, "text"), new PropertyInfo(PROPERTIES_FILE_FLAG, "boolean")); }
+//	@Override public List<String> getDefaultProperties() { return Arrays.asList(COMMAND_PROPERTY, PROPERTIES_FILE_FLAG); }
+//	@Override public List<String> getDefaultPropertyTypes() { return Arrays.asList("text", "boolean"); }
+	@Override public String getCategory() { return NodeCategories.EXTERNAL_PROCESSES; }
 }

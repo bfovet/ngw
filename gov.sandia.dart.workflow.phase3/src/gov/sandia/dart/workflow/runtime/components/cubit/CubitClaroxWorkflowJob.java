@@ -9,11 +9,6 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.runtime.components.cubit;
 
-import gov.sandia.dart.workflow.runtime.components.Squirter;
-import gov.sandia.dart.workflow.runtime.core.ICancelationListener;
-import gov.sandia.dart.workflow.runtime.core.RuntimeData;
-import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
@@ -22,8 +17,14 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
+import gov.sandia.dart.workflow.runtime.components.Squirter;
+import gov.sandia.dart.workflow.runtime.core.ICancelationListener;
+import gov.sandia.dart.workflow.runtime.core.RuntimeData;
+import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
+
 class CubitClaroxWorkflowJob {
 
+	private static final int UNSET = 1234567890;
 	private String cubitInput;
 	private String pythonInput;
 	private Thread t1;
@@ -55,6 +56,7 @@ class CubitClaroxWorkflowJob {
 
 		try {
 			String cubitPath = getCubitPath();
+			// TODO I think we're using the built-in SAW CUBIT, so we should inherit the fixed LD_LIBRARY_PATH?
 			ProcessBuilder builder = new ProcessBuilder();
 			builder.command(cubitPath, "-nographics", "-nojournal");
 			builder.directory(workingDir);
@@ -76,12 +78,22 @@ class CubitClaroxWorkflowJob {
 			writer.println("quit()");
 			writer.close();
 			
-			// TODO Error detection
-			if (process.waitFor() != 0) {
-				return false;
+			int exitStatus = UNSET;
+			while (exitStatus == UNSET && !runtime.isCancelled()) {
+				try {
+					exitStatus = process.waitFor();
+					break;
+				} catch (InterruptedException ex) {
+					// May be a spurious wakeup. Check for cancellation, and go check exit status again.
+				}
 			}
 			t1.join(1000);
 			t2.join(1000);
+
+			// TODO Error detection
+			if (exitStatus != 0) {
+				return false;
+			}
 
 		} catch (Throwable t) {
 			throw new SAWWorkflowException("Error while running Cubit", t);

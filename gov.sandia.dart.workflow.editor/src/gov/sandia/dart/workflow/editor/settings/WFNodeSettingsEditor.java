@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -44,6 +45,7 @@ import org.eclipse.emf.transaction.util.TransactionUtil;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.impl.DeleteContext;
 import org.eclipse.graphiti.features.context.impl.MultiDeleteInfo;
+import org.eclipse.graphiti.mm.pictograms.FixPointAnchor;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -76,7 +78,6 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
@@ -105,6 +106,7 @@ import gov.sandia.dart.common.preferences.settings.ISettingsViewPreferences;
 import gov.sandia.dart.workflow.domain.DomainFactory;
 import gov.sandia.dart.workflow.domain.InputPort;
 import gov.sandia.dart.workflow.domain.OutputPort;
+import gov.sandia.dart.workflow.domain.Port;
 import gov.sandia.dart.workflow.domain.Property;
 import gov.sandia.dart.workflow.domain.WFNode;
 import gov.sandia.dart.workflow.editor.WorkflowEditorPlugin;
@@ -116,6 +118,11 @@ import gov.sandia.dart.workflow.util.PropertyUtils;
 import gov.sandia.dart.workflow.util.WorkflowHelp;
 
 public class WFNodeSettingsEditor extends AbstractSettingsEditor<WFNode>  implements Adapter {
+
+	private static final String BUTTON_DELETE = "Delete";
+	private static final String BUTTON_ADD = "Add";
+	private static final String BUTTON_UP = "Up";
+	private static final String BUTTON_DOWN = "Down";
 
 	protected static ImageDescriptor helpImage;
 
@@ -144,6 +151,8 @@ public class WFNodeSettingsEditor extends AbstractSettingsEditor<WFNode>  implem
 	private Map<String, IConfigurationElement> resourceContributors; 
 	
 	protected Composite propertiesParent;
+	private Map<String, Button> ipButtons;
+	private Map<String, Button> opButtons;
 	
 	
 	static {
@@ -190,8 +199,6 @@ public class WFNodeSettingsEditor extends AbstractSettingsEditor<WFNode>  implem
 			return createCheckboxControl(composite, prop);
 		case PARAMETER:
 			return createComboControl(composite, prop, getParameterNames());
-		case INTEGER:
-			return createSpinnerControl(composite, prop);
 		default:
 			return createTextControl(composite, prop);
 		}
@@ -517,61 +524,6 @@ public class WFNodeSettingsEditor extends AbstractSettingsEditor<WFNode>  implem
 		return null;
 	}
 
-
-	protected Spinner createSpinnerControl(Composite composite, Prop p) {
-		String propertyName = p.getName();
-		String propertyValue = p.getValue();
-		
-		Composite row = toolkit.createComposite(composite);
-		row.setLayout(new GridLayout(2, false));
-		row.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
-
-		toolkit.createLabel(row, propertyName);
-
-		Spinner spinner = new Spinner(row, SWT.BORDER);
-		spinner.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
-		spinner.addModifyListener(new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent e) {
-				try {
-					if(node.get() == null)
-					{
-						return;
-					}
-					
-					String value = spinner.getText();
-					String current = PropertyUtils.getProperty(node.get(), propertyName);
-					if (Objects.equals(value, current))
-						return;
-					
-					TransactionalEditingDomain domain = TransactionUtil.getEditingDomain(node.get());
-	        		domain.getCommandStack().execute(new RecordingCommand(domain) {
-						@Override
-						public void doExecute() {
-							PropertyUtils.setProperty(node.get(), propertyName, value);	
-							validateProperties();
-						}
-					});
-
-				} catch (Exception e2) {
-					WorkflowEditorPlugin.getDefault().logError("Can't find property in object", e2);
-				}
-			}
-
-
-		});
-		
-		spinner.setMaximum(Integer.MAX_VALUE);
-		
-		if (propertyValue != null){
-			try{
-				int spinnerValue = Integer.parseInt(propertyValue);
-				spinner.setSelection(spinnerValue);				
-			}catch(NumberFormatException nfe){	}
-		}
-
-		return spinner;
-	}
 	
 	protected void validateProperties(){
 		IStatus status = Status.OK_STATUS;
@@ -591,6 +543,9 @@ public class WFNodeSettingsEditor extends AbstractSettingsEditor<WFNode>  implem
 
 		if(Prop.TYPE.INTEGER == prop.getType()){								
 			if(StringUtils.isNotEmpty(propertyValue)){
+				if (propertyValue.matches("\\$\\{.*\\}"))
+					return Status.OK_STATUS;
+						
 				try{
 					Integer.parseInt(propertyValue);
 				}catch(NumberFormatException nfe){
@@ -603,6 +558,9 @@ public class WFNodeSettingsEditor extends AbstractSettingsEditor<WFNode>  implem
 		
 		if(Prop.TYPE.DECIMAL == prop.getType()){
 			if(StringUtils.isNotEmpty(propertyValue)){
+				if (propertyValue.matches("$\\{.*\\}"))
+					return Status.OK_STATUS;
+
 				try{
 					Double.parseDouble(propertyValue);
 				}catch(NumberFormatException nfe){
@@ -611,15 +569,7 @@ public class WFNodeSettingsEditor extends AbstractSettingsEditor<WFNode>  implem
 				}
 			}
 			return Status.OK_STATUS;
-		}
-
-
-		// Check user defined type
-		if(prop.getType().equals(Prop.TYPE.DEFAULT) && !Prop.TYPE.DEFAULT.toString().equalsIgnoreCase(p.getType())){
-			String msg = "Property \'" + p.getName() + "\' has invalid type \'" + p.getType() + "\'";
-			return new Status(Status.WARNING, WorkflowEditorPlugin.PLUGIN_ID, msg);
-		}
-		
+		}		
 		
 		return Status.OK_STATUS;
 	}
@@ -826,8 +776,8 @@ public class WFNodeSettingsEditor extends AbstractSettingsEditor<WFNode>  implem
 
 
 	protected void setupOutputPortsTab(WFNode node) {
-		// Output ports
-		Button oDelete = NOWPSettingsEditorUtils.addButtons(toolkit, outputsComposite_, node, new Runnable() {
+		Map<String, Runnable> create = new LinkedHashMap<>();
+		create.put(BUTTON_ADD, new Runnable() {
 			@Override
 			public void run() {
 				OutputPort port = DomainFactory.eINSTANCE.createOutputPort();
@@ -835,8 +785,8 @@ public class WFNodeSettingsEditor extends AbstractSettingsEditor<WFNode>  implem
 				port.setType("default");				
 				node.getOutputPorts().add(port);
 			}
-		},
-		new Runnable() {
+		});
+		create.put(BUTTON_DELETE, new Runnable() {
 			@Override
 			public void run() {
 				ISelection s = outputPortsTable_.getSelection();
@@ -851,29 +801,89 @@ public class WFNodeSettingsEditor extends AbstractSettingsEditor<WFNode>  implem
 					}
 				}
 			}
-		});		
-		outputPortsTable_ = makePortsTable(node, outputsComposite_, new PortsContentProvider(false));			
+		});
+		
+		// TODO Maybe move these into custom features?
+		create.put(BUTTON_UP, new Runnable() {
+			@Override
+			public void run() {
+				ISelection s = outputPortsTable_.getSelection();
+				if (s instanceof IStructuredSelection) {
+					Object object = ((IStructuredSelection)s).getFirstElement();
+					if (object instanceof OutputPort) {
+						OutputPort movingPort = (OutputPort) object;
+						int index = node.getOutputPorts().indexOf(movingPort);
+						if (index > 0) {
+							OutputPort otherPort = node.getOutputPorts().get(index-1);
+							node.getOutputPorts().move(index-1, movingPort);
+							swapPictograms(movingPort, otherPort);
+							enableOpButtons();
+						}
+					}
+				}
+			}
+		});
+		
+		create.put(BUTTON_DOWN, new Runnable() {
+			@Override
+			public void run() {
+				ISelection s = outputPortsTable_.getSelection();
+				if (s instanceof IStructuredSelection) {
+					Object object = ((IStructuredSelection)s).getFirstElement();
+					if (object instanceof OutputPort) {
+						OutputPort movingPort = (OutputPort) object;
+						int index = node.getOutputPorts().indexOf(movingPort);
+						if (index < outputPortsTable_.getTable().getItemCount() - 1) {
+							OutputPort otherPort = node.getOutputPorts().get(index+1);
+							node.getOutputPorts().move(index+1, movingPort);	
+							swapPictograms(movingPort, otherPort);
+							enableOpButtons();
+						}
+					}
+				}
+			}
+		});
+		
+		opButtons = NOWPSettingsEditorUtils.addButtons(toolkit, outputsComposite_, node, create);
+
+		outputPortsTable_ = makeOutputPortsTable(node, outputsComposite_, new PortsContentProvider(false));			
 		outputPortsTable_.addSelectionChangedListener(new ISelectionChangedListener() {
 			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
-				oDelete.setEnabled(!event.getSelection().isEmpty());
+				enableOpButtons();
 			}
+
 		});
+		enableOpButtons();
+
+	}
+	
+	private void enableOpButtons() {
+		int index = outputPortsTable_.getTable().getSelectionIndex();
+		if (index == -1) {
+			opButtons.get(BUTTON_DELETE).setEnabled(false);				
+			opButtons.get(BUTTON_UP).setEnabled(false);
+			opButtons.get(BUTTON_DOWN).setEnabled(false);
+		} else {		
+			opButtons.get(BUTTON_DELETE).setEnabled(true);
+			opButtons.get(BUTTON_UP).setEnabled(index != 0);
+			opButtons.get(BUTTON_DOWN).setEnabled(index != outputPortsTable_.getTable().getItemCount() - 1);
+		}
 	}
 
 
 	protected void setupInputPortsTab(WFNode node) {
-		// Input ports
-		Button iDelete = NOWPSettingsEditorUtils.addButtons(toolkit, inputsComposite_, node, new Runnable() {
+		Map<String, Runnable> create = new LinkedHashMap<>();
+		create.put(BUTTON_ADD, new Runnable() {
 			@Override
 			public void run() {
 				InputPort port = DomainFactory.eINSTANCE.createInputPort();
 				port.setName(NOWPSettingsEditorUtils.createUniqueName(node.getInputPorts()));
 				port.setType("default");
-				node.getInputPorts().add(port);
+				node.getInputPorts().add(port);				
 			}			
-		}, 
-		new Runnable() {
+		});
+		create.put(BUTTON_DELETE, new Runnable() {
 			@Override
 			public void run() {
 				ISelection s = inputPortsTable_.getSelection();
@@ -889,18 +899,87 @@ public class WFNodeSettingsEditor extends AbstractSettingsEditor<WFNode>  implem
 				}
 			}
 		});
+		create.put(BUTTON_UP, new Runnable() {
+			@Override
+			public void run() {
+				ISelection s = inputPortsTable_.getSelection();
+				if (s instanceof IStructuredSelection) {
+					Object object = ((IStructuredSelection)s).getFirstElement();
+					if (object instanceof InputPort) {
+						InputPort movingPort = (InputPort) object;
+						int index = node.getInputPorts().indexOf(movingPort);
+						if (index > 0) {
+							InputPort otherPort = node.getInputPorts().get(index-1);
+							node.getInputPorts().move(index-1, movingPort);
+							swapPictograms(movingPort, otherPort);
+							enableIpButtons();
+						}
+					}
+				}
+			}
+		});
+		create.put(BUTTON_DOWN, new Runnable() {
+			@Override
+			public void run() {
+				ISelection s = inputPortsTable_.getSelection();
+				if (s instanceof IStructuredSelection) {
+					Object object = ((IStructuredSelection)s).getFirstElement();
+					if (object instanceof InputPort) {
+						InputPort movingPort = (InputPort) object;
+						int index = node.getInputPorts().indexOf(movingPort);
+						if (index < inputPortsTable_.getTable().getItemCount() -1) {
+							InputPort otherPort = node.getInputPorts().get(index+1);
+							node.getInputPorts().move(index+1, movingPort);	
+							swapPictograms(movingPort, otherPort);
+							enableIpButtons();
+						}
+					}
+				}
+			}
+		});
+		
+		ipButtons = NOWPSettingsEditorUtils.addButtons(toolkit, inputsComposite_, node, create);
 	
-		inputPortsTable_ = makePortsTable(node, inputsComposite_, new PortsContentProvider(true));
+		inputPortsTable_ = makeInputPortsTable(node, inputsComposite_, new PortsContentProvider(true));
 		inputPortsTable_.addSelectionChangedListener(new ISelectionChangedListener() {
 			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
-				iDelete.setEnabled(!event.getSelection().isEmpty());
+				enableIpButtons();
 			}
+
+			
 		});
+		enableIpButtons();
+
+	}
+
+	protected void swapPictograms(Port movingPort, Port otherPort) {
+		IFeatureProvider fp = NOWPSettingsEditorUtils.getFeatureProvider(movingPort);
+		FixPointAnchor movingPe = (FixPointAnchor) fp.getPictogramElementForBusinessObject(movingPort);
+		FixPointAnchor otherPe = (FixPointAnchor) fp.getPictogramElementForBusinessObject(otherPort);
+		int otherY = otherPe.getLocation().getY();
+		int movingY = movingPe.getLocation().getY();
+		otherPe.getLocation().setY(movingY);
+		movingPe.getLocation().setY(otherY);
 	}
 
 
-	protected TableViewer makePortsTable(WFNode node, Composite comp, IStructuredContentProvider provider) {
+	private void enableIpButtons() {
+		int index = inputPortsTable_.getTable().getSelectionIndex();
+
+		if (index == -1) {
+			ipButtons.get(BUTTON_DELETE).setEnabled(false);				
+			ipButtons.get(BUTTON_UP).setEnabled(false);
+			ipButtons.get(BUTTON_DOWN).setEnabled(false);
+		} else {		
+			ipButtons.get(BUTTON_DELETE).setEnabled(true);
+			ipButtons.get(BUTTON_UP).setEnabled(index != 0);
+			ipButtons.get(BUTTON_DOWN).setEnabled(index != inputPortsTable_.getTable().getItemCount() - 1);
+
+		}
+	}
+
+	protected TableViewer makeOutputPortsTable(WFNode node, Composite comp, IStructuredContentProvider provider) {
 		TableViewer viewer = new TableViewer(comp, SWT.NONE);
 		Table table = viewer.getTable();
 		table.setHeaderVisible(true);
@@ -925,12 +1004,39 @@ public class WFNodeSettingsEditor extends AbstractSettingsEditor<WFNode>  implem
 		viewer.setLabelProvider(new PortLabelProvider());
 		viewer.setContentProvider(provider);
 		viewer.setInput(node);
-		vcolumn1.setEditingSupport(new PortNameEditingSupport(viewer, 0));
-		vcolumn2.setEditingSupport(new PortNameEditingSupport(viewer, 1));
-		vcolumn3.setEditingSupport(new PortNameEditingSupport(viewer, 2));
+		vcolumn1.setEditingSupport(new OutputPortEditingSupport(viewer, 0));
+		vcolumn2.setEditingSupport(new OutputPortEditingSupport(viewer, 1));
+		vcolumn3.setEditingSupport(new OutputPortEditingSupport(viewer, 2));
 	
 		return viewer;
 	}
+	
+	protected TableViewer makeInputPortsTable(WFNode node, Composite comp, IStructuredContentProvider provider) {
+		TableViewer viewer = new TableViewer(comp, SWT.NONE);
+		Table table = viewer.getTable();
+		table.setHeaderVisible(true);
+		table.setLinesVisible(true);	
+		table.setLayoutData(new GridData(SWT.FILL,SWT.FILL,true,true));
+		
+		TableViewerColumn vcolumn1 = new TableViewerColumn(viewer, SWT.RIGHT);		
+		TableColumn column1 = vcolumn1.getColumn();	
+		column1.setText("Name");
+		column1.setWidth(80);
+	
+		TableViewerColumn vcolumn2 = new TableViewerColumn(viewer, SWT.RIGHT);		
+		TableColumn column2 = vcolumn2.getColumn();	
+		column2.setText("Type");
+		column2.setWidth(80);
+				
+		viewer.setLabelProvider(new PortLabelProvider());
+		viewer.setContentProvider(provider);
+		viewer.setInput(node);
+		vcolumn1.setEditingSupport(new InputPortEditingSupport(viewer, 0));
+		vcolumn2.setEditingSupport(new InputPortEditingSupport(viewer, 1));
+	
+		return viewer;
+	}
+
 
 
 	@Override
@@ -958,9 +1064,10 @@ public class WFNodeSettingsEditor extends AbstractSettingsEditor<WFNode>  implem
 
 	@Override
 	public void notifyChanged(Notification notification) {
-		if (node.get() != null && propertiesParent != null ) {
+		WFNode wfNode = node.get();
+		if (wfNode != null && propertiesParent != null ) {
 			CompositeUtils.removeChildrenFromComposite(propertiesParent);
-			setupPropertiesEditor(propertiesParent, node.get());
+			setupPropertiesEditor(propertiesParent, wfNode);
 			propertiesParent.layout(true, true);
 		}
 	}

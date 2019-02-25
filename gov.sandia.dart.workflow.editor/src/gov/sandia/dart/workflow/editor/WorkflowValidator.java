@@ -108,16 +108,13 @@ public class WorkflowValidator {
 	}
 
 	private void validateName(IFeatureProvider fp, Map<EObject, IDecorator> decorators, WFNode object, NamedObject port) {
-		char[] name = port.getName().toCharArray();
-		for (char c: name) {
-			if (!Character.isJavaIdentifierPart(c)) {
-				ImageDecorator imageRenderingDecorator = new ImageDecorator(IPlatformImageConstants.IMG_ECLIPSE_ERROR_TSK);
-				imageRenderingDecorator.setMessage("Invalid character '" + c + "' in port name '" + port.getName() + "' of node '" + object.getName() + "'");
-				PictogramElement pe = fp.getPictogramElementForBusinessObject(object);
-				imageRenderingDecorator.setX(pe.getGraphicsAlgorithm().getWidth() - 20);
-				decorators.put(object, imageRenderingDecorator);					
-				break;
-			}
+		String name = port.getName();
+		if (name.indexOf('.') > -1) {
+			ImageDecorator imageRenderingDecorator = new ImageDecorator(IPlatformImageConstants.IMG_ECLIPSE_ERROR_TSK);
+			imageRenderingDecorator.setMessage("Invalid character '.' in port name '" + port.getName() + "' of node '" + object.getName() + "'");
+			PictogramElement pe = fp.getPictogramElementForBusinessObject(object);
+			imageRenderingDecorator.setX(pe.getGraphicsAlgorithm().getWidth() - 20);
+			decorators.put(object, imageRenderingDecorator);					
 		}
 	}
 	

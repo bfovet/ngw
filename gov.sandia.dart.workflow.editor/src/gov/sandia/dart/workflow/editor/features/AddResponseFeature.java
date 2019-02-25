@@ -11,6 +11,7 @@ package gov.sandia.dart.workflow.editor.features;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.graphiti.features.IDirectEditingInfo;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.IAddContext;
 import org.eclipse.graphiti.features.impl.AbstractAddShapeFeature;
@@ -78,6 +79,11 @@ public class AddResponseFeature extends AbstractAddShapeFeature {
 		
 		layoutPictogramElement(shape);
 		addToDiagram(addednode);	
+
+		IDirectEditingInfo directEditingInfo = getFeatureProvider().getDirectEditingInfo();
+		directEditingInfo.setMainPictogramElement(shape);
+		directEditingInfo.setPictogramElement(shape);
+		directEditingInfo.setGraphicsAlgorithm(ga);
 
 		return shape;
     }

@@ -404,7 +404,7 @@ public class MultipleInputDialog extends Dialog {
 	}
 	
 	protected class Validator {
-		boolean validate() {
+		protected boolean validate() {
 			return true;
 		}
 	}

@@ -31,14 +31,17 @@ import org.eclipse.graphiti.features.context.IPictogramElementContext;
 import org.eclipse.graphiti.features.context.impl.CustomContext;
 import org.eclipse.graphiti.features.custom.ICustomFeature;
 import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
+import org.eclipse.graphiti.mm.pictograms.Diagram;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.palette.IPaletteCompartmentEntry;
+import org.eclipse.graphiti.platform.IDiagramContainer;
 import org.eclipse.graphiti.tb.ContextButtonEntry;
 import org.eclipse.graphiti.tb.ContextMenuEntry;
 import org.eclipse.graphiti.tb.DefaultToolBehaviorProvider;
 import org.eclipse.graphiti.tb.IContextButtonPadData;
 import org.eclipse.graphiti.tb.IContextMenuEntry;
 import org.eclipse.graphiti.tb.IDecorator;
+import org.eclipse.swt.widgets.Display;
 
 import com.strikewire.snl.apc.util.ExtensionPointUtils;
 
@@ -50,17 +53,18 @@ import gov.sandia.dart.workflow.editor.features.BringToFrontFeature;
 import gov.sandia.dart.workflow.editor.features.DuplicateNodeFeature;
 import gov.sandia.dart.workflow.editor.features.ICustomFeatureProvider;
 import gov.sandia.dart.workflow.editor.features.OpenReferencedFileFeature;
+import gov.sandia.dart.workflow.editor.features.RebuildGraphicsFeature;
 import gov.sandia.dart.workflow.editor.features.SendToBackFeature;
+import gov.sandia.dart.workflow.editor.features.ToggleConnectionAlphaFeature;
 import gov.sandia.dart.workflow.editor.monitoring.IWorkflowListener;
-import gov.sandia.dart.workflow.editor.monitoring.WorkflowMonitor;
+import gov.sandia.dart.workflow.editor.monitoring.WorkflowTracker;
 
 public class WorkflowToolBehaviorProvider extends DefaultToolBehaviorProvider implements IWorkflowListener {
-
+	public enum NodeExecutionStatus { PASSED, FAILED, CURRENT, NEVER }; 
 
 	public WorkflowToolBehaviorProvider(IDiagramTypeProvider dtp) {
 		super(dtp);
-//		System.err.println("new WTBP");
-		WorkflowMonitor.addWorkflowListener(this);
+		WorkflowTracker.addWorkflowListener(this);
 	}
 
 	@Override
@@ -79,13 +83,20 @@ public class WorkflowToolBehaviorProvider extends DefaultToolBehaviorProvider im
 			entries.add(item);
 		}
 
-		if (context.getPictogramElements().length == 1) {
+		if (pics.length == 1 && ! (pics[0] instanceof Diagram) ) {
 			ContextMenuEntry entry = new ContextMenuEntry(null, customContext);
 			entry.add(new ContextMenuEntry(new BringToFrontFeature(getFeatureProvider()), customContext));
 			entry.add(new ContextMenuEntry(new SendToBackFeature(getFeatureProvider()), customContext));
 			entry.setSubmenu(false);
 			entries.add(entry);
 		}
+		
+		if (pics.length == 1 && pics[0] instanceof Diagram) {			
+			entries.add(new ContextMenuEntry(new ToggleConnectionAlphaFeature(getFeatureProvider()), customContext));
+		}
+
+		entries.add(new ContextMenuEntry(new RebuildGraphicsFeature(getFeatureProvider()), customContext));
+
 
 		return entries.toArray(new IContextMenuEntry[entries.size()]);
 	}
@@ -93,7 +104,6 @@ public class WorkflowToolBehaviorProvider extends DefaultToolBehaviorProvider im
 
 	@Override
 	public IPaletteCompartmentEntry[] getPalette() {
-//		System.err.println("get Pallette");
 		return new PaletteBuilder().createPaletteEntries(getFeatureProvider(), getDiagramFile());
 	}
 
@@ -188,18 +198,11 @@ public class WorkflowToolBehaviorProvider extends DefaultToolBehaviorProvider im
 	 * True/False: decorate as running or error
 	 * null: no decoration 
 	 */
-	public Boolean getExecutionStatus(Object bo) {
+	public NodeExecutionStatus getExecutionStatus(Object bo) {
 		if (bo instanceof WFNode) {
 			String name = ((WFNode) bo).getName();
 
-			Object status = isExecuting(name, getDiagramFile().lastSegment());
-
-			if (status != null) {
-				if (status instanceof Throwable)
-					return Boolean.FALSE;
-				else
-					return Boolean.TRUE;
-			}
+			return getStatus(name, getDiagramFile().lastSegment());			
 		} 
 		
 		return null;
@@ -223,14 +226,10 @@ public class WorkflowToolBehaviorProvider extends DefaultToolBehaviorProvider im
 				DoubleClickAction action = doubleClickActions.get(node.getType());
 				if(action != null)
 				{
-					String property = action.getProperty();
-					if(property != null)
+					ICustomFeature feature = action.getCustomFeature(getFeatureProvider());
+					if(feature.canExecute(context))
 					{
-						ICustomFeature feature = action.getCustomFeature(getFeatureProvider());
-						if(feature.canExecute(context))
-						{
-							return feature;
-						}
+						return feature;
 					}
 				}
 			} else if (bo instanceof WFArc || bo instanceof ResponseArc) {
@@ -257,6 +256,8 @@ public class WorkflowToolBehaviorProvider extends DefaultToolBehaviorProvider im
 		private final IConfigurationElement element;
 		private final String nodeType;
 		private final String property;
+		private final String customFeature;
+
 		
 		private DoubleClickAction(IConfigurationElement element)
 		{
@@ -264,29 +265,28 @@ public class WorkflowToolBehaviorProvider extends DefaultToolBehaviorProvider im
 			
 			this.nodeType = element.getAttribute("nodeType");
 			this.property = element.getAttribute("property");
+			this.customFeature = element.getAttribute("customFeature");
+
 		}
 		
 		public String getNodeType()
 		{
 			return nodeType;
 		}
-		
-		public String getProperty()
-		{
-			return property;
-		}
-		
+				
 		public ICustomFeature getCustomFeature(IFeatureProvider fp)
 		{
-			try {
-				Object obj = element.createExecutableExtension("customFeature");
-				if(obj instanceof ICustomFeatureProvider)
-				{
-					ICustomFeatureProvider provider = (ICustomFeatureProvider) obj;
-					return provider.createFeature(fp, nodeType, property);
+			if (customFeature != null) {
+				try {
+					Object obj = element.createExecutableExtension("customFeature");
+					if(obj instanceof ICustomFeatureProvider)
+					{
+						ICustomFeatureProvider provider = (ICustomFeatureProvider) obj;
+						return provider.createFeature(fp, nodeType, property);
+					}
+				} catch (Throwable t) {
+					WorkflowEditorPlugin.getDefault().logError("Error generating custom feature for double click action", t);
 				}
-			} catch (Throwable t) {
-				WorkflowEditorPlugin.getDefault().logError("Error generating custom feature for double click action", t);
 			}
 			
 			return new OpenReferencedFileFeature(fp, nodeType, property);
@@ -321,10 +321,11 @@ public class WorkflowToolBehaviorProvider extends DefaultToolBehaviorProvider im
 	
 	@Override
 	public void dispose() {
-		WorkflowMonitor.removeWorkflowListener(this);
+		WorkflowTracker.removeWorkflowListener(this);
 	}
 
-	private Map<String, Map<String, Object>> executingNodes = Collections.synchronizedMap(new HashMap<>());
+	private Map<String, Map<String, NodeExecutionStatus>> executingNodes = Collections.synchronizedMap(new HashMap<>());
+	private Map<String, String> statusMessages = Collections.synchronizedMap(new HashMap<>());
 	
 	@Override
 	public void nodeEntered(String name, String workflow) {
@@ -336,75 +337,100 @@ public class WorkflowToolBehaviorProvider extends DefaultToolBehaviorProvider im
 	@Override
 	public void nodeExited(String name, String workflow) {
 		removeExecutingNode(name, workflow);
+		clearStatusMessage(workflow);
 		getDiagramTypeProvider().getDiagramBehavior().refresh();
 	}
 	
 	@Override
 	public void nodeAborted(String name, String workflow, Throwable t) {
 		// TODO Put the error somewhere
+		removeExecutingNode(name, workflow);
 		addAbortedNode(name, workflow, t);
+		clearStatusMessage(workflow);
 		getDiagramTypeProvider().getDiagramBehavior().refresh();
 	}
 	
 	@Override
 	public void workflowStopped(String workflow) {
 		// executingNodes.remove(workflow);
+		clearStatusMessage(workflow);
 		getDiagramTypeProvider().getDiagramBehavior().refresh();
 	}
 	
+	// TODO But somehow preserve state when doing "run from here" ?
 	@Override
 	public void workflowStarted(String workflow) {
 		clearExecutingNodes(workflow);
 		getDiagramTypeProvider().getDiagramBehavior().refresh();
 	}
 
+	@Override
+	public void status(String name, String workflow, String status) {
+		setStatusMessage(name, workflow, status);
+		getDiagramTypeProvider().getDiagramBehavior().refresh();
+	}
 
 	private void addExecutingNode(String name, String workflow) {
 		synchronized (executingNodes) {
-			Map<String, Object> nodes = executingNodes.get(workflow);
+			Map<String, NodeExecutionStatus> nodes = executingNodes.get(workflow);
 			if (nodes == null) {
 				executingNodes.put(workflow, nodes = new HashMap<>());
 			}
-			nodes.put(name, name);
+			nodes.put(name, NodeExecutionStatus.CURRENT);
 		}
 	}
 	
+	private void setStatusMessage(String name, String workflow, String status) {
+		String message = name + ": " + status;
+		statusMessages.put(workflow, message);
+		IDiagramContainer container = getDiagramTypeProvider().getDiagramBehavior().getDiagramContainer();
+		if (container instanceof WorkflowDiagramEditor)
+			Display.getDefault().asyncExec(() -> ((WorkflowDiagramEditor) container).setStatus(message));
+	}
+
+	private void clearStatusMessage(String workflow) {
+		statusMessages.put(workflow, "");
+		IDiagramContainer container = getDiagramTypeProvider().getDiagramBehavior().getDiagramContainer();
+		if (container instanceof WorkflowDiagramEditor)
+			Display.getDefault().asyncExec(() -> ((WorkflowDiagramEditor) container).setStatus(""));
+
+	}
+
 	private void addAbortedNode(String name, String workflow, Throwable t) {
 		synchronized (executingNodes) {
-			Map<String, Object> nodes = executingNodes.get(workflow);
+			Map<String, NodeExecutionStatus> nodes = executingNodes.get(workflow);
 			if (nodes == null) {
 				executingNodes.put(workflow, nodes = new HashMap<>());
 			}
-			nodes.put(name, t);
+			nodes.put(name, NodeExecutionStatus.FAILED);
 		}
 	}
 
 
 	private void removeExecutingNode(String name, String workflow) {
 		synchronized (executingNodes) {
-			Map<String, Object> nodes = executingNodes.get(workflow);
+			Map<String, NodeExecutionStatus> nodes = executingNodes.get(workflow);
 			if (nodes != null)
-				nodes.remove(name);
+				nodes.put(name, NodeExecutionStatus.PASSED);
 		}
 	}
 	
-	private void clearExecutingNodes(String workflow) {
+	void clearExecutingNodes(String workflow) {
 		synchronized (executingNodes) {
-			Map<String, Object> nodes = executingNodes.get(workflow);
+			Map<String, NodeExecutionStatus> nodes = executingNodes.get(workflow);
 			if (nodes != null)
 				nodes.clear();
 		}
 	}
 
 
-	private Object isExecuting(String name, String workflow) {
+	private NodeExecutionStatus getStatus(String name, String workflow) {
 		synchronized (executingNodes) {
-			Map<String, Object> nodes = executingNodes.get(workflow);
-			if (nodes == null || !nodes.containsKey(name))
+			Map<String, NodeExecutionStatus> nodes = executingNodes.get(workflow);
+			if (nodes == null)
 				return null;
 			else
 				return nodes.get(name);
 		}
 	}
-
 }

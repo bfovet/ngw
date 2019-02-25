@@ -74,6 +74,7 @@ public class DomainFactoryImpl extends EFactoryImpl implements DomainFactory {
 			case DomainPackage.CONDUCTOR: return createConductor();
 			case DomainPackage.PARAMETER: return createParameter();
 			case DomainPackage.RUNNER: return createRunner();
+			case DomainPackage.IMAGE: return createImage();
 			default:
 				throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier");
 		}
@@ -197,6 +198,16 @@ public class DomainFactoryImpl extends EFactoryImpl implements DomainFactory {
 	public Runner createRunner() {
 		RunnerImpl runner = new RunnerImpl();
 		return runner;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public Image createImage() {
+		ImageImpl image = new ImageImpl();
+		return image;
 	}
 
 	/**

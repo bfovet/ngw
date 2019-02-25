@@ -9,6 +9,10 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.phase3.embedded;
 
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.NodeCategories;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
 import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
 import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
@@ -66,9 +70,10 @@ public class FileChooserNode extends SAWCustomNode {
 		return properties.get("formatString");
 	}
 
-	@Override public List<String> getDefaultOutputNames() { return Collections.singletonList("f"); }
-	@Override public List<String> getDefaultInputNames() { return Collections.singletonList("x"); }
-	@Override public List<String> getDefaultProperties() { return Arrays.asList("initialPath"); }
+	@Override public List<OutputPortInfo> getDefaultOutputs() { return Collections.singletonList(new OutputPortInfo("f")); }
+	@Override public List<InputPortInfo> getDefaultInputs() { return Collections.singletonList(new InputPortInfo("x")); }
+	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo("initialPath")); }
+	@Override public List<String> getCategories() { return Arrays.asList(NodeCategories.GUI); }
 
 
 

@@ -9,12 +9,7 @@
  ******************************************************************************/
 package com.strikewire.snl.apc.Common;
 
-import gov.sandia.dart.configuration.IUpdateSite;
-import gov.sandia.dart.configuration.mgr.UpdateSitesMgr;
-
 import java.io.PrintStream;
-import java.net.URI;
-import java.util.Collection;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
@@ -22,15 +17,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.preferences.DefaultScope;
-import org.eclipse.core.runtime.preferences.IScopeContext;
-import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
-import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 
 import com.strikewire.snl.apc.reporting.AbsReportingUIPlugin;
@@ -76,8 +65,7 @@ public class CommonPlugin extends AbsReportingUIPlugin
 	  super.start(context);
 
 	  plugin = this;
-
-	  registerUpdateSites();
+	  
 	  initSystemExplorerDefault();
 	  
 	  _log.trace("{}.start()", this.getClass().getName());
@@ -213,57 +201,6 @@ public class CommonPlugin extends AbsReportingUIPlugin
     return imageDescriptorFromPlugin(ID, path);
   }	
   
-  
-  private void registerUpdateSites()
-  {
-    _log.info("Registering update sites");
-    
-    UpdateSitesMgr usMgr = UpdateSitesMgr.getInstance();
-    
-    Collection<IUpdateSite> sites = usMgr.getUpdateSites();
-    
-    if (sites != null) {
-      try {
-        for (IUpdateSite site : sites) {
-          if (site != null) {
-            addUpdateSite(site);
-          }
-        } //for
-      } //try
-      catch (ProvisionException noop) {
-        // we will stop trying to process; error has already been loggd
-      }
-    }
-  }
-  
-  @SuppressWarnings("restriction")
-  private void addUpdateSite(IUpdateSite site) throws ProvisionException
-  {
-    IMetadataRepositoryManager metadataManager = null;
-    IArtifactRepositoryManager artifactManager = null;
-    try {
-      metadataManager = 
-          org.eclipse.equinox.p2.internal.repository.tools.Activator.getMetadataRepositoryManager();
-      artifactManager = 
-          org.eclipse.equinox.p2.internal.repository.tools.Activator.getArtifactRepositoryManager();
-    }
-    catch (ProvisionException e) {
-      logError("Unable to obtain Eclipse managers for update sites!", e);
-      throw e;
-    }
-    
-    if (metadataManager == null || artifactManager == null) {
-      return;
-    }
-    
-    _log.debug("Adding update site: {}", site.getName());
-    URI repoMeta = site.getMetadataRepository();
-    URI repoArt = site.getArtifactRepository();
-    
-    metadataManager.addRepository(repoMeta);
-    artifactManager.addRepository(repoArt);
-    
-  }
   
   private void initSystemExplorerDefault()
   {

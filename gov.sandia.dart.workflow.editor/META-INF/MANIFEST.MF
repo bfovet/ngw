@@ -31,7 +31,8 @@ Require-Bundle: org.eclipse.ui,
  gov.sandia.dart.common.preferences,
  org.eclipse.core.filesystem,
  org.eclipse.swt,
- org.eclipse.osgi
+ org.eclipse.osgi,
+ org.eclipse.draw2d
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: gov.sandia.dart.workflow.domain,
  gov.sandia.dart.workflow.domain.impl,

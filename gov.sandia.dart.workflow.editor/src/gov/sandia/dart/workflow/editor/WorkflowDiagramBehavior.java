@@ -18,6 +18,7 @@ import org.eclipse.gef.editparts.ZoomManager;
 import org.eclipse.gef.ui.actions.ActionRegistry;
 import org.eclipse.graphiti.ui.editor.DefaultPaletteBehavior;
 import org.eclipse.graphiti.ui.editor.DefaultPersistencyBehavior;
+import org.eclipse.graphiti.ui.editor.DefaultRefreshBehavior;
 import org.eclipse.graphiti.ui.editor.DiagramBehavior;
 import org.eclipse.graphiti.ui.editor.DiagramEditorContextMenuProvider;
 import org.eclipse.graphiti.ui.editor.IDiagramContainerUI;
@@ -72,6 +73,56 @@ class WorkflowDiagramBehavior extends DiagramBehavior {
 	
 	@Override
 	protected DefaultPersistencyBehavior createPersistencyBehavior() {
-		return new WorkbenchPersistencyBehavior(this);
+		return new WorkflowPersistencyBehavior(this);
 	}
+	
+	@Override 
+	protected DefaultRefreshBehavior createRefreshBehavior() {
+		return new WorkflowRefreshBehavior(this);
+	}
+	
+	
+	// AJR - Trying to fix a bug where the workflow editor behaves badly when the workflow file 
+	// has been updated behind the scenes
+	//
+	// This is definitely a hack to fix what appears to be a bug in graphiti. It SHOULD pop up 
+	// the "File has been modified, do you want to reload?" dialog, and it occasionally does if 
+	// Jupiter is aligned correctly with Venus. Otherwise it updates the workflow, shows it as 
+	// dirty and asks the user to "Save"/"Don't save" even though there is nothing to save.
+	//
+	// What Graphiti does normally is call DiagramBehavior.refreshContent() to trigger an update
+	// Internally this calls getPersistencyBehaviour().loadDiagram() which loads up the new file 
+	// and in theory marks everything as clean. Other stuff gets called to update things.
+	// Finally getRefreshBehavior().handleAutoUpdateAtReset() gets called which updates the UI.
+	// Unfortunately this update of the UI bits is processed as a new command, even though the 
+	// diagram has not changed since it was loaded. DefaultPersistencyBehavior.isDirty() then 
+	// looks and says "Hey, a new command has been executed since the file was marked clean
+	// therefore it is now dirty..."
+	//
+	// The hack here is to modify getRefreshBehavior().handleAutoUpdateAtReset() to do the UI 
+	// update normally and then explicitly mark the diagram as clean via the 
+	// WorkbenchPersistencyBehavior.markClean() method (added just for this), then tell eclipse 
+	// to refresh based on the new dirty state (which is now once again clean!).
+	//
+	// TODO: See if we can get the "File has been modified, do you want to reload?" dialog to show up consistently.
+	class WorkflowRefreshBehavior extends DefaultRefreshBehavior {
+
+		public WorkflowRefreshBehavior(DiagramBehavior diagramBehavior) {
+			super(diagramBehavior);
+		}
+
+		@Override
+		public void handleAutoUpdateAtReset() {
+			super.handleAutoUpdateAtReset();
+			
+			if(getPersistencyBehavior() instanceof WorkflowPersistencyBehavior) {
+			
+				((WorkflowPersistencyBehavior) getPersistencyBehavior()).markClean();
+	
+				diagramBehavior.getDiagramContainer().updateDirtyState();				
+			}
+		}
+
+	}
+
 }

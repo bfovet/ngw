@@ -18,8 +18,6 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Display;
 
-import gov.sandia.dart.workflow.phase3.embedded.AbstractEmbeddedWorkflowHandler;
-
 /**
  * This class does double duty. The "AbstractHandler" part executes in a context menu from the workflow editor. The IActionDelegate part 
  * executes in a context menu from the Project Navigator.

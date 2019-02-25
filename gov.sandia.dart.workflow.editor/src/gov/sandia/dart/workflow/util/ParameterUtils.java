@@ -50,4 +50,8 @@ public class ParameterUtils {
 			bo.setType(text);
 		} 
 	}
+
+	public static void setName(WFNode parameter, String value) {
+		parameter.setName(value);		
+	}
 }

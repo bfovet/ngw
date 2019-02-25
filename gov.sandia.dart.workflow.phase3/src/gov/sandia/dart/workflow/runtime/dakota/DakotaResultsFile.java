@@ -14,28 +14,34 @@ import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Map;
 
+import gov.sandia.dart.workflow.runtime.core.Datum;
 import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
 
 public class DakotaResultsFile {
-	public static void write(String filename, Collection<String> responseNames,  Map<String, Object> results) throws IOException {	
+	public static void write(String filename, String sampleId, Collection<String> responseNames,  Map<String, Object> results) throws IOException {	
 		try (PrintWriter writer = new PrintWriter(filename)){
 			if (results == null) {
 				// This is the Dakota-defined  protocol for handling sample evaluation errors. If the
 				// results file starts with "fail", then the sample fails and the rest of the file is ignored.
 				writer.println("FAIL");
-				throw new SAWWorkflowException("No responses computed so cannot return to Dakota");
+				throw new SAWWorkflowException(String.format("No responses computed in evaluation %s so cannot return to Dakota", sampleId));
 			} else {
 				for (String name : responseNames) {
 					if (results.get(name) == null) {
 						writer.println("FAIL");
-						throw new SAWWorkflowException(String.format("Response named '%s' not found; workflow cannot return to Dakota", name));
+						throw new SAWWorkflowException(String.format("Response named '%s' not found; evaluation %s cannot return to Dakota", name, sampleId));
 					}
 				}
 				for (String name : responseNames) {
-					writer.println(String.format("%s  %s", results.get(name).toString(), name));
+					writer.println(String.format("%s  %s", format(results.get(name)), name));
 				}
 			}
 		} 
+	}
+
+	private static Object format(Object object) {
+		Datum datum = new Datum("text", object, object.getClass());
+		return datum.getAs(String.class);
 	}
 
 }

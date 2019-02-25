@@ -16,6 +16,7 @@ import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 
 import com.strikewire.snl.apc.GUIs.MultipleInputDialog;
@@ -46,9 +47,21 @@ public class GrabOutputFileFeature extends AbstractCustomFeature {
 		Object bo = getFeatureProvider().getBusinessObjectForPictogramElement(pe);
 		if (bo instanceof WFNode) {
 			Shell shell = PlatformUI.getWorkbench().getWorkbenchWindows()[0].getShell();
-			MultipleInputDialog dialog = new MultipleInputDialog(shell, "Grab Output File From Workflow Node");
-		    dialog.addTextField(PORT_NAME, "", false);
-		    dialog.addTextField(FILE_NAME, "", false);
+			MultipleInputDialog dialog = new MultipleInputDialog(shell, "Grab Output File From Workflow Node") {
+				@Override public int open() {
+					addTextField(PORT_NAME, "", false);
+					addTextField(FILE_NAME, "", false);
+					validators.add(new Validator() {
+						@Override
+						protected boolean validate() {
+							String text = ((Text) controlList.stream().
+									filter(c -> c.getData(FIELD_NAME).equals(PORT_NAME)).findFirst().get()).getText();
+							return !text.contains(".");
+						}
+					});
+					return super.open();
+				}
+			};
 
 			if (dialog.open() == InputDialog.OK) {
 				WFNode node = (WFNode) bo;

@@ -9,41 +9,70 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.runtime.components;
 
-import gov.sandia.dart.workflow.runtime.core.RuntimeData;
-import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
-import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.NodeCategories;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
+import gov.sandia.dart.workflow.runtime.core.RuntimeData;
+import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
+import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
+import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
+
 public class StringTemplateSubstitutionNode extends SAWCustomNode {
+	private static final String TEMPLATE_LABEL = "template";
+	private static final String OUTPUT_LABEL = "result";
 
 	@Override
 	public Map<String, Object> doExecute(Map<String, String> properties, WorkflowDefinition workflow, RuntimeData runtime) {
-		String templateString = getStringFromPortOrProperty(runtime, properties, "templateString");
-				
+		String templateString = getTemplateString(properties, runtime);
+		
 		// substitute every property/port name with its value
 		for (String propertyName : properties.keySet()) {
-			if (propertyName.equals("templateString"))
+			if (isTemplateLabel(propertyName))
 				continue;
 			String propertyValue = properties.get(propertyName);
-			if (propertyValue != null)
+			if (propertyValue != null) {
+				runtime.log().debug("replacing {0} with {1}", propertyName, propertyValue);
 				templateString = templateString.replaceAll(propertyName, propertyValue);
+			}
 		}
 		for (String portName : runtime.getInputNames(getName())) {
-			if (portName.equals("templateString"))
+			if (isTemplateLabel(portName))
 				continue;
 			String portValue = (String) runtime.getInput(getName(), portName, String.class);
 			if (portValue != null)
 				templateString = templateString.replaceAll(portName, portValue);
 		}
-		return Collections.singletonMap("instantiatedTemplate", templateString);
+
+		if (workflow.getNode(getName()).outputs.containsKey("instantiatedTemplate"))
+			return Collections.singletonMap("instantiatedTemplate", templateString);
+		else
+			return Collections.singletonMap(OUTPUT_LABEL, templateString);
 	}
 	
-	@Override public List<String> getDefaultInputNames() { return Arrays.asList("templateString"); }
-	@Override public List<String> getDefaultOutputNames() { return Arrays.asList("instantiatedTemplate"); }
-	@Override public List<String> getDefaultProperties() { return Arrays.asList("_KEYWORD_"); }
-	@Override public String getCategory() { return "String Functions"; }
+	private String getTemplateString(Map<String, String> properties, RuntimeData runtime) {
+		String templateString = null;
+		
+		try {
+			templateString = getStringFromPortOrProperty(runtime, properties, "template");
+		} catch (SAWWorkflowException ex) {
+			templateString = getStringFromPortOrProperty(runtime, properties, "templateString"); // legacy name
+			runtime.log().debug("templateString port/property name DEPRECATED");
+		}		
+		return templateString;
+	}
+	
+	private boolean isTemplateLabel(String s) {
+		return s.equals(TEMPLATE_LABEL) || s.equals("templateString");
+	}
+	
+	@Override public List<InputPortInfo> getDefaultInputs() { return Arrays.asList(new InputPortInfo(TEMPLATE_LABEL)); }
+	@Override public List<OutputPortInfo> getDefaultOutputs() { return Arrays.asList(new OutputPortInfo(OUTPUT_LABEL)); }
+	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo(TEMPLATE_LABEL)); }
+	@Override public String getCategory() { return NodeCategories.TEXT_DATA; }
 }

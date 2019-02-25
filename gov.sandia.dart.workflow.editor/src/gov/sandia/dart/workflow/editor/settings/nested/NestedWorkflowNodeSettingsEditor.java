@@ -9,18 +9,17 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.editor.settings.nested;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.transaction.RecordingCommand;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.emf.transaction.util.TransactionUtil;
-import org.eclipse.graphiti.features.IFeatureProvider;
-import org.eclipse.graphiti.features.context.impl.DeleteContext;
-import org.eclipse.graphiti.features.context.impl.MultiDeleteInfo;
-import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ListViewer;
@@ -49,7 +48,6 @@ import gov.sandia.dart.workflow.editor.configuration.ConductorType;
 import gov.sandia.dart.workflow.editor.configuration.Prop;
 import gov.sandia.dart.workflow.editor.configuration.Prop.TYPE;
 import gov.sandia.dart.workflow.editor.configuration.WorkflowTypesManager;
-import gov.sandia.dart.workflow.editor.settings.NOWPSettingsEditorUtils;
 import gov.sandia.dart.workflow.editor.settings.WFNodeSettingsEditor;
 import gov.sandia.dart.workflow.util.PropertyUtils;
 
@@ -104,7 +102,7 @@ public class NestedWorkflowNodeSettingsEditor extends WFNodeSettingsEditor {
 			}
 		});
 		Composite buttonBar = new Composite(parent, SWT.NONE);
-		buttonBar.setLayout(new GridLayout(5, false));
+		buttonBar.setLayout(new GridLayout(6, false));
 		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		buttonBar.setLayoutData(gd);
 		
@@ -164,19 +162,23 @@ public class NestedWorkflowNodeSettingsEditor extends WFNodeSettingsEditor {
 				downConductor();
 			}
 		});
+		
+		setEnablements();
 	}
 
 	protected void deleteConductor(Conductor c) {
 		TransactionalEditingDomain domain = TransactionUtil.getEditingDomain(node.get());
 		domain.getCommandStack().execute(new RecordingCommand(domain) {
 			@Override
-			public void doExecute() {
-				IFeatureProvider fp = NOWPSettingsEditorUtils.getFeatureProvider(c);
-				PictogramElement pe = fp.getPictogramElementForBusinessObject(c);
-				DeleteContext dc = new DeleteContext(pe);
-				dc.setMultiDeleteInfo(new MultiDeleteInfo(false, false, 1));
-				fp.getDeleteFeature(dc).delete(dc);  
-			}		
+			public void doExecute() {				
+				//node.get().getConductors().remove(c);				
+				//EList<EObject> contents = NOWPSettingsEditorUtils.getDiagramEditor(node.get()).getDiagramTypeProvider().getDiagram().eResource().getContents();
+				//contents.remove(c);			
+				java.util.List<EObject> objectsToDelete = new ArrayList<>();
+				objectsToDelete.add(c);
+				objectsToDelete.addAll(c.getProperties());
+				EcoreUtil.deleteAll(objectsToDelete, true);
+			}
 		});	
 		viewer.setInput(node.get().getConductors());
 		setEnablements();

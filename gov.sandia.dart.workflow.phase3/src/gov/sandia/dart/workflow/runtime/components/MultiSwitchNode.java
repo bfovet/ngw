@@ -14,9 +14,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
 import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
+import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
 import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
+import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition.OutputPort;
 
 /*
  * Pass the data from property-or-port "passThrough" to the output port
@@ -24,15 +29,26 @@ import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
  */
 public class MultiSwitchNode extends SAWCustomNode {
 
+	public static final String _ELSE = "_else";
 	@Override
-	public Map<String, Object> doExecute(Map<String, String> properties, WorkflowDefinition workflow, RuntimeData runtime) {
-				
-		String selector = getStringFromPortOrProperty(runtime, properties, "selector");
+	public Map<String, Object> doExecute(Map<String, String> properties, WorkflowDefinition workflow, RuntimeData runtime) {				
+		String selector = getStringFromPortOrProperty(runtime, properties, "selector");								
+		OutputPort port = workflow.getNode(getName()).outputs.get(selector);
+		if (port == null) {
+			if (isConnectedOutput(_ELSE, workflow)) {
+				selector = _ELSE;
+			} else {			
+				throw new SAWWorkflowException(String.format("No port found for selector '%s' in node '%s'", selector, getName()));
+			}
+		} 
+		
 		Object data = getObjectFromPortOrProperty(runtime, properties, "passThrough");
-								
 		return Collections.singletonMap(selector, data);			
 	}
 
-	@Override public List<String> getDefaultInputNames() { return Arrays.asList("selector", "passThrough"); }
+	@Override public List<InputPortInfo> getDefaultInputs() { return Arrays.asList(new InputPortInfo("selector"), new InputPortInfo("passThrough")); }	
+	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo("selector"), new PropertyInfo("passThrough")); }
+	@Override public List<OutputPortInfo> getDefaultOutputs() { return Arrays.asList(new OutputPortInfo( _ELSE)); }	
+
 	@Override public String getCategory() { return "Control"; }
 }

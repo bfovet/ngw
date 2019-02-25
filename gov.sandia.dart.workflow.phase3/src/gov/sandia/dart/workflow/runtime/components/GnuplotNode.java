@@ -25,10 +25,14 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.NodeCategories;
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
 import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
 import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
 import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
+import gov.sandia.dart.workflow.runtime.util.ProcessUtils;
 
 public class GnuplotNode extends SAWCustomNode {
 
@@ -60,14 +64,9 @@ public class GnuplotNode extends SAWCustomNode {
 			out.println("plot \"data.tmp\" title \"\"");
 			out.close();
 			
-			ProcessBuilder builder = new ProcessBuilder();
+			ProcessBuilder builder = ProcessUtils.createProcess(runtime);
 			builder.command("gnuplot", "commands.tmp");
 			builder.directory(componentWorkDir);
-			Map<String, String> environment = builder.environment();
-			environment.remove("LD_PRELOAD");
-			environment.remove("DYLD_INSERT_LIBRARIES");
-			environment.remove("DYLD_FORCE_FLAT_NAMESPACE");
-			environment.putAll(runtime.getenv());
 			ByteArrayOutputStream output = new ByteArrayOutputStream();
 			PrintStream log = new PrintStream(output);
 
@@ -77,7 +76,17 @@ public class GnuplotNode extends SAWCustomNode {
 				(t1  = new Thread(new Squirter(process.getInputStream(), log), "GNUPLOT stdout")).start();
 				(t2 = new Thread(new Squirter(process.getErrorStream(), log), "GNUPLOT stderr")).start();
 				
-				if (process.waitFor() != 0) {
+				int exitStatus = UNSET;
+				while (exitStatus == UNSET && !runtime.isCancelled()) {
+					try {
+						exitStatus = process.waitFor();
+						break;
+					} catch (InterruptedException ex) {
+						// May be a spurious wakeup. Check for cancellation, and go check exit status again.
+					}
+				}
+
+				if (exitStatus != 0) {
 					throw new SAWWorkflowException("Error executing GNUPLOT");
 				}
 				t1.join(1000);
@@ -95,10 +104,11 @@ public class GnuplotNode extends SAWCustomNode {
 		} 
 	}
 	
-	@Override public List<String> getDefaultInputNames() { return Arrays.asList("x", "y"); }
-	@Override public List<String> getDefaultProperties() { return Arrays.asList("commands", "imageFile"); }
-	@Override public List<String> getDefaultPropertyTypes() { return Arrays.asList("multitext", "text"); }
-	@Override public String getCategory() { return "Engineering"; }
+	@Override public List<InputPortInfo> getDefaultInputs() { return Arrays.asList(new InputPortInfo("x"), new InputPortInfo("y")); }
+	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo("commands", "multitext"), new PropertyInfo("imageFile", "text")); }
+//	@Override public List<String> getDefaultProperties() { return Arrays.asList("commands", "imageFile"); }
+//	@Override public List<String> getDefaultPropertyTypes() { return Arrays.asList("multitext", "text"); }
+	@Override public List<String> getCategories() { return Arrays.asList("Engineering", NodeCategories.EXTERNAL_PROCESSES); }
 		
 	public String getCommands(Map<String, String> properties) {
 		String raw = properties.get("commands");

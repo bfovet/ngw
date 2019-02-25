@@ -9,11 +9,6 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.runtime.components;
 
-import gov.sandia.dart.workflow.runtime.core.RuntimeData;
-import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
-import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
-import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
-
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Arrays;
@@ -26,6 +21,14 @@ import java.util.regex.PatternSyntaxException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
+import gov.sandia.dart.workflow.runtime.core.RuntimeData;
+import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
+import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
+import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
 
 public class RegexNode extends SAWCustomNode {
 
@@ -55,15 +58,17 @@ public class RegexNode extends SAWCustomNode {
 			throw new SAWWorkflowException("Bad regular expression " + regex + " in node " + getName());		
 		} catch (IOException e) {
 			throw new SAWWorkflowException("Error reading input in node " + getName());		
+		} finally {
+			IOUtils.closeQuietly(reader);
 		}
 		
 		String fname = matches ? "match" : "no_match";	
 		return Collections.singletonMap(fname, result);		
 	}
 	
-	@Override public List<String> getDefaultInputNames() { return Arrays.asList("x"); }
-	@Override public List<String> getDefaultOutputNames() { return Arrays.asList("match", "no_match"); }
-	@Override public List<String> getDefaultProperties() { return Arrays.asList("regex"); }
+	@Override public List<InputPortInfo> getDefaultInputs() { return Arrays.asList(new InputPortInfo("x")); }
+	@Override public List<OutputPortInfo> getDefaultOutputs() { return Arrays.asList(new OutputPortInfo("match"), new OutputPortInfo("no_match")); }
+	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo("regex")); }
 	@Override public String getCategory() { return "Control"; }
 	
 	public String getRegex(Map<String, String> properties) {

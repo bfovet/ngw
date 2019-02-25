@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +65,9 @@ public final class Datum {
 		if (type2.isAssignableFrom(type))
 			return value;
 		
+		if (type.isArray() && type2.isAssignableFrom(type.getComponentType()) && Array.getLength(value) == 1)
+			return Array.get(value, 0);
+				
 		if (isPath) {
 			try {
 				if (type2 == Reader.class)

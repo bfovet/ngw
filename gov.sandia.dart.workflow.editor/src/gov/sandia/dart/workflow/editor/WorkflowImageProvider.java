@@ -21,6 +21,8 @@ public class WorkflowImageProvider extends AbstractImageProvider {
     public static final String IMG_PALETTE = PREFIX + "palette";
     public static final String IMG_WORKFLOW = PREFIX + "nestedWorkflow";
     public static final String IMG_INTERNAL_WORKFLOW = PREFIX + "nestedInternalWorkflow";
+    public static final String IMG_REMOTE_WORKFLOW = PREFIX + "remoteNestedWorkflow";
+
     public static final String IMG_DUPLICATE = PREFIX + "duplicate";
 	public static final String IMG_PORTS = PREFIX + "ports";
 	public static final String IMG_PLUG = PREFIX + "plug";
@@ -42,6 +44,8 @@ public class WorkflowImageProvider extends AbstractImageProvider {
         addImageFilePath(IMG_PALETTE, "icons/palette.png");
         addImageFilePath(IMG_WORKFLOW, "icons/shapes.gif");
         addImageFilePath(IMG_INTERNAL_WORKFLOW, "icons/shapes.gif");
+        addImageFilePath(IMG_REMOTE_WORKFLOW, "icons/shapes.gif");
+
         addImageFilePath(IMG_DUPLICATE, "icons/duplicate.png");
         addImageFilePath(IMG_PORTS, "icons/ports.gif");
         addImageFilePath(IMG_PORT, "icons/port.gif");
@@ -61,11 +65,13 @@ public class WorkflowImageProvider extends AbstractImageProvider {
         addImageFilePath(PREFIX + "file", "icons/file.png");
         addImageFilePath(PREFIX + "folder", "icons/folder.png");        
         addImageFilePath(PREFIX + "externalProcess", "icons/externalProcess.png");        
-        addImageFilePath(PREFIX + "sierra", "icons/sierra.gif");
         addImageFilePath(PREFIX + "cubit", "icons/cubit.gif");
         addImageFilePath(PREFIX + "bashScript", "icons/shell.png");
         addImageFilePath(PREFIX + "pythonScript", "icons/python.png");
         addImageFilePath(PREFIX + "openFile", "icons/file.png");
+        addImageFilePath(PREFIX + "parameterFile", "icons/properties.png");
+        addImageFilePath(PREFIX + "or", "icons/or.png");
+
 
    	 	IConfigurationElement[] extensions = Platform.getExtensionRegistry().getConfigurationElementsFor("gov.sandia.dart.workflow.editor.nodeIcon" );                      
    	 	for (final IConfigurationElement extension : extensions) {   

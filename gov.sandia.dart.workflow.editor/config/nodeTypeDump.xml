@@ -1,6 +1,9 @@
 <workflowData>
   <nodeTypes>
-    <nodeType name='checkpoint' category='Control'>
+    <nodeType name='checkpoint'>
+      <categories>
+        <category name='Control'/>
+      </categories>
       <inputs>
         <input name='x' type='default'/>
       </inputs>
@@ -9,7 +12,10 @@
         <output name='checkpointName' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='ln' category='Unary Functions'>
+    <nodeType name='ln'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
       <inputs>
         <input name='x' type='default'/>
       </inputs>
@@ -17,7 +23,11 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='constant' category='Sources'>
+    <nodeType name='constant'>
+      <categories>
+        <category name='Workflow Organization'/>
+        <category name='Sources'/>
+      </categories>
       <properties>
         <property name='value' type='default'/>
       </properties>
@@ -25,7 +35,10 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='cos' category='Trig Functions'>
+    <nodeType name='cos'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
       <inputs>
         <input name='x' type='default'/>
       </inputs>
@@ -33,7 +46,37 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='nestedInternalWorkflow' category='Control'>
+    <nodeType name='queueSubmit'>
+      <categories>
+        <category name='Engineering'/>
+        <category name='External Processes'/>
+      </categories>
+      <properties>
+        <property name='inputFile' type='home_file'/>
+        <property name='account' type='default'/>
+        <property name='sierra_code' type='default'/>
+        <property name='num.nodes' type='integer'/>
+        <property name='num.processors' type='integer'/>
+        <property name='job.hours' type='integer'/>
+        <property name='job.minutes' type='integer'/>
+        <property name='submitScript' type='home_file'/>
+        <property name='executeScript' type='home_file'/>
+        <property name='checkjobScript' type='home_file'/>
+        <property name='checkjobFrequency' type='integer'/>
+        <property name='statusScript' type='home_file'/>
+      </properties>
+      <inputs>
+        <input name='inputFile' type='input_file'/>
+      </inputs>
+      <outputs>
+        <output name='logFile' type='output_file'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='nestedInternalWorkflow'>
+      <categories>
+        <category name='Control'/>
+        <category name='Workflow Organization'/>
+      </categories>
       <properties>
         <property name='conductor' type='conductor'/>
       </properties>
@@ -41,7 +84,10 @@
         <output name='responses_csv' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='apostpro' category='Engineering'>
+    <nodeType name='apostpro'>
+      <categories>
+        <category name='Engineering'/>
+      </categories>
       <properties>
         <property name='inputFile' type='home_file'/>
         <property name='match' type='default'/>
@@ -55,7 +101,10 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='atan' category='Trig Functions'>
+    <nodeType name='atan'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
       <inputs>
         <input name='x' type='default'/>
       </inputs>
@@ -63,7 +112,10 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='cshScript' category='Pipes'>
+    <nodeType name='cshScript'>
+      <categories>
+        <category name='External Processes'/>
+      </categories>
       <properties>
         <property name='script' type='multitext'/>
         <property name='write properties to a property file' type='boolean'/>
@@ -78,7 +130,10 @@
         <output name='exitStatus' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='sqrt' category='Unary Functions'>
+    <nodeType name='sqrt'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
       <inputs>
         <input name='x' type='default'/>
       </inputs>
@@ -86,7 +141,23 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='aprepro' category='Engineering'>
+    <nodeType name='parameterFile'>
+      <categories>
+        <category name='Workflow Organization'/>
+        <category name='Sources'/>
+      </categories>
+      <properties>
+        <property name='fileName' type='home_file'/>
+      </properties>
+      <outputs>
+        <output name='f' type='map'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='aprepro'>
+      <categories>
+        <category name='Engineering'/>
+        <category name='External Processes'/>
+      </categories>
       <properties>
         <property name='templateFile' type='home_file'/>
         <property name='outputFile' type='default'/>
@@ -94,12 +165,16 @@
       </properties>
       <inputs>
         <input name='templateFile' type='input_file'/>
+        <input name='inputParametersMap' type='map'/>
       </inputs>
       <outputs>
         <output name='outputFile' type='output_file'/>
       </outputs>
     </nodeType>
-    <nodeType name='exp' category='Unary Functions'>
+    <nodeType name='exp'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
       <inputs>
         <input name='x' type='default'/>
       </inputs>
@@ -107,7 +182,10 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='forLoop' category='Control'>
+    <nodeType name='forLoop'>
+      <categories>
+        <category name='Control'/>
+      </categories>
       <properties>
         <property name='start' type='integer'/>
         <property name='step' type='integer'/>
@@ -124,7 +202,10 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='add' category='Binary Functions'>
+    <nodeType name='add'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
       <inputs>
         <input name='x' type='default'/>
         <input name='y' type='default'/>
@@ -133,7 +214,10 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='tan' category='Trig Functions'>
+    <nodeType name='tan'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
       <inputs>
         <input name='x' type='default'/>
       </inputs>
@@ -141,7 +225,10 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='signum' category='Unary Functions'>
+    <nodeType name='signum'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
       <inputs>
         <input name='x' type='default'/>
       </inputs>
@@ -149,7 +236,10 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='stringCompare' category='Control'>
+    <nodeType name='stringCompare'>
+      <categories>
+        <category name='Control'/>
+      </categories>
       <properties>
         <property name='compareString' type='default'/>
       </properties>
@@ -161,7 +251,10 @@
         <output name='false' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='subtract' category='Binary Functions'>
+    <nodeType name='subtract'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
       <inputs>
         <input name='x' type='default'/>
         <input name='y' type='default'/>
@@ -170,7 +263,31 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='acos' category='Trig Functions'>
+    <nodeType name='remoteNestedWorkflow'>
+      <categories>
+        <category name='Control'/>
+        <category name='Remote/Network Ops'/>
+        <category name='Workflow Organization'/>
+      </categories>
+      <properties>
+        <property name='fileName' type='home_file'/>
+        <property name='hostname' type='default'/>
+        <property name='username' type='default'/>
+        <property name='jumphost' type='default'/>
+        <property name='jumpuser' type='default'/>
+        <property name='remotePath' type='default'/>
+        <property name='wflib' type='default'/>
+        <property name='Other files/directories' type='multitext'/>
+      </properties>
+      <outputs>
+        <output name='stdout' type='default'/>
+        <output name='stderr' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='acos'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
       <inputs>
         <input name='x' type='default'/>
       </inputs>
@@ -178,7 +295,10 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='concat' category='String Functions'>
+    <nodeType name='concat'>
+      <categories>
+        <category name='Text Data'/>
+      </categories>
       <inputs>
         <input name='x' type='default'/>
         <input name='y' type='default'/>
@@ -187,7 +307,10 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='script' category='Miscellaneous'>
+    <nodeType name='javascript'>
+      <categories>
+        <category name='Miscellaneous'/>
+      </categories>
       <properties>
         <property name='customCode' type='multitext'/>
       </properties>
@@ -198,7 +321,25 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='downloadFile' category='Control'>
+    <nodeType name='arrayElement'>
+      <categories>
+        <category name='Sequential Data'/>
+      </categories>
+      <properties>
+        <property name='index' type='int'/>
+      </properties>
+      <inputs>
+        <input name='array' type='default'/>
+        <input name='index' type='int'/>
+      </inputs>
+      <outputs>
+        <output name='element' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='downloadFile'>
+      <categories>
+        <category name='Remote/Network Ops'/>
+      </categories>
       <properties>
         <property name='hostname' type='default'/>
         <property name='localFile' type='default'/>
@@ -212,7 +353,10 @@
         <output name='file' type='output_file'/>
       </outputs>
     </nodeType>
-    <nodeType name='square' category='Unary Functions'>
+    <nodeType name='square'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
       <inputs>
         <input name='x' type='default'/>
       </inputs>
@@ -220,7 +364,10 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='fail' category='Control'>
+    <nodeType name='fail'>
+      <categories>
+        <category name='Control'/>
+      </categories>
       <properties>
         <property name='formatString' type='default'/>
       </properties>
@@ -228,7 +375,10 @@
         <input name='x' type='default'/>
       </inputs>
     </nodeType>
-    <nodeType name='exit' category='Control'>
+    <nodeType name='exit'>
+      <categories>
+        <category name='Control'/>
+      </categories>
       <properties>
         <property name='formatString' type='default'/>
       </properties>
@@ -236,7 +386,10 @@
         <input name='x' type='default'/>
       </inputs>
     </nodeType>
-    <nodeType name='externalProcess' category='Pipes'>
+    <nodeType name='externalProcess'>
+      <categories>
+        <category name='External Processes'/>
+      </categories>
       <properties>
         <property name='command' type='text'/>
         <property name='write properties to a property file' type='boolean'/>
@@ -250,7 +403,10 @@
         <output name='exitStatus' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='regex' category='Control'>
+    <nodeType name='regex'>
+      <categories>
+        <category name='Control'/>
+      </categories>
       <properties>
         <property name='regex' type='default'/>
       </properties>
@@ -262,7 +418,10 @@
         <output name='no_match' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='folder' category='Pipes'>
+    <nodeType name='folder'>
+      <categories>
+        <category name='I/O'/>
+      </categories>
       <properties>
         <property name='folderName' type='home_file'/>
       </properties>
@@ -273,7 +432,11 @@
         <output name='folderReference' type='text'/>
       </outputs>
     </nodeType>
-    <nodeType name='gnuplot' category='Engineering'>
+    <nodeType name='gnuplot'>
+      <categories>
+        <category name='Engineering'/>
+        <category name='External Processes'/>
+      </categories>
       <properties>
         <property name='commands' type='multitext'/>
         <property name='imageFile' type='text'/>
@@ -283,7 +446,10 @@
         <input name='y' type='default'/>
       </inputs>
     </nodeType>
-    <nodeType name='bashScript' category='Pipes'>
+    <nodeType name='bashScript'>
+      <categories>
+        <category name='External Processes'/>
+      </categories>
       <properties>
         <property name='script' type='multitext'/>
         <property name='write properties to a property file' type='boolean'/>
@@ -298,7 +464,11 @@
         <output name='exitStatus' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='nestedWorkflow' category='Control'>
+    <nodeType name='nestedWorkflow'>
+      <categories>
+        <category name='Control'/>
+        <category name='Workflow Organization'/>
+      </categories>
       <properties>
         <property name='fileName' type='home_file'/>
         <property name='concurrency' type='integer'/>
@@ -308,7 +478,10 @@
         <output name='responses_csv' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='endloop' category='Control'>
+    <nodeType name='endloop'>
+      <categories>
+        <category name='Control'/>
+      </categories>
       <inputs>
         <input name='x' type='default'/>
       </inputs>
@@ -317,7 +490,10 @@
         <output name='_LEND_' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='compare' category='Control'>
+    <nodeType name='compare'>
+      <categories>
+        <category name='Control'/>
+      </categories>
       <properties>
         <property name='operator' type='default'/>
       </properties>
@@ -330,7 +506,10 @@
         <output name='false' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='log' category='Unary Functions'>
+    <nodeType name='log'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
       <inputs>
         <input name='x' type='default'/>
       </inputs>
@@ -338,7 +517,11 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='sierra' category='Engineering'>
+    <nodeType name='sierra'>
+      <categories>
+        <category name='Engineering'/>
+        <category name='External Processes'/>
+      </categories>
       <properties>
         <property name='inputFile' type='home_file'/>
         <property name='account' type='default'/>
@@ -350,6 +533,7 @@
         <property name='submitScript' type='home_file'/>
         <property name='executeScript' type='home_file'/>
         <property name='checkjobScript' type='home_file'/>
+        <property name='checkjobFrequency' type='integer'/>
         <property name='statusScript' type='home_file'/>
       </properties>
       <inputs>
@@ -359,7 +543,10 @@
         <output name='logFile' type='output_file'/>
       </outputs>
     </nodeType>
-    <nodeType name='increment' category='Unary Functions'>
+    <nodeType name='increment'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
       <inputs>
         <input name='x' type='default'/>
       </inputs>
@@ -367,7 +554,10 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='sum' category='Arrays'>
+    <nodeType name='sum'>
+      <categories>
+        <category name='Sequential Data'/>
+      </categories>
       <inputs>
         <input name='x' type='default'/>
       </inputs>
@@ -375,7 +565,10 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='replaceAll' category='String Functions'>
+    <nodeType name='replaceAll'>
+      <categories>
+        <category name='Text Data'/>
+      </categories>
       <properties>
         <property name='regex' type='default'/>
         <property name='replacement' type='default'/>
@@ -389,7 +582,22 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='substring' category='String Functions'>
+    <nodeType name='demultiplexColumns'>
+      <categories>
+        <category name='Sequential Data'/>
+      </categories>
+      <properties>
+        <property name='number of footer lines to ignore (optional)' type='default'/>
+        <property name='separator regular expression (optional)' type='default'/>
+      </properties>
+      <inputs>
+        <input name='columns' type='default'/>
+      </inputs>
+    </nodeType>
+    <nodeType name='substring'>
+      <categories>
+        <category name='Text Data'/>
+      </categories>
       <properties>
         <property name='start' type='integer'/>
         <property name='length' type='integer'/>
@@ -401,7 +609,24 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='sleep' category='Control'>
+    <nodeType name='onOffSwitch'>
+      <categories>
+        <category name='Control'/>
+      </categories>
+      <properties>
+        <property name='onOff' type='boolean'/>
+      </properties>
+      <inputs>
+        <input name='input' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='output' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='sleep'>
+      <categories>
+        <category name='Control'/>
+      </categories>
       <properties>
         <property name='ms' type='integer'/>
       </properties>
@@ -412,7 +637,10 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='windowsBatchScript' category='Pipes'>
+    <nodeType name='windowsBatchScript'>
+      <categories>
+        <category name='External Processes'/>
+      </categories>
       <properties>
         <property name='script' type='multitext'/>
         <property name='write properties to a property file' type='boolean'/>
@@ -427,7 +655,11 @@
         <output name='exitStatus' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='random' category='Sources'>
+    <nodeType name='random'>
+      <categories>
+        <category name='Scalar Operations'/>
+        <category name='Sources'/>
+      </categories>
       <inputs>
         <input name='x' type='default'/>
       </inputs>
@@ -435,7 +667,10 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='file' category='Pipes'>
+    <nodeType name='file'>
+      <categories>
+        <category name='I/O'/>
+      </categories>
       <properties>
         <property name='fileName' type='home_file'/>
         <property name='append' type='boolean'/>
@@ -449,7 +684,10 @@
         <output name='dataOut' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='min' category='Arrays'>
+    <nodeType name='min'>
+      <categories>
+        <category name='Sequential Data'/>
+      </categories>
       <inputs>
         <input name='x' type='default'/>
       </inputs>
@@ -457,7 +695,11 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='parameter' category='Sources'>
+    <nodeType name='parameter'>
+      <categories>
+        <category name='Workflow Organization'/>
+        <category name='Sources'/>
+      </categories>
       <properties>
         <property name='value' type='default'/>
       </properties>
@@ -465,7 +707,10 @@
         <output name='f' type='text'/>
       </outputs>
     </nodeType>
-    <nodeType name='sin' category='Trig Functions'>
+    <nodeType name='sin'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
       <inputs>
         <input name='x' type='default'/>
       </inputs>
@@ -473,16 +718,10 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='pow' category='Binary Functions'>
-      <inputs>
-        <input name='x' type='default'/>
-        <input name='y' type='default'/>
-      </inputs>
-      <outputs>
-        <output name='f' type='default'/>
-      </outputs>
-    </nodeType>
-    <nodeType name='divide' category='Binary Functions'>
+    <nodeType name='pow'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
       <inputs>
         <input name='x' type='default'/>
         <input name='y' type='default'/>
@@ -491,7 +730,10 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='multiply' category='Binary Functions'>
+    <nodeType name='divide'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
       <inputs>
         <input name='x' type='default'/>
         <input name='y' type='default'/>
@@ -500,7 +742,22 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='stddev' category='Arrays'>
+    <nodeType name='multiply'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+        <input name='y' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='stddev'>
+      <categories>
+        <category name='Sequential Data'/>
+      </categories>
       <inputs>
         <input name='x' type='default'/>
       </inputs>
@@ -508,7 +765,25 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='uploadFile' category='Control'>
+    <nodeType name='abSwitch'>
+      <categories>
+        <category name='Control'/>
+      </categories>
+      <properties>
+        <property name='a' type='boolean'/>
+      </properties>
+      <inputs>
+        <input name='input' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='a' type='default'/>
+        <output name='b' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='uploadFile'>
+      <categories>
+        <category name='Remote/Network Ops'/>
+      </categories>
       <properties>
         <property name='hostname' type='default'/>
         <property name='localFile' type='default'/>
@@ -522,7 +797,10 @@
         <output name='file' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='rejoinCheckpoint' category='Control'>
+    <nodeType name='rejoinCheckpoint'>
+      <categories>
+        <category name='Control'/>
+      </categories>
       <properties>
         <property name='nameOfCheckpoint' type='text'/>
       </properties>
@@ -530,7 +808,22 @@
         <input name='x' type='default'/>
       </inputs>
     </nodeType>
-    <nodeType name='max' category='Arrays'>
+    <nodeType name='or'>
+      <categories>
+        <category name='Control'/>
+      </categories>
+      <inputs>
+        <input name='left' type='default'/>
+        <input name='right' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='output' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='max'>
+      <categories>
+        <category name='Sequential Data'/>
+      </categories>
       <inputs>
         <input name='x' type='default'/>
       </inputs>
@@ -538,26 +831,43 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='column' category='Arrays'>
+    <nodeType name='column'>
+      <categories>
+        <category name='Sequential Data'/>
+      </categories>
       <properties>
         <property name='columnIndex' type='default'/>
         <property name='headerLines' type='default'/>
         <property name='separator' type='default'/>
       </properties>
       <inputs>
-        <input name='stdin' type='default'/>
+        <input name='data' type='default'/>
+        <input name='fileName' type='default'/>
       </inputs>
       <outputs>
         <output name='stdout' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='multiSwitch' category='Control'>
+    <nodeType name='multiSwitch'>
+      <categories>
+        <category name='Control'/>
+      </categories>
+      <properties>
+        <property name='selector' type='default'/>
+        <property name='passThrough' type='default'/>
+      </properties>
       <inputs>
         <input name='selector' type='default'/>
         <input name='passThrough' type='default'/>
       </inputs>
+      <outputs>
+        <output name='_else' type='default'/>
+      </outputs>
     </nodeType>
-    <nodeType name='stringSearch' category='String Functions'>
+    <nodeType name='stringSearch'>
+      <categories>
+        <category name='Text Data'/>
+      </categories>
       <properties>
         <property name='searchValue' type='default'/>
       </properties>
@@ -568,7 +878,10 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='print' category='Miscellaneous'>
+    <nodeType name='print'>
+      <categories>
+        <category name='I/O'/>
+      </categories>
       <properties>
         <property name='formatString' type='default'/>
       </properties>
@@ -579,7 +892,12 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='cubit' category='Engineering'>
+    <nodeType name='cubit'>
+      <categories>
+        <category name='Mesh Assembly'/>
+        <category name='Engineering'/>
+        <category name='External Processes'/>
+      </categories>
       <properties>
         <property name='journalFile' type='home_file'/>
         <property name='pythonFile' type='home_file'/>
@@ -592,18 +910,24 @@
         <output name='logFile' type='output_file'/>
       </outputs>
     </nodeType>
-    <nodeType name='templateSubstitution' category='String Functions'>
+    <nodeType name='templateSubstitution'>
+      <categories>
+        <category name='Text Data'/>
+      </categories>
       <properties>
-        <property name='_KEYWORD_' type='default'/>
+        <property name='template' type='default'/>
       </properties>
       <inputs>
-        <input name='templateString' type='default'/>
+        <input name='template' type='default'/>
       </inputs>
       <outputs>
-        <output name='instantiatedTemplate' type='default'/>
+        <output name='result' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='negate' category='Unary Functions'>
+    <nodeType name='negate'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
       <inputs>
         <input name='x' type='default'/>
       </inputs>
@@ -611,7 +935,10 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='decrement' category='Unary Functions'>
+    <nodeType name='decrement'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
       <inputs>
         <input name='x' type='default'/>
       </inputs>
@@ -619,7 +946,10 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='mean' category='Arrays'>
+    <nodeType name='mean'>
+      <categories>
+        <category name='Sequential Data'/>
+      </categories>
       <inputs>
         <input name='x' type='default'/>
       </inputs>
@@ -627,7 +957,10 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='pythonScript' category='Pipes'>
+    <nodeType name='pythonScript'>
+      <categories>
+        <category name='External Processes'/>
+      </categories>
       <properties>
         <property name='script' type='multitext'/>
         <property name='write properties to a property file' type='boolean'/>
@@ -642,9 +975,15 @@
         <output name='exitStatus' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='pi' category='Trig Functions'>
+    <nodeType name='pi'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
     </nodeType>
-    <nodeType name='asin' category='Trig Functions'>
+    <nodeType name='asin'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
       <inputs>
         <input name='x' type='default'/>
       </inputs>
@@ -652,7 +991,11 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='remoteCommand' category='Control'>
+    <nodeType name='remoteCommand'>
+      <categories>
+        <category name='External Processes'/>
+        <category name='Remote/Network Ops'/>
+      </categories>
       <properties>
         <property name='hostname' type='default'/>
         <property name='command' type='default'/>
@@ -674,6 +1017,11 @@
         <property name='start' type='default'/>
         <property name='step' type='default'/>
         <property name='end' type='default'/>
+      </properties>
+    </conductorType>
+    <conductorType name='conditional'>
+      <properties>
+        <property name='condition' type='default'/>
       </properties>
     </conductorType>
     <conductorType name='repeat'>

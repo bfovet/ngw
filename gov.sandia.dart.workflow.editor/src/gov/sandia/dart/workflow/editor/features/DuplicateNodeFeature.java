@@ -104,7 +104,7 @@ public class DuplicateNodeFeature extends AbstractCustomFeature {
 				createdNodes.put(oldObject.getName(), Pair.of(oldObject, newObject));
 				
 				// Adjust any ports in the copy that are in non-standard positions in the original
-				matchPortPositions(oldObject, newObject);
+				matchPortPositions(oldObject, newObject, getFeatureProvider());
 			}
 		}
 		
@@ -164,7 +164,7 @@ public class DuplicateNodeFeature extends AbstractCustomFeature {
 		}		
 	}
 
-	private void matchPortPositions(WFNode oldObject, WFNode newObject) {
+	static void matchPortPositions(WFNode oldObject, WFNode newObject, IFeatureProvider fp) {
 		try {
 			Map<String, Port> ports = new HashMap<>();
 			for (Port port: oldObject.getInputPorts()) {
@@ -172,9 +172,9 @@ public class DuplicateNodeFeature extends AbstractCustomFeature {
 			}
 			for (Port newPort: newObject.getInputPorts()) {
 				Port oldPort = ports.get(newPort.getName());
-				PictogramElement oldPe = getFeatureProvider().getPictogramElementForBusinessObject(oldPort);
+				PictogramElement oldPe = fp.getPictogramElementForBusinessObject(oldPort);
 				FixPointAnchor oldFpa = (FixPointAnchor) oldPe;
-				PictogramElement newPe = getFeatureProvider().getPictogramElementForBusinessObject(newPort);
+				PictogramElement newPe = fp.getPictogramElementForBusinessObject(newPort);
 				FixPointAnchor newFpa = (FixPointAnchor) newPe;
 				newFpa.setLocation(EcoreUtil.copy(oldFpa.getLocation()));			
 			}
@@ -183,9 +183,9 @@ public class DuplicateNodeFeature extends AbstractCustomFeature {
 			}
 			for (Port newPort: newObject.getOutputPorts()) {
 				Port oldPort = ports.get(newPort.getName());
-				PictogramElement oldPe = getFeatureProvider().getPictogramElementForBusinessObject(oldPort);
+				PictogramElement oldPe = fp.getPictogramElementForBusinessObject(oldPort);
 				FixPointAnchor oldFpa = (FixPointAnchor) oldPe;
-				PictogramElement newPe = getFeatureProvider().getPictogramElementForBusinessObject(newPort);
+				PictogramElement newPe = fp.getPictogramElementForBusinessObject(newPort);
 				FixPointAnchor newFpa = (FixPointAnchor) newPe;
 				newFpa.setLocation(EcoreUtil.copy(oldFpa.getLocation()));									
 			}

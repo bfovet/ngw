@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
 import gov.sandia.dart.workflow.runtime.core.WorkflowProcess;
 
 public class RepeatWorkflowConductor implements WorkflowConductor {
@@ -96,11 +97,7 @@ public class RepeatWorkflowConductor implements WorkflowConductor {
 	}
 
 	@Override
-	public List<String> getDefaultProperties() {
-		return Arrays.asList("count");
+	public List<PropertyInfo> getDefaultProperties() {
+		return Arrays.asList(new PropertyInfo("count", "integer"));
 	}
-	
-	@Override
-	public List<String> getDefaultPropertyTypes() {
-		return Arrays.asList("integer");	}
 }

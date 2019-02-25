@@ -9,14 +9,15 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.runtime.core;
 
-
-
 /**
  * This class is supposed to take care of logging workflow status to a database,
  * so we can check the database from a client. 
  */
-public interface IWorkflowMonitor {	
+public interface IWorkflowMonitor  {	
 	void enterNode(SAWCustomNode node, RuntimeData runtime); 
 	void exitNode(SAWCustomNode node, RuntimeData runtime);
 	void abortNode(SAWCustomNode node, RuntimeData runtime, Throwable t);
+	void terminated(RuntimeData runtime, Throwable t);
+	void status(SAWCustomNode node, RuntimeData runtime, Object status);
+	void close() throws Exception;
 }

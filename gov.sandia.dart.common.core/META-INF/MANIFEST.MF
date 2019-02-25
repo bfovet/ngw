@@ -7,8 +7,9 @@ Bundle-Activator: gov.sandia.dart.common.core.CommonCoreActivator
 Bundle-Vendor: Sandia National Laboratories
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.expressions,
- gov.sandia.dart.apache.commons,
- org.eclipse.osgi.services;bundle-version="3.4.0"
+ org.eclipse.core.resources;bundle-version="3.12.0",
+ org.eclipse.osgi.services;bundle-version="3.4.0",
+ gov.sandia.dart.apache.commons
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: gov.sandia.dart,
@@ -19,4 +20,5 @@ Export-Package: gov.sandia.dart,
  gov.sandia.dart.common.core.localhostname,
  gov.sandia.dart.common.core.osgi,
  gov.sandia.dart.common.core.reporting,
+ gov.sandia.dart.file,
  gov.sandia.dart.metrics

@@ -9,7 +9,37 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.editor.configuration;
 
-public class Output {
+import java.util.ArrayList;
+import java.util.List;
+
+public class Output {	
+	public enum TYPE {
+		DEFAULT, OUTPUT_FILE, EXODUS_FILE;
+
+		public static TYPE safeValueOf(String text) {
+			try {
+				return valueOf(text.toUpperCase());
+			} catch (Exception e) {
+				return DEFAULT;
+			}
+		}
+		
+		// TODO Cache?
+		public static String[] labels() {
+			TYPE[] values = values();
+			String[] labels = new String[values.length];
+			for (int i = 0; i<values.length; ++i) {
+				labels[i] = values[i].toString();
+			}
+			return labels;				
+		}
+		
+		@Override
+		public String toString() {
+			return super.toString().toLowerCase();
+		}
+	}
+	
 	public static final String DEFAULT_NAME = "result";
 	public static final String STDOUT = "stdout";
 	public static final String STDERR = "stderr";
@@ -37,4 +67,12 @@ public class Output {
 		return filename;
 	}
 
+	public static String[] availableTypes() {
+		TYPE[] baseTypes = TYPE.values();
+		List<String> allTypes = new ArrayList<>();
+		for( TYPE type : baseTypes){
+			allTypes.add(type.toString());
+		}
+		return allTypes.toArray(new String[allTypes.size()]);
+	}
 }

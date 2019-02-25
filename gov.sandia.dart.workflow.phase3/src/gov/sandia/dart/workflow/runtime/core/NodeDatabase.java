@@ -13,21 +13,27 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import gov.sandia.dart.workflow.runtime.components.AcosNode;
 import gov.sandia.dart.workflow.runtime.components.AddNode;
 import gov.sandia.dart.workflow.runtime.components.ApostproNode;
+import gov.sandia.dart.workflow.runtime.components.ArrayElementNode;
 import gov.sandia.dart.workflow.runtime.components.AsinNode;
 import gov.sandia.dart.workflow.runtime.components.AtanNode;
 import gov.sandia.dart.workflow.runtime.components.ColumnNode;
 import gov.sandia.dart.workflow.runtime.components.CompareNode;
+import gov.sandia.dart.workflow.runtime.components.ConditionalWorkflowConductor;
 import gov.sandia.dart.workflow.runtime.components.ConstantNode;
 import gov.sandia.dart.workflow.runtime.components.CosNode;
 import gov.sandia.dart.workflow.runtime.components.DecrementNode;
+import gov.sandia.dart.workflow.runtime.components.DemultiplexColumnsNode;
 import gov.sandia.dart.workflow.runtime.components.DivideNode;
 import gov.sandia.dart.workflow.runtime.components.EndLoopNode;
 import gov.sandia.dart.workflow.runtime.components.ExitNode;
@@ -50,6 +56,8 @@ import gov.sandia.dart.workflow.runtime.components.MultiplyNode;
 import gov.sandia.dart.workflow.runtime.components.NegateNode;
 import gov.sandia.dart.workflow.runtime.components.NestedInternalWorkflowNode;
 import gov.sandia.dart.workflow.runtime.components.NestedWorkflowNode;
+import gov.sandia.dart.workflow.runtime.components.OrNode;
+import gov.sandia.dart.workflow.runtime.components.ParameterFileNode;
 import gov.sandia.dart.workflow.runtime.components.ParameterNode;
 import gov.sandia.dart.workflow.runtime.components.PiNode;
 import gov.sandia.dart.workflow.runtime.components.PowNode;
@@ -80,21 +88,24 @@ import gov.sandia.dart.workflow.runtime.components.TanNode;
 import gov.sandia.dart.workflow.runtime.components.WorkflowConductor;
 import gov.sandia.dart.workflow.runtime.components.aprepro.ApreproNode;
 import gov.sandia.dart.workflow.runtime.components.cubit.CubitComponentNode;
-import gov.sandia.dart.workflow.runtime.components.localsubmit.LocalSierraSubmit;
+import gov.sandia.dart.workflow.runtime.components.localsubmit.LocalQueueSubmit;
 import gov.sandia.dart.workflow.runtime.components.remote.DownloadFileNode;
 import gov.sandia.dart.workflow.runtime.components.remote.RemoteCommandNode;
+import gov.sandia.dart.workflow.runtime.components.remote.RemoteNestedWorkflowNode;
 import gov.sandia.dart.workflow.runtime.components.remote.UploadFileNode;
 import gov.sandia.dart.workflow.runtime.components.script.BashScriptNode;
 import gov.sandia.dart.workflow.runtime.components.script.CshScriptNode;
 import gov.sandia.dart.workflow.runtime.components.script.PythonScriptNode;
 import gov.sandia.dart.workflow.runtime.components.script.WindowsBatchScriptNode;
+import gov.sandia.dart.workflow.runtime.controls.ABSwitchNode;
+import gov.sandia.dart.workflow.runtime.controls.OnOffSwitchNode;
 import gov.sandia.dart.workflow.runtime.util.Indenter;
 
 public class NodeDatabase {
 
 	private static Map<String, Class<? extends SAWCustomNode>> nodeTypes;
 	private static Map<String, Class<? extends WorkflowConductor>> conductorTypes;
-	
+	private static Set<String> plugins = new HashSet<>();
 	public synchronized static Map<String, Class<? extends SAWCustomNode>> nodeTypes() {
 		if (nodeTypes == null)
 			throw new SAWWorkflowException("Node database not loaded");
@@ -126,13 +137,12 @@ public class NodeDatabase {
 			Class<? extends WorkflowConductor> clazz = conductorTypes.get(name);
 			WorkflowConductor node = clazz.newInstance();
 			out.printAndIndent(String.format("<conductorType name='%s'>", StringEscapeUtils.escapeXml10(name)));
-			List<String> properties = node.getDefaultProperties();
-			List<String> types = node.getDefaultPropertyTypes();
+			List<PropertyInfo> properties = node.getDefaultProperties();
 			if (!properties.isEmpty()) {
 				out.printAndIndent("<properties>");
-				for (int i = 0; i<properties.size(); ++i) {
-					String property = properties.get(i);
-					String type = types.get(i);
+				for (PropertyInfo prop : properties) {
+					String property = prop.getName();
+					String type = prop.getType();
 					out.printIndented(String.format("<property name='%s' type='%s'/>", StringEscapeUtils.escapeXml10(property), StringEscapeUtils.escapeXml10(type)));
 				}
 				out.unindentAndPrint("</properties>");
@@ -149,40 +159,45 @@ public class NodeDatabase {
 		for (String name : nodeTypes.keySet()) {
 			Class<? extends SAWCustomNode> clazz = nodeTypes.get(name);
 			SAWCustomNode node = clazz.newInstance();
-			String category = node.getCategory();
-			out.printAndIndent(String.format("<nodeType name='%s' category='%s'>", StringEscapeUtils.escapeXml10(name), StringEscapeUtils.escapeXml10(category)));
+			out.printAndIndent(String.format("<nodeType name='%s'>", StringEscapeUtils.escapeXml10(name)));
 
-			List<String> properties = node.getDefaultProperties();
-			List<String> types = node.getDefaultPropertyTypes();
+			List<String> categories = node.getCategories();
+			if (!categories.isEmpty()) {
+				out.printAndIndent("<categories>");
+				for (String category : categories) {
+					out.printIndented(String.format("<category name='%s'/>", StringEscapeUtils.escapeXml10(category)));
+				}
+				out.unindentAndPrint("</categories>");
+			}
+
+			List<PropertyInfo> properties = node.getDefaultProperties();
 			if (!properties.isEmpty()) {
 				out.printAndIndent("<properties>");
-				for (int i = 0; i<properties.size(); ++i) {
-					String property = properties.get(i);
-					String type = types.get(i);
+				for (PropertyInfo prop : properties) {
+					String property = prop.getName();
+					String type = prop.getType();
 					out.printIndented(String.format("<property name='%s' type='%s'/>", StringEscapeUtils.escapeXml10(property), StringEscapeUtils.escapeXml10(type)));
 				}
 				out.unindentAndPrint("</properties>");
 			}
 
-			List<String> inputs = node.getDefaultInputNames();
-			types = node.getDefaultInputTypes();
+			List<InputPortInfo> inputs = node.getDefaultInputs();
 			if (!inputs.isEmpty()) {
 				out.printAndIndent("<inputs>");
-				for (int i=0; i<inputs.size(); ++i) {
-					String input = inputs.get(i);
-					String type = types.get(i);
+				for (InputPortInfo port : inputs) {
+					String input = port.getName();
+					String type = port.getType();
 					out.printIndented(String.format("<input name='%s' type='%s'/>", StringEscapeUtils.escapeXml10(input), StringEscapeUtils.escapeXml10(type)));
 				}
 				out.unindentAndPrint("</inputs>");
 			}
-			List<String> outputs = node.getDefaultOutputNames();
-			types = node.getDefaultOutputTypes();
 
+			List<OutputPortInfo> outputs = node.getDefaultOutputs();
 			if (!outputs.isEmpty()) {
 				out.printAndIndent("<outputs>");
-				for (int i=0; i<outputs.size(); ++i) {
-					String output = outputs.get(i);
-					String type = types.get(i);
+				for (OutputPortInfo port : outputs) {
+					String output = port.getName();
+					String type = port.getType();
 					out.printIndented(String.format("<output name='%s' type='%s'/>", StringEscapeUtils.escapeXml10(output), StringEscapeUtils.escapeXml10(type)));
 				}
 				out.unindentAndPrint("</outputs>");
@@ -193,7 +208,7 @@ public class NodeDatabase {
 		out.unindentAndPrint("</nodeTypes>");
 	}
 
-	public synchronized static void loadDefinitions(SAWWorkflowLogger log, File pluginDir) {
+	public synchronized static void loadDefinitions(SAWWorkflowLogger log) {
 		if (nodeTypes != null)
 			return;
 		
@@ -232,6 +247,7 @@ public class NodeDatabase {
 		nodeTypes.put("print", PrintNode.class);
 		nodeTypes.put("constant", ConstantNode.class);
 		nodeTypes.put("parameter", ParameterNode.class);
+		nodeTypes.put("parameterFile", ParameterFileNode.class);
 		nodeTypes.put("compare", CompareNode.class);
 		nodeTypes.put("fail", FailNode.class);
 		nodeTypes.put("exit", ExitNode.class);
@@ -244,10 +260,12 @@ public class NodeDatabase {
 		nodeTypes.put("file", FileNode.class);
 		nodeTypes.put("folder", FolderNode.class);
 		nodeTypes.put("externalProcess", ExternalProcessNode.class);
-		nodeTypes.put("script", ScriptNode.class);
+		nodeTypes.put("javascript", ScriptNode.class);
 		nodeTypes.put("apostpro", ApostproNode.class);
 		nodeTypes.put("cubit", CubitComponentNode.class);
-		nodeTypes.put("sierra", LocalSierraSubmit.class);
+		nodeTypes.put("sierra", LocalQueueSubmit.class);
+		nodeTypes.put("queueSubmit", LocalQueueSubmit.class);
+
 		nodeTypes.put("bashScript", BashScriptNode.class);
 		nodeTypes.put("cshScript", CshScriptNode.class);
 		nodeTypes.put("pythonScript", PythonScriptNode.class);
@@ -257,8 +275,11 @@ public class NodeDatabase {
 	
 		nodeTypes.put("aprepro", ApreproNode.class);
 		nodeTypes.put("column", ColumnNode.class);
+		nodeTypes.put("arrayElement", ArrayElementNode.class);
+		nodeTypes.put("demultiplexColumns", DemultiplexColumnsNode.class);
 		nodeTypes.put("nestedWorkflow", NestedWorkflowNode.class);
 		nodeTypes.put("nestedInternalWorkflow", NestedInternalWorkflowNode.class);
+		nodeTypes.put("remoteNestedWorkflow", RemoteNestedWorkflowNode.class);
 
 		nodeTypes.put("gnuplot", GnuplotNode.class);
 		
@@ -276,14 +297,36 @@ public class NodeDatabase {
 		nodeTypes.put("mean", MeanNode.class);
 		nodeTypes.put("stddev", StdDevNode.class);		
 		
+		nodeTypes.put("onOffSwitch", OnOffSwitchNode.class);		
+		nodeTypes.put("abSwitch", ABSwitchNode.class);		
+		nodeTypes.put("or", OrNode.class);
+		
 		conductorTypes.put("simple", SimpleWorkflowConductor.class);
 		conductorTypes.put("list", ListWorkflowConductor.class);
 		conductorTypes.put("repeat", RepeatWorkflowConductor.class);
 		conductorTypes.put("sweep", SweepWorkflowConductor.class);
+		conductorTypes.put("conditional", ConditionalWorkflowConductor.class);
 
+		
+		// Load plugins from WFLIB/plugins (standalone install)
+		File pluginDir = new File(RuntimeData.getWFLIB(), "plugins");
 		if (pluginDir != null && log != null) {
-			PluginLoader.loadPlugins(pluginDir, log);
-		}
+			if  (!pluginDir.exists()) {
+				log.info("Plugin dir {0} does not exist", pluginDir.getAbsolutePath());
+			} else {
+				File[] files = pluginDir.listFiles(f -> {return f.getName().endsWith(".jar");});
+
+				if  (files.length == 0) {
+					log.info("No extensions found in plugin dir {0}", pluginDir.getAbsolutePath());
+				} else {
+					PluginLoader.loadPlugins(files, log);
+				}
+			}
+		}		
+	
+		// Load explicit plugins
+		List<File> files = plugins.stream().map(File::new).collect(Collectors.toList());
+		PluginLoader.loadPlugins((File[]) files.toArray(new File[files.size()]), log);
 	}
 	
 	static synchronized void addNodeType(String name, Class<? extends SAWCustomNode> node) {
@@ -294,5 +337,9 @@ public class NodeDatabase {
 	
 	public static boolean hasNodeType(String name) {
 		return nodeTypes.containsKey(name);
+	}
+
+	public static void addPlugin(String plugin) {
+		plugins.add(plugin);
 	}
 }

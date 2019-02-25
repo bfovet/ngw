@@ -9,11 +9,6 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.runtime.components;
 
-import gov.sandia.dart.workflow.runtime.core.RuntimeData;
-import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
-import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
-import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
-
 import java.io.StringReader;
 import java.util.Collections;
 import java.util.List;
@@ -23,6 +18,14 @@ import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.NodeCategories;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.RuntimeData;
+import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
+import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
+import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
 
 public abstract class AbstractUnaryFunctionNode extends SAWCustomNode {
 	@Override
@@ -36,7 +39,8 @@ public abstract class AbstractUnaryFunctionNode extends SAWCustomNode {
 			String arg1 = (String) runtime.getInput(getName(), DEFAULT_INPUT, String.class);
 
 			if (arg1 == null)
-				arg1 = "0";
+				throw new SAWWorkflowException("No input 'x' for node " + getName());
+
 			Invocable invocable = (Invocable) scriptEngine;
 
 			result = invocable.invokeFunction("f", arg1);
@@ -50,17 +54,13 @@ public abstract class AbstractUnaryFunctionNode extends SAWCustomNode {
 	protected abstract String getCustomCode(Map<String, String> properties);
 
 	@Override
-	public List<String> getDefaultInputNames() {
-		return Collections.singletonList("x");
-	}
+	public List<InputPortInfo> getDefaultInputs() { return Collections.singletonList(new InputPortInfo("x")); }
 
 	@Override
-	public List<String> getDefaultOutputNames() {
-		return Collections.singletonList("f");
-	}
+	public List<OutputPortInfo> getDefaultOutputs() { return Collections.singletonList(new OutputPortInfo("f")); }
 
 	@Override
 	public String getCategory() {
-		return "Unary Functions";
+		return NodeCategories.SCALAR_OPS;
 	}
 }

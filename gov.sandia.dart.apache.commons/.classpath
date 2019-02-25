@@ -20,9 +20,9 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/build/ivy-repo/libs/commons-codec/commons-codec/javadoc/commons-codec-1.11-javadoc.jar!/" />
 		</attributes>
 	</classpathentry>
-	<classpathentry eecu="true" exported="true" kind="lib" path="lib/commons-collections4-4.1.jar" sourcepath="/build/ivy-repo/libs/org.apache.commons/commons-collections4/source/commons-collections4-4.1-sources.jar">
+	<classpathentry eecu="true" exported="true" kind="lib" path="lib/commons-collections4-4.2.jar" sourcepath="/build/ivy-repo/libs/org.apache.commons/commons-collections4/source/commons-collections4-4.2-sources.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/build/ivy-repo/libs/org.apache.commons/commons-collections4/javadoc/commons-collections4-4.1-javadoc.jar!/" />
+			<attribute name="javadoc_location" value="jar:platform:/resource/build/ivy-repo/libs/org.apache.commons/commons-collections4/javadoc/commons-collections4-4.2-javadoc.jar!/" />
 		</attributes>
 	</classpathentry>
 	<classpathentry eecu="true" exported="true" kind="lib" path="lib/commons-digester3-3.2.jar" sourcepath="/build/ivy-repo/libs/org.apache.commons/commons-digester3/source/commons-digester3-3.2-sources.jar">
@@ -40,9 +40,9 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/build/ivy-repo/libs/commons-io/commons-io/javadoc/commons-io-2.6-javadoc.jar!/" />
 		</attributes>
 	</classpathentry>
-	<classpathentry eecu="true" exported="true" kind="lib" path="lib/commons-lang3-3.7.jar" sourcepath="/build/ivy-repo/libs/org.apache.commons/commons-lang3/source/commons-lang3-3.7-sources.jar">
+	<classpathentry eecu="true" exported="true" kind="lib" path="lib/commons-lang3-3.8.1.jar" sourcepath="/build/ivy-repo/libs/org.apache.commons/commons-lang3/source/commons-lang3-3.8.1-sources.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/build/ivy-repo/libs/org.apache.commons/commons-lang3/javadoc/commons-lang3-3.7-javadoc.jar!/" />
+			<attribute name="javadoc_location" value="jar:platform:/resource/build/ivy-repo/libs/org.apache.commons/commons-lang3/javadoc/commons-lang3-3.8.1-javadoc.jar!/" />
 		</attributes>
 	</classpathentry>
 	<classpathentry eecu="true" exported="true" kind="lib" path="lib/commons-logging-1.2.jar" sourcepath="/build/ivy-repo/libs/commons-logging/commons-logging/source/commons-logging-1.2-sources.jar">
@@ -60,9 +60,14 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/build/ivy-repo/libs/commons-net/commons-net/javadoc/commons-net-3.6-javadoc.jar!/" />
 		</attributes>
 	</classpathentry>
-	<classpathentry eecu="true" exported="true" kind="lib" path="lib/commons-text-1.3.jar" sourcepath="/build/ivy-repo/libs/org.apache.commons/commons-text/source/commons-text-1.3-sources.jar">
+	<classpathentry eecu="true" exported="true" kind="lib" path="lib/commons-text-1.6.jar" sourcepath="/build/ivy-repo/libs/org.apache.commons/commons-text/source/commons-text-1.6-sources.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/build/ivy-repo/libs/org.apache.commons/commons-text/javadoc/commons-text-1.3-javadoc.jar!/" />
+			<attribute name="javadoc_location" value="jar:platform:/resource/build/ivy-repo/libs/org.apache.commons/commons-text/javadoc/commons-text-1.6-javadoc.jar!/" />
+		</attributes>
+	</classpathentry>
+	<classpathentry eecu="true" exported="true" kind="lib" path="lib/commons-validator-1.6.jar" sourcepath="/build/ivy-repo/libs/commons-validator/commons-validator/source/commons-validator-1.6-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/build/ivy-repo/libs/commons-validator/commons-validator/javadoc/commons-validator-1.6-javadoc.jar!/" />
 		</attributes>
 	</classpathentry>
 	<classpathentry eecu="true" exported="true" kind="lib" path="lib/gson-2.8.5.jar" sourcepath="/build/ivy-repo/libs/com.google.code.gson/gson/source/gson-2.8.5-sources.jar">
@@ -70,14 +75,14 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/build/ivy-repo/libs/com.google.code.gson/gson/javadoc/gson-2.8.5-javadoc.jar!/" />
 		</attributes>
 	</classpathentry>
-	<classpathentry eecu="true" exported="true" kind="lib" path="lib/httpclient-4.5.5.jar" sourcepath="/build/ivy-repo/libs/org.apache.httpcomponents/httpclient/source/httpclient-4.5.5-sources.jar">
+	<classpathentry eecu="true" exported="true" kind="lib" path="lib/httpclient-4.5.6.jar" sourcepath="/build/ivy-repo/libs/org.apache.httpcomponents/httpclient/source/httpclient-4.5.6-sources.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/build/ivy-repo/libs/org.apache.httpcomponents/httpclient/javadoc/httpclient-4.5.5-javadoc.jar!/" />
+			<attribute name="javadoc_location" value="jar:platform:/resource/build/ivy-repo/libs/org.apache.httpcomponents/httpclient/javadoc/httpclient-4.5.6-javadoc.jar!/" />
 		</attributes>
 	</classpathentry>
-	<classpathentry eecu="true" exported="true" kind="lib" path="lib/httpcore-4.4.9.jar" sourcepath="/build/ivy-repo/libs/org.apache.httpcomponents/httpcore/source/httpcore-4.4.9-sources.jar">
+	<classpathentry eecu="true" exported="true" kind="lib" path="lib/httpcore-4.4.10.jar" sourcepath="/build/ivy-repo/libs/org.apache.httpcomponents/httpcore/source/httpcore-4.4.10-sources.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/build/ivy-repo/libs/org.apache.httpcomponents/httpcore/javadoc/httpcore-4.4.9-javadoc.jar!/" />
+			<attribute name="javadoc_location" value="jar:platform:/resource/build/ivy-repo/libs/org.apache.httpcomponents/httpcore/javadoc/httpcore-4.4.10-javadoc.jar!/" />
 		</attributes>
 	</classpathentry>
 	<classpathentry eecu="true" exported="true" kind="lib" path="lib/jsr173-1.0.jar" />
@@ -117,10 +122,10 @@
 	<classpathentry eecu="true" exported="true" kind="lib" path="lib/xml-resolver-1.2.jar" sourcepath="/build/ivy-repo/libs/xml-resolver/xml-resolver/source/xml-resolver-1.2-sources.jar" />
 	<classpathentry eecu="true" exported="true" kind="lib" path="lib/xmlbeans-2.6.0.jar" sourcepath="/build/ivy-repo/libs/org.apache.xmlbeans/xmlbeans/source/xmlbeans-2.6.0-source.jar" />
 	<classpathentry eecu="true" exported="true" kind="lib" path="lib/xmlpull-1.1.3.4a.jar" />
-	<classpathentry eecu="true" exported="true" kind="lib" path="lib/xpp3_min-1.1.3.4.O.jar" />
-	<classpathentry eecu="true" exported="true" kind="lib" path="lib/xstream-1.4.4.jar" sourcepath="/build/ivy-repo/libs/com.thoughtworks.xstream/xstream/source/xstream-1.4.4-sources.jar">
+	<classpathentry eecu="true" exported="true" kind="lib" path="lib/xpp3_min-1.1.4c.jar" />
+	<classpathentry eecu="true" exported="true" kind="lib" path="lib/xstream-1.4.11.1.jar" sourcepath="/build/ivy-repo/libs/com.thoughtworks.xstream/xstream/source/xstream-1.4.11.1-sources.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/build/ivy-repo/libs/com.thoughtworks.xstream/xstream/javadoc/xstream-1.4.4-javadoc.jar!/" />
+			<attribute name="javadoc_location" value="jar:platform:/resource/build/ivy-repo/libs/com.thoughtworks.xstream/xstream/javadoc/xstream-1.4.11.1-javadoc.jar!/" />
 		</attributes>
 	</classpathentry>
 </classpath>

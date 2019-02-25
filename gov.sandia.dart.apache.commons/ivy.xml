@@ -63,6 +63,11 @@
                 conf="compile->master"
                 transitive="false"
                 />
+    <dependency org="commons-validator" name="commons-validator"
+                rev="${version.commons-validator}"
+                conf="compile->master"
+                transitive="false"
+                />
 
 
                 

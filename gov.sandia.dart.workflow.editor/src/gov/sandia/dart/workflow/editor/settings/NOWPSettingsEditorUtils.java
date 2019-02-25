@@ -10,6 +10,8 @@
 package gov.sandia.dart.workflow.editor.settings;
 
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.emf.common.util.EList;
@@ -50,40 +52,38 @@ public class NOWPSettingsEditorUtils {
 		return getDiagramEditor(bo).getDiagramTypeProvider().getFeatureProvider();
 	}
 
-	static Button addButtons(FormToolkit toolkit, Composite comp, Object bo, Runnable addFeature, Runnable deleteFeature) {
+	static Map<String, Button> addButtons(FormToolkit toolkit, Composite comp, Object bo,
+			Map<String, Runnable> runnables) {
+		Map<String, Button> buttons = new LinkedHashMap<>();
 		Composite row = new Composite(comp, SWT.NONE);
 		row.setBackground(row.getDisplay().getSystemColor(SWT.COLOR_WHITE));
 	
-		row.setLayout(new GridLayout(2, true));
+		row.setLayout(new GridLayout(4, true));
 		row.setLayoutData(new GridData(SWT.FILL,SWT.FILL,true,false));
-		Button add = toolkit.createButton(row, "Add", SWT.PUSH);
-		add.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				TransactionalEditingDomain domain = TransactionUtil.getEditingDomain(bo);
-        		domain.getCommandStack().execute(new RecordingCommand(domain) {
-					@Override
-					public void doExecute() {
-						addFeature.run();
-					}
-				});
-			}
-		});
-		Button delete = toolkit.createButton(row, "Delete", SWT.PUSH);		
-		delete.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				TransactionalEditingDomain domain = TransactionUtil.getEditingDomain(bo);
-        		domain.getCommandStack().execute(new RecordingCommand(domain) {
-					@Override
-					public void doExecute() {
-						deleteFeature.run();
-					}
-				});
-        	}
-		});	
-		delete.setEnabled(false);
-		return delete;
+
+		for (Map.Entry<String, Runnable> entry: runnables.entrySet()) {
+			String label = entry.getKey();
+			Runnable action = entry.getValue();
+			Button button = toolkit.createButton(row, label, SWT.PUSH);
+
+			button.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					TransactionalEditingDomain domain = TransactionUtil.getEditingDomain(bo);
+	        		domain.getCommandStack().execute(new RecordingCommand(domain) {
+						@Override
+						public void doExecute() {
+							action.run();
+						}
+					});
+				}
+			});
+			button.setLayoutData(new GridData(SWT.FILL,SWT.FILL,true,false));
+
+			buttons.put(label, button);
+		}
+		
+		return buttons;
 	}
 
 	final static String UNTITLED = "Untitled";

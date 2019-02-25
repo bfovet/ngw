@@ -9,13 +9,14 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.phase3.embedded.preferences;
 
+import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class WorkflowPreferencePage
 	extends FieldEditorPreferencePage 
-	implements IWorkbenchPreferencePage {
+	implements IWorkbenchPreferencePage, IEmbeddedExecutionPreferenceConstants {
 
 	@Override
 	public void init(IWorkbench workbench) {
@@ -24,7 +25,11 @@ public class WorkflowPreferencePage
 
 	@Override
 	protected void createFieldEditors() {
-		// TODO Auto-generated method stub
+		BooleanFieldEditor validate = 
+				  new BooleanFieldEditor(VALIDATE_UNDEFINED,
+				      "Abort runs containing undefined nodes",
+				      getFieldEditorParent());
+				addField(validate);
 		
 	}
 
