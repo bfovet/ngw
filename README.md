@@ -17,6 +17,6 @@ Devlopment | Target Platform preference and set our custom platform
 manually, then reload it and rebuild your workspace once or
 twice. 
 
-When running these plugins as an Eclipse application, ou'll need to
+When running these plugins as an Eclipse application, you'll need to
 explicitly open the "Settings" view to configure workflow
 components. A "Workflow Editing" perspective is in the works.
