@@ -110,14 +110,6 @@ public class WorkflowApplicationPlugin extends AbsReportingUIPlugin
 
   public static void addAllNewWizardsToPerspective(IPageLayout layout)
   {
-    layout.addNewWizardShortcut("gov.sandia.dart.materials.ui.wizards.NewMDF");// Materials
-                                                                               // Data
-                                                                               // File
-    layout.addNewWizardShortcut("gov.sandia.apc.wizards.NewInputDeckWizard"); // Sierra
-                                                                              // Study
-    layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.folder");
-    layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.file");
     layout.addNewWizardShortcut("gov.sandia.dart.workflow.editor.newWorkflowWizard");   
-    layout.addNewWizardShortcut("gov.sandia.dart.workflow.editor.newDakotaStudyWizard");        
   }
 }

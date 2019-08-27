@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.0"?>
 <plugin>
-      <extension
-            point="org.eclipse.ui.actionSets">
-         <actionSet
-               description="Workbench SIMBA"
-               id="gov.sandia.dart.simba.plugins.core.modeleditor"
-               label="Workbench Model Manager"
-               visible="true">
-            <action
-                  class="gov.sandia.dart.simba.plugins.core.ModelManagerActionDelegate"
-                  icon="icons/simba.gif"
-                  id="gov.sandia.dart.simba.launch"
-                  label="Workbench Model Manager"
-                  menubarPath="tools/additions"
-                  style="push"
-                  toolbarPath="org.eclipse.ui.workbench.file/build.ext"
-                  tooltip="Launch the Workbench Model Manager">
-            </action>
-         </actionSet>
-      </extension>
 
    <extension
          point="org.eclipse.ui.perspectives">
@@ -33,81 +14,9 @@
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension targetID="gov.sandia.dart.workflow.app.perspective.workflow">
-      </perspectiveExtension>
-      <perspectiveExtension targetID="org.eclipse.ui.resourcePerspective">
-         <perspectiveShortcut id="gov.sandia.dart.workflow.app.perspective.workflow"/>
-         <viewShortcut id="gov.sandia.apc.views.ApcResourceNavigator"/>
-         <perspectiveShortcut id="gov.sandia.dart.workflow.app.DfmPerspective"/>
-      </perspectiveExtension>
-      <perspectiveExtension
-            targetID="gov.sandia.dart.workflow.app.perspective.job">            
-         <view
-               id="org.eclipse.ui.console.ConsoleView"
-               minimized="false"
-               ratio="0.6f"
-               relationship="bottom"
-               relative="org.eclipse.ui.editorss">
-         </view>
-         <view
-               id="com.strikewire.snl.apc.FileManager.views.MachineView"
-               minimized="false"
-               relationship="stack"
-               relative="org.eclipse.ui.console.ConsoleView">
-         </view>
-         <view
-               id="org.eclipse.ui.views.PropertySheet"
-               minimized="false"
-               ratio="0.6f"
-               relationship="bottom"
-               relative="com.strikewire.snl.apc.projectexplorer.views.ProjectExplorerView">
-         </view>
-         <view
-               id="com.strikewire.snl.apc.ProjectExplorer.DependencyTreeView"
-               minimized="false"
-               relationship="stack"
-               relative="com.strikewire.snl.apc.FileManager.views.MachineView">
-         </view>
-         <view
-               id="org.eclipse.ui.views.ProblemView"
-               minimized="false"
-               relationship="stack"
-               relative="com.strikewire.snl.apc.FileManager.views.MachineView">
-         </view>
-         <view
-               id="org.eclipse.ui.views.ProgressView"
-               minimized="false"
-               relationship="stack"
-               relative="com.strikewire.snl.apc.FileManager.views.MachineView">
-         </view>
-         <view
-               id="gov.sandia.apc.JobSubmission.JobStatusView"
-               minimized="false"
-               ratio="0.7f"
-               relationship="right"
-               relative="org.eclipse.ui.editorss">
-         </view>
-         <view
-               id="org.eclipse.ui.views.ContentOutline"
-               minimized="false"
-               ratio="0.7f"
-               relationship="stack"
-               relative="gov.sandia.apc.JobSubmission.JobStatusView">
-         </view>
-         <view
-               id="com.strikewire.snl.apc.FileManager.views.FileView"
-               minimized="false"
-               ratio="0.7f"
-               relationship="stack"
-               relative="gov.sandia.apc.JobSubmission.JobStatusView">
-         </view>
+
          <newWizardShortcut
-               id="gov.sandia.dart.materials.ui.wizards.NewMDF">
-         </newWizardShortcut>
-         <newWizardShortcut
-               id="gov.sandia.apc.wizards.NewInputDeckWizard">
-         </newWizardShortcut>
-         <newWizardShortcut
-               id="gov.sandia.dart.jaguar.ProcessWizard">
+               id="gov.sandia.dart.workflow.editor.newWorkflowWizard">
          </newWizardShortcut>
          <newWizardShortcut
                id="org.eclipse.ui.wizards.new.folder">

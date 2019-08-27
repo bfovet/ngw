@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="NGW" uid="NGW" id="gov.sandia.dart.workflow.app.Sandia_Analysis_Workbench" application="gov.sandia.dart.workflow.app.Workbench_Application" version="2.4.15" useFeatures="true" includeLaunchers="true">
+
+   <aboutInfo>
+      <image path="icons/app/48x48.gif"/>
+      <text>
+         %aboutText
+      </text>
+   </aboutInfo>
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <programArgs>-data @noDefault
+      </programArgs>
+      <vmArgs>-Xss2m -Dsun.security.krb5.debug=true -Dorg.quartz.scheduler.skipUpdateCheck=true -Declipse.workaround.bug467000=true -Djava.net.preferIPv4Stack=true
+      </vmArgs>
+      <vmArgsLin>-Xms1024m -Xmx2048m
+      </vmArgsLin>
+      <vmArgsMac>-Xms512m -Xmx1524m -XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
+      <vmArgsWin>-Xms512m -Xmx924m
+      </vmArgsWin>
+   </launcherArgs>
+
+   <windowImages i16="icons/app/16x16.gif" i32="icons/app/32x32.gif" i48="icons/app/48x48.gif"/>
+
+   <splash
+      location="gov.sandia.dart.workflow.app"
+      startupProgressRect="0,274,431,10"
+      startupMessageRect="7,2,424,20"
+      startupForegroundColor="FFFFFF" />
+   <launcher name="SAW">
+      <linux icon="/gov.sandia.dart.workflow.app/icons/app/32x32.xpm"/>
+      <macosx icon="/gov.sandia.dart.workflow.app/icons/app/dwb.icns"/>
+      <win useIco="true">
+         <ico path="/gov.sandia.dart.workflow.app/icons/app/dwb.ico"/>
+         <bmp/>
+      </win>
+   </launcher>
+
+
+   <vm>
+   </vm>
+
+
+   <plugins>
+   </plugins>
+
+   <features>
+      <feature id="org.eclipse.platform"/>
+      <feature id="nu.psnet.quickimage" version="1.0.3.2"/>
+      <feature id="gov.sandia.dart.ngw.core.feature" version="1.0.0"/>
+      <feature id="gov.sandia.dart.workflow.app.feature" version="1.0.0"/>
+      <feature id="org.eclipse.emf.ecore"/>
+      <feature id="org.eclipse.equinox.p2.user.ui"/>
+      <feature id="org.eclipse.ecf.filetransfer.httpclient4.feature"/>
+      <feature id="org.eclipse.help"/>
+      <feature id="org.eclipse.ecf.filetransfer.httpclient4.ssl.feature"/>
+      <feature id="org.eclipse.equinox.p2.extras.feature"/>
+      <feature id="org.eclipse.rcp"/>
+      <feature id="org.eclipse.emf.common"/>
+      <feature id="org.eclipse.equinox.p2.core.feature"/>
+      <feature id="org.eclipse.ecf.core.feature"/>
+      <feature id="org.eclipse.equinox.p2.rcp.feature"/>
+      <feature id="org.eclipse.ecf.filetransfer.feature"/>
+      <feature id="org.eclipse.ecf.core.ssl.feature"/>
+      <feature id="org.eclipse.ecf.filetransfer.ssl.feature"/>
+      <feature id="org.eclipse.e4.rcp"/>
+      <feature id="org.eclipse.gef" version="3.11.0.201606061308"/>
+   </features>
+
+   <configurations>
+      <property name="osgi.clean" value="true" />
+      <property name="osgi.configuration.area" value="@user.home/.dart/wb/configuration" />
+      <property name="osgi.requiredJavaVersion" value="1.7" />
+   </configurations>
+
+   <preferencesInfo>
+      <targetfile overwrite="false"/>
+   </preferencesInfo>
+
+   <cssInfo>
+   </cssInfo>
+
+</product>
