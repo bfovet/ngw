@@ -24,14 +24,14 @@ components. A "Workflow Editing" perspective is in the works.
 Running	the NGW	Editor Application from Source
 -----------
 
- # Download, install, and launch Eclipse Oxygen R3a for RCP/RAP developers
+ 1. Download, install, and launch Eclipse Oxygen R3a for RCP/RAP developers
    https://www.eclipse.org/downloads/packages/release/oxygen/3a/eclipse-rcp-and-rap-developers
- # In the Project Explorer, choose Import | Git | Projects from Git
- # Clone the URL https://gitlab.com/iwf/ngw.git. Choose the "master" branch. Choose "Import Existing Eclipse Projects." You should end 
+ 2. In the Project Explorer, choose Import | Git | Projects from Git
+ 3. Clone the URL https://gitlab.com/iwf/ngw.git. Choose the "master" branch. Choose "Import Existing Eclipse Projects." You should end 
  up with a workspace containing 20 projects.
- # Open Window | Preferences | Plugin Development | Target Platform. Choose "DART Platform". Choose "Apply and Close".
- # Find	"NGW.product" in the "gov.sandia.dart.workflow.app" project. Select it, right click and	choose "Run As" | "Eclipse Application".
- # Select an appropriate workspace directory or accept the default. 
+ 4. Open Window | Preferences | Plugin Development | Target Platform. Choose "DART Platform". Choose "Apply and Close".
+ 5. Find	"NGW.product" in the "gov.sandia.dart.workflow.app" project. Select it, right click and	choose "Run As" | "Eclipse Application".
+ 6. Select an appropriate workspace directory or accept the default. 
 
 -------------
 
