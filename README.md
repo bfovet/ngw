@@ -35,6 +35,6 @@ Running	the NGW	Editor Application from Source
 
 -------------
 
-** Instructions for creating and executing workflows will be available soon. **
+**Instructions for creating and executing workflows will be available soon.**
  
 
