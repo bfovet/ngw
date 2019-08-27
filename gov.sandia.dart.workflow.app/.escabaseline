@@ -1,0 +1,68 @@
+# Enerjy Software baseline data (files=8, problems=59).
+path: /com.strikewire.snl.apc.ApcWorkbench/src/com/strikewire/snl/apc/ApcWorkbench/ApcWorkbenchPlugin.java
+problem: JAVA0001:JAVA0001 Package name 'com.strikewire.snl.apc.ApcWorkbench' does not contain only lower case letters
+problem: JAVA0005:JAVA0005 Imports not in specified order
+problem: JAVA0113:JAVA0113 Incorrect javadoc: no @author tag
+problem: JAVA0058:JAVA0058 Constructor 'ApcWorkbenchPlugin' calls super()
+problem: JAVA0059:JAVA0059 Method override 'start' only calls super()
+problem: JAVA0115:JAVA0115 Incorrect javadoc: no @throws or @exception tag for 'Exception'
+problem: JAVA0115:JAVA0115 Incorrect javadoc: no @throws or @exception tag for 'Exception'
+problem: JAVA0110:JAVA0110 Incorrect javadoc: no @return tag
+problem: JAVA0110:JAVA0110 Incorrect javadoc: no @return tag
+problem: JAVA0108:JAVA0108 Incorrect javadoc: no @param tag for 'key'
+problem: JAVA0110:JAVA0110 Incorrect javadoc: no @return tag
+problem: JAVA0034:JAVA0034 Missing braces in if statement
+path: /com.strikewire.snl.apc.ApcWorkbench/src/com/strikewire/snl/apc/ApcWorkbench/properties/ApcProjectPropertyPage.java
+problem: JAVA0001:JAVA0001 Package name 'com.strikewire.snl.apc.ApcWorkbench.properties' does not contain only lower case letters
+problem: JAVA0118:JAVA0118 Missing javadoc: type 'ApcProjectPropertyPage'
+problem: JAVA0057:JAVA0057 Unnecessary default constructor 'ApcProjectPropertyPage'
+problem: JAVA0058:JAVA0058 Constructor 'ApcProjectPropertyPage' calls super()
+problem: JAVA0130:JAVA0130 Non-static method 'addSeparator' does not use instance fields
+problem: JAVA0110:JAVA0110 Incorrect javadoc: no @return tag
+problem: JAVA0130:JAVA0130 Non-static method 'createDefaultComposite' does not use instance fields
+path: /com.strikewire.snl.apc.ApcWorkbench/src/com/strikewire/snl/apc/ApcWorkbench/rcp/ApcPropertyView.java
+problem: JAVA0001:JAVA0001 Package name 'com.strikewire.snl.apc.ApcWorkbench.rcp' does not contain only lower case letters
+problem: JAVA0118:JAVA0118 Missing javadoc: type 'ApcPropertyView'
+problem: JAVA0137:JAVA0137 Non-abstract class 'ApcPropertyView' missing constructor
+problem: JAVA0116:JAVA0116 Missing javadoc: field 'ID'
+problem: JAVA0076:JAVA0076 Use of magic number '10'
+problem: JAVA0270:JAVA0270 Use Java 5.0 enhanced for loop construct to iterate over all elements in an array
+path: /com.strikewire.snl.apc.ApcWorkbench/src/com/strikewire/snl/apc/ApcWorkbench/rcp/ElectricalPerspective.java
+problem: JAVA0001:JAVA0001 Package name 'com.strikewire.snl.apc.ApcWorkbench.rcp' does not contain only lower case letters
+problem: JAVA0118:JAVA0118 Missing javadoc: type 'ElectricalPerspective'
+problem: JAVA0059:JAVA0059 Method override 'createInitialLayout' only calls super()
+path: /com.strikewire.snl.apc.ApcWorkbench/src/com/strikewire/snl/apc/ApcWorkbench/rcp/Perspective.java
+problem: JAVA0001:JAVA0001 Package name 'com.strikewire.snl.apc.ApcWorkbench.rcp' does not contain only lower case letters
+problem: JAVA0118:JAVA0118 Missing javadoc: type 'Perspective'
+problem: JAVA0171:JAVA0171 Unused local variable 'sEngNotesSearchID'
+problem: JAVA0171:JAVA0171 Unused local variable 'sFileMgrID'
+problem: JAVA0076:JAVA0076 Use of magic number '0.22f'
+problem: JAVA0076:JAVA0076 Use of magic number '0.60'
+problem: JAVA0076:JAVA0076 Use of magic number '0.7f'
+problem: JAVA0076:JAVA0076 Use of magic number '0.7f'
+path: /com.strikewire.snl.apc.ApcWorkbench/src/com/strikewire/snl/apc/ApcWorkbench/rcp/PerspectiveDFM.java
+problem: JAVA0144:JAVA0144 Line exceeds maximum 132 characters
+problem: JAVA0001:JAVA0001 Package name 'com.strikewire.snl.apc.ApcWorkbench.rcp' does not contain only lower case letters
+problem: JAVA0076:JAVA0076 Use of magic number '0.25f'
+problem: JAVA0076:JAVA0076 Use of magic number '0.75f'
+problem: JAVA0076:JAVA0076 Use of magic number '0.5f'
+path: /com.strikewire.snl.apc.ApcWorkbench/src/com/strikewire/snl/apc/ApcWorkbench/rcp/ProjectInfoView.java
+problem: JAVA0001:JAVA0001 Package name 'com.strikewire.snl.apc.ApcWorkbench.rcp' does not contain only lower case letters
+problem: JAVA0118:JAVA0118 Missing javadoc: type 'ProjectInfoView'
+problem: JAVA0137:JAVA0137 Non-abstract class 'ProjectInfoView' missing constructor
+problem: JAVA0116:JAVA0116 Missing javadoc: field 'ID'
+problem: JAVA0076:JAVA0076 Use of magic number '10'
+problem: JAVA0270:JAVA0270 Use Java 5.0 enhanced for loop construct to iterate over all elements in an array
+path: /com.strikewire.snl.apc.ApcWorkbench/src/com/strikewire/snl/apc/ApcWorkbench/rcp/ProjectNavigatorView.java
+problem: JAVA0001:JAVA0001 Package name 'com.strikewire.snl.apc.ApcWorkbench.rcp' does not contain only lower case letters
+problem: JAVA0118:JAVA0118 Missing javadoc: type 'ProjectNavigatorView'
+problem: JAVA0137:JAVA0137 Non-abstract class 'ProjectNavigatorView' missing constructor
+problem: JAVA0116:JAVA0116 Missing javadoc: field 'ID'
+problem: JAVA0043:JAVA0043 Inner class 'TreeObject' does not use outer class 'ProjectNavigatorView'
+problem: JAVA0128:JAVA0128 Public constructor 'TreeObject' in non-public class
+problem: JAVA0128:JAVA0128 Public constructor 'TreeParent' in non-public class
+problem: JAVA0137:JAVA0137 Non-abstract class 'ViewContentProvider' missing constructor
+problem: JAVA0034:JAVA0034 Missing braces in if statement
+problem: JAVA0034:JAVA0034 Missing braces in if statement
+problem: JAVA0043:JAVA0043 Inner class 'ViewLabelProvider' does not use outer class 'ProjectNavigatorView'
+problem: JAVA0034:JAVA0034 Missing braces in if statement

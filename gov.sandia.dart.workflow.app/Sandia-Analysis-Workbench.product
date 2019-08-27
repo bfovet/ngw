@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="Sandia Analysis Workbench" uid="Sandia Analysis Workbench" id="gov.sandia.dart.workflow.app.Sandia_Analysis_Workbench" application="gov.sandia.dart.workflow.app.Workbench_Application" version="2.4.15" useFeatures="true" includeLaunchers="true">
+
+   <aboutInfo>
+      <image path="icons/app/48x48.gif"/>
+      <text>
+         %aboutText
+      </text>
+   </aboutInfo>
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <programArgs>-data @noDefault
+      </programArgs>
+      <vmArgs>-Xss2m -Dsun.security.krb5.debug=true -Dorg.quartz.scheduler.skipUpdateCheck=true -Declipse.workaround.bug467000=true -Djava.net.preferIPv4Stack=true
+      </vmArgs>
+      <vmArgsLin>-Xms1024m -Xmx2048m
+      </vmArgsLin>
+      <vmArgsMac>-Xms512m -Xmx1524m -XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
+      <vmArgsWin>-Xms512m -Xmx924m
+      </vmArgsWin>
+   </launcherArgs>
+
+   <windowImages i16="icons/app/16x16.gif" i32="icons/app/32x32.gif" i48="icons/app/48x48.gif"/>
+
+   <splash
+      location="gov.sandia.dart.workflow.app"
+      startupProgressRect="0,274,431,10"
+      startupMessageRect="7,2,424,20"
+      startupForegroundColor="FFFFFF" />
+   <launcher name="SAW">
+      <linux icon="/gov.sandia.dart.workflow.app/icons/app/32x32.xpm"/>
+      <macosx icon="/gov.sandia.dart.workflow.app/icons/app/dwb.icns"/>
+      <win useIco="true">
+         <ico path="/gov.sandia.dart.workflow.app/icons/app/dwb.ico"/>
+         <bmp/>
+      </win>
+   </launcher>
+
+   <vm>
+   </vm>
+
+   <plugins>
+   </plugins>
+
+   <features>
+      <feature id="org.eclipse.platform"/>
+      <feature id="gov.sandia.dart.tools.preferences.feature"/>
+      <feature id="gov.sandia.dart.ui.feature" version="1.0.0"/>
+      <feature id="gov.sandia.dart.workbench.feature" version="1.2.0"/>
+      <feature id="gov.sandia.dart.login.feature" version="1.0.0"/>
+      <feature id="gov.sandia.dart.aprepro.feature"/>
+      <feature id="gov.sandia.dart.ldap.feature"/>
+      <feature id="gov.sandia.dart.dfm.feature" version="1.2.0"/>
+      <feature id="gov.sandia.apc.JobSubmission.feature" version="1.2.0"/>
+      <feature id="gov.sandia.apc.viz.feature"/>
+      <feature id="gov.sandia.dart.machine.definitions.feature"/>
+      <feature id="nu.psnet.quickimage" version="1.0.3.2"/>
+      <feature id="gov.sandia.dart.terminal.feature" version="1.3.0"/>
+      <feature id="gov.sandia.dart.metrics.feature"/>
+      <feature id="gov.sandia.dart.dakota.feature"/>
+      <feature id="gov.sandia.dart.ngw.core.feature" version="1.0.0"/>
+      <feature id="gov.sandia.dart.ngw.feature" version="1.0.0.0"/>
+      <feature id="gov.sandia.dart.workflow.app.feature" version="1.0.0"/>
+      <feature id="gov.sandia.chartreuse.feature"/>
+      <feature id="gov.sandia.dakota.chartreuse.bridge.feature"/>
+      <feature id="gov.sandia.dakota.wizards.feature" version="1.0.0.0"/>
+      <feature id="gov.sandia.dakota.chartreuse.hdf.bridge.feature"/>
+      <feature id="gov.sandia.dakota.chartreuse.workflow.feature"/>
+   </features>
+
+   <configurations>
+      <property name="osgi.clean" value="true" />
+      <property name="osgi.configuration.area" value="@user.home/.dart/wb/configuration" />
+      <property name="osgi.requiredJavaVersion" value="1.7" />
+   </configurations>
+
+   <preferencesInfo>
+      <targetfile overwrite="false"/>
+   </preferencesInfo>
+
+   <cssInfo>
+   </cssInfo>
+
+</product>
