@@ -18,9 +18,9 @@ Running	the NGW	Editor Application from Source
     particular JVM for Eclipse, see https://wiki.eclipse.org/Eclipse.ini
  2. In the Project Explorer, choose Import | Git | Projects from Git
  3. Clone the URL https://gitlab.com/iwf/ngw.git. Choose the "master" branch. Choose "Import Existing Eclipse Projects." You should end 
- up with a workspace containing 20 projects.
+ up with a workspace containing 19 projects.
  4. Open Window | Preferences | Plugin Development | Target Platform. Choose "DART Platform". Choose "Apply and Close".
- 5. Find	"NGW.product" in the "gov.sandia.dart.workflow.app" project. Select it, right click and	choose "Run As" | "Eclipse Application".
+ 5. Find "NGW.product" in the "gov.sandia.dart.workflow.app" project. Select it, right click and choose "Run As" | "Eclipse Application".
  6. Select an appropriate workspace directory or accept the default. 
 
 -------------
