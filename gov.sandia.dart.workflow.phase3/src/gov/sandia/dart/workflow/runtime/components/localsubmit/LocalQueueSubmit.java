@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -25,23 +26,27 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import gov.sandia.dart.workflow.runtime.components.AbstractRestartableNode;
 import gov.sandia.dart.workflow.runtime.core.ICancelationListener;
 import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
 import gov.sandia.dart.workflow.runtime.core.NodeCategories;
+import gov.sandia.dart.workflow.runtime.core.NodeMemento;
 import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
 import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
-import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
 import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
 import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
+import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition.OutputPort;
 import gov.sandia.dart.workflow.runtime.util.ProcessUtils;
 
-public class LocalQueueSubmit extends SAWCustomNode {
+public class LocalQueueSubmit extends AbstractRestartableNode {
 
+	private static final String LOG_FILE = "logFile";
 	protected static final String STATUS_SCRIPT = "statusScript";
 	protected static final String CHECKJOB_SCRIPT = "checkjobScript";
 	protected static final String EXECUTE_SCRIPT = "executeScript";
 	protected static final String SUBMIT_SCRIPT = "submitScript";
+	protected static final String QUEUE_SUBMIT_FLAG = "submit to queue and monitor status";
 	
 	public static final String CHECKJOB_FREQUENCY = "checkjobFrequency";
 	private static final int DEFAULT_FREQUENCY = 15;
@@ -52,101 +57,140 @@ public class LocalQueueSubmit extends SAWCustomNode {
 	protected Map<String, Object> doExecute(Map<String, String> properties, WorkflowDefinition workflow, RuntimeData runtime) {
 		try {
 			File componentWorkDir = getComponentWorkDir(runtime, properties);
-			runtime.status(this, "Setting up files");
-			File inputFile = setUpEnvironment(properties, workflow, runtime, componentWorkDir);
+			clearMemento(componentWorkDir);
+			NodeMemento memento = createMemento(properties, workflow, runtime);
+			
+			boolean queueSubmission = getQueueSubmissionFlag(properties);
 
-			int checkjobFrequency = getCheckjobFrequency(properties);
+			runtime.status(this, "Setting up files");
+			File inputFile = setUpEnvironment(properties, workflow, runtime, componentWorkDir, queueSubmission);
+
 			
 			StringBuilder output = new StringBuilder();
-			checkCancelled(runtime);
-			runtime.status(this, "Submitting to queue");
-			SAWWorkflowException e = runScript("./submit.sh", componentWorkDir, output, runtime);
-			try {
-				FileUtils.write(new File(componentWorkDir, "submit.log"), output);				
-			} catch (IOException ex1) {
-				runtime.log().warn("Problem writing to 'submit.log': " + ex1.getMessage());
-			}
-			output.setLength(0);
-			if (e != null)
-				throw e;
 			
-			boolean running = true;
-			String oldResult = null;
-			int deferredUpdates = 0; 
-			
-			// TODO Timeout? 			
-			while (running && !runtime.isCancelled()) {
+			if (queueSubmission)  {
+				int checkjobFrequency = getCheckjobFrequency(properties);
+				checkCancelled(runtime);
+				runtime.status(this, "Submitting to queue");
+				SAWWorkflowException e = runScript("./submit.sh", componentWorkDir, output, runtime);
+				try {
+					FileUtils.write(new File(componentWorkDir, "submit.log"), output, Charset.defaultCharset());				
+				} catch (IOException ex1) {
+					runtime.log().warn("Problem writing to 'submit.log': " + ex1.getMessage());
+				}
 				output.setLength(0);
-				runtime.status(this, "Checking for job completion");
-
-				SAWWorkflowException ex = runScript("./checkjob.sh", componentWorkDir, output, runtime);
-
-				String result = output.toString().trim();
-
-				boolean writeUpdate = false;
+				if (e != null)
+					throw e;
 				
-				if(result.equals(oldResult)) {
-					deferredUpdates++;
-					if(deferredUpdates >= UPDATE_DEFERAL) {
-						writeUpdate = true;
+				boolean running = true;
+				String oldResult = null;
+				int deferredUpdates = 0; 
+				
+				// TODO Timeout? 			
+				while (running && !runtime.isCancelled()) {
+					output.setLength(0);
+					runtime.status(this, "Checking for job completion");
+	
+					SAWWorkflowException ex = runScript("./checkjob.sh", componentWorkDir, output, runtime);
+	
+					String result = output.toString().trim();
+	
+					boolean writeUpdate = false;
+					
+					if(result.equals(oldResult)) {
+						deferredUpdates++;
+						if(deferredUpdates >= UPDATE_DEFERAL) {
+							writeUpdate = true;
+							deferredUpdates = 0;
+						}
+					}else {
+						oldResult = result;
 						deferredUpdates = 0;
+						writeUpdate = true;
 					}
-				}else {
-					oldResult = result;
-					deferredUpdates = 0;
-					writeUpdate = true;
-				}
-				
-				
-				if(writeUpdate)
-				{
-					try {
-						FileUtils.write(new File(componentWorkDir, "checkjob.log"), output);
-					} catch (IOException ex1) {
-						runtime.log().warn("Problem writing to 'checkjob.log': " + ex1.getMessage());
+					
+					
+					if(writeUpdate)
+					{
+						try {
+							FileUtils.write(new File(componentWorkDir, "checkjob.log"), output, Charset.defaultCharset());
+						} catch (IOException ex1) {
+							runtime.log().warn("Problem writing to 'checkjob.log': " + ex1.getMessage());
+						}
 					}
+					
+					runtime.status(this, "Checkjob script returned " + result + ", looking for " + getPositiveCheckResult() + " or " + getFailedCheckResult() + " or " + getCancelledCheckResult());
+	
+					if (result.startsWith(getPositiveCheckResult())) {
+						running = false;					
+					} else if (result.startsWith(getFailedCheckResult())) {
+						running = false;					
+					} else if (result.startsWith(getCancelledCheckResult())) {
+						running = false;					
+					} 
+					
+					if (ex != null)
+						throw ex;
+					
+					// frequency is in seconds, convert to ms
+					if (running && !runtime.isCancelled())
+						Thread.sleep(checkjobFrequency*1000);
 				}
+			} else {
+				checkCancelled(runtime);
+				runtime.status(this, "Executing job");
+				SAWWorkflowException e = runScript("./execute.sh", componentWorkDir, output, runtime);
+				try {
+					FileUtils.write(new File(componentWorkDir, "execute.log"), output, Charset.defaultCharset());				
+				} catch (IOException ex1) {
+					runtime.log().warn("Problem writing to 'execute.log': " + ex1.getMessage());
+				}
+				output.setLength(0);
+				if (e != null)
+					throw e;
 				
-				runtime.status(this, "Checkjob script returned " + result + ", looking for " + getPositiveCheckResult() + " or " + getFailedCheckResult());
-
-				if (getPositiveCheckResult().equals(result)) {
-					running = false;					
-				} else if (getFailedCheckResult().equals(result)) {
-					running = false;					
-				} 
-				
-				if (ex != null)
-					throw ex;
-				
-				// frequency is in seconds, convert to ms
-				Thread.sleep(checkjobFrequency*1000);
 			}
 			runtime.status(this, "Job completed");
 			
 			checkCancelled(runtime);
 
 			output.setLength(0);
-			runtime.status(this, "Checking for job status");
-
-			runScript("./status.sh", componentWorkDir, output, runtime);
-			String result = output.toString().trim();
-			try {
-				FileUtils.write(new File(componentWorkDir, "status.log"), output);
-			} catch (IOException ex1) {
-				runtime.log().warn("Problem writing to 'status.log': " + ex1.getMessage());
-			}
-
-			runtime.status(this, "Status script returned " + result + ", looking for " + getPositiveStatusResult());
-
-			if (!getPositiveStatusResult().equals(result))
-				throw new SAWWorkflowException(getName() + ": SIERRA run failed, see execution log.");
-			// TODO This seems wrong
+			checkStatus(runtime, componentWorkDir, output);
+			
+			// TODO This seems wrong -- needs to be configurable
 			String logfilePath = new File(componentWorkDir, FilenameUtils.getBaseName(inputFile.getName()) + ".log").getAbsolutePath(); 
-			return Collections.singletonMap("logFile", logfilePath);
+			Map<String, Object> results = Collections.singletonMap(LOG_FILE, logfilePath);
+			
+			try {
+				addOutputsToMemento(memento, results).save(componentWorkDir);
+			} catch (IOException ioe) {
+				// No memento, I guess
+			}
+			
+			return results;
+
 			
 		} catch (IOException | InterruptedException ex) {
 			throw new SAWWorkflowException(getName() + ": Error", ex);
 		}
+	}
+
+
+	private void checkStatus(RuntimeData runtime, File componentWorkDir, StringBuilder output) {
+		runtime.status(this, "Checking for job status");
+
+		runScript("./status.sh", componentWorkDir, output, runtime);
+		String result = output.toString().trim();
+		try {
+			FileUtils.write(new File(componentWorkDir, "status.log"), output, Charset.defaultCharset());
+		} catch (IOException ex1) {
+			runtime.log().warn("Problem writing to 'status.log': " + ex1.getMessage());
+		}
+
+		runtime.status(this, "Status script returned " + result + ", looking for " + getPositiveStatusResult());
+
+		if (!getPositiveStatusResult().equals(result))
+			throw new SAWWorkflowException(getName() + ": compute run failed, see execution log.");
 	}
 
 
@@ -182,7 +226,10 @@ public class LocalQueueSubmit extends SAWCustomNode {
 	protected String getFailedCheckResult() {
 		return "FAILED";
 	}
-
+	
+	protected String getCancelledCheckResult() {
+		return "CANCELLED";
+	}
 
 	private SAWWorkflowException runScript(String script, File componentWorkDir, StringBuilder sb, RuntimeData runtime) {
 		ProcessBuilder builder = ProcessUtils.createProcess(runtime).command(script);	
@@ -193,7 +240,7 @@ public class LocalQueueSubmit extends SAWCustomNode {
 		try {
 			p = builder.start();
 			Process pp = p;
-			listener = () -> pp.destroy();
+			listener = () -> ProcessUtils.destroyProcess(pp);
 			p.getOutputStream().close();
 
 			int exitStatus = UNSET;
@@ -245,16 +292,27 @@ public class LocalQueueSubmit extends SAWCustomNode {
 
 	protected File setUpEnvironment(Map<String, String> properties,
 			WorkflowDefinition workflow, RuntimeData runtime,
-			File componentWorkDir) throws IOException {
+			File componentWorkDir, boolean queueSubmission) throws IOException {
 		File inputFile = getInputFile(runtime, properties);
 
 		// Link the input files into the workdir
 		linkFile(componentWorkDir, inputFile, runtime);
 
 		// Parameter substitutions for scripts
-		// TODO Make this expandable. Should perhaps include all node's properties, global parameters,
-		// and inputs (perhaps)
 		Map<String, String> parameters = new HashMap<>();
+		
+		for (String name: runtime.getParameterNames()) {
+			if (runtime.isGlobal(name))
+				parameters.put(name, String.valueOf(runtime.getParameter(name).getValue()));
+		}
+		
+		properties.forEach((k, v) -> parameters.put(k, v));
+		
+		for (String name: workflow.getNode(getName()).inputs.keySet()) {
+			parameters.put(name, String.valueOf(runtime.getInput(getName(), name, String.class)));	
+		}
+		
+		// These override the above, providing defaults
 		parameters.put("remote.dir", componentWorkDir.getAbsolutePath());
 		parameters.put("input.deck.base.name", FilenameUtils.getBaseName(inputFile.getName()));
 		parameters.put("input.deck.name", inputFile.getName());
@@ -267,10 +325,13 @@ public class LocalQueueSubmit extends SAWCustomNode {
 		parameters.put("queue", String.valueOf(getQueue(properties)));
 
 		// Generate the scripts with substitutions
-		stageScript(runtime, parameters, properties, SUBMIT_SCRIPT, "submit.sh");
 		stageScript(runtime, parameters, properties, EXECUTE_SCRIPT,"execute.sh");
-		stageScript(runtime, parameters, properties, CHECKJOB_SCRIPT, "checkjob.sh");
 		stageScript(runtime, parameters, properties, STATUS_SCRIPT, "status.sh");
+
+		if (queueSubmission) {
+			stageScript(runtime, parameters, properties, SUBMIT_SCRIPT, "submit.sh");
+			stageScript(runtime, parameters, properties, CHECKJOB_SCRIPT, "checkjob.sh");
+		}
 		
 		return inputFile;
 	}
@@ -278,12 +339,12 @@ public class LocalQueueSubmit extends SAWCustomNode {
 
 	private int getNumMinutes(RuntimeData runtime,
 			Map<String, String> properties) {
-		return getIntFromPortOrProperty(runtime, properties, "job.minutes", "30");
+		return getIntFromPortOrProperty(runtime, properties, "job.minutes", "0");
 	}
 	
 	private int getNumHours(RuntimeData runtime,
 			Map<String, String> properties) {
-		return getIntFromPortOrProperty(runtime, properties, "job.hours", "1");
+		return getIntFromPortOrProperty(runtime, properties, "job.hours", "0");
 	}
 	
 	private int getNumNodes(RuntimeData runtime,
@@ -307,13 +368,13 @@ public class LocalQueueSubmit extends SAWCustomNode {
 				userFile = new File(runtime.getHomeDir(), userFileName);
 			if (userFile.exists()) {
 				data = FileUtils.readFileToString(userFile, Charset.defaultCharset());		
-				runtime.log().info("Node {0} using user-supplied script '{1}' for '{2}'" , getName(), userFileName, scriptName);
+				runtime.log().info("Node {0} using user-supplied script ''{1}'' for ''{2}''" , getName(), userFileName, scriptName);
 			} else {
 				throw new SAWWorkflowException(String.format("User script file %s not found", userFile.getAbsolutePath()));
 			}
 		} else {		
 			data = IOUtils.toString(getClass().getResource("/scripts/" + scriptName), Charset.defaultCharset());
-			runtime.log().info("\"Node {0} using built-in script '/scripts/{1}' for '{2}'" , getName(), scriptName, scriptName);
+			runtime.log().info("Node {0} using built-in script ''/scripts/{1}'' for ''{2}''" , getName(), scriptName, scriptName);
 
 		}
 		
@@ -326,19 +387,30 @@ public class LocalQueueSubmit extends SAWCustomNode {
 	
 	@Override
 	public List<String> getCategories() {
-		return Arrays.asList("Engineering", NodeCategories.EXTERNAL_PROCESSES);
+		return Arrays.asList(NodeCategories.EXTERNAL_PROCESSES);
 	}
 	
 	@Override
 	public List<PropertyInfo> getDefaultProperties() { 
-		return Arrays.asList(new PropertyInfo("inputFile", "home_file"), new PropertyInfo("account"), new PropertyInfo("sierra_code"), new PropertyInfo("num.nodes", "integer"), 
-				new PropertyInfo("num.processors", "integer"), new PropertyInfo("job.hours", "integer"), new PropertyInfo("job.minutes", "integer"), 
-				new PropertyInfo(SUBMIT_SCRIPT, "home_file"), new PropertyInfo(EXECUTE_SCRIPT, "home_file"), new PropertyInfo(CHECKJOB_SCRIPT, "home_file"), 
-				new PropertyInfo(CHECKJOB_FREQUENCY, "integer"),new PropertyInfo(STATUS_SCRIPT, "home_file"));
+		return Arrays.asList(new PropertyInfo("inputFile", "home_file"),
+				new PropertyInfo("sierra_code"),
+				new PropertyInfo("num.processors", "integer", "16"),
+				new PropertyInfo(EXECUTE_SCRIPT, "home_file"),
+				new PropertyInfo(STATUS_SCRIPT, "home_file"),
+				new PropertyInfo(QUEUE_SUBMIT_FLAG, "boolean", "true"),
+				new PropertyInfo("account"),
+				new PropertyInfo("queue", "text", "nw"),
+				new PropertyInfo("num.nodes", "integer", "1"), 
+				new PropertyInfo("job.hours", "integer", "0"),
+				new PropertyInfo("job.minutes", "integer", "30"), 
+				new PropertyInfo(SUBMIT_SCRIPT, "home_file"),
+				new PropertyInfo(CHECKJOB_SCRIPT, "home_file"), 
+				new PropertyInfo(CHECKJOB_FREQUENCY, "integer", "15"),
+				new PropertyInfo(PRIVATE_WORK_DIR, "boolean", "true"));
 	}
 	
 	@Override
-	public List<OutputPortInfo> getDefaultOutputs() { return Arrays.asList(new OutputPortInfo("logFile", "output_file")); }
+	public List<OutputPortInfo> getDefaultOutputs() { return Arrays.asList(new OutputPortInfo(LOG_FILE, "output_file")); }
 	
 	@Override
 	public List<InputPortInfo> getDefaultInputs() { return Arrays.asList(new InputPortInfo("inputFile", "input_file"));	}
@@ -346,6 +418,11 @@ public class LocalQueueSubmit extends SAWCustomNode {
 
 	public File getInputFile(RuntimeData data,  Map<String, String> properties) {
 		return getFileFromPortOrProperty(data,  properties, "inputFile", true, true);
+	}
+	
+	protected boolean getQueueSubmissionFlag(Map<String, String> properties) {
+		String value = properties.get(QUEUE_SUBMIT_FLAG);
+		return value == null || "true".equals(value); // default to true (for backwards compatibility)
 	}
 	
 	protected String getSierraCode(Map<String, String> properties) {
@@ -390,4 +467,45 @@ public class LocalQueueSubmit extends SAWCustomNode {
 		}
 	}
 
+	@Override
+	protected boolean outputsAvailable(WorkflowDefinition workflow, RuntimeData runtime, Map<String, String> properties) {
+		Map<String, OutputPort> outputs = workflow.getNode(getName()).outputs;
+		File componentWorkDir = getComponentWorkDir(runtime, properties);
+		for (String name: outputs.keySet()) {
+			if (name.equals(LOG_FILE))
+				continue;				
+			OutputPort port = outputs.get(name);
+			if (isConnectedOutput(name, workflow) && OUTPUT_FILE.equals(port.type)) {
+				String file = getFilenameForOutputPort(properties, workflow, runtime, outputs.get(name));
+				if (isGlobPattern(file)) {
+					List<String> matches = new ArrayList<>();
+					try {
+						glob(file, componentWorkDir, matches);									
+					} catch(IOException ioe) { }	
+					
+					if (matches.size() == 0) {
+						runtime.log().info("{0}: testing previous state, no files match {1}", getName(), file);					
+						return false;
+					} else {
+						continue;
+					}
+				}
+				if (!new File(componentWorkDir, file).exists()) {
+					runtime.log().info("{0}: testing previous state, output file {1} not available", getName(), file);					
+					return false;
+				}
+			}
+		}		
+		if (isConnectedOutput(LOG_FILE, workflow)) {
+			File inputFile = getInputFile(runtime, properties);
+			File logFile = new File(componentWorkDir, FilenameUtils.getBaseName(inputFile.getName()) + ".log"); 
+			if (!logFile.exists()) {
+				runtime.log().info("{0}: testing previous state, log file {1} not available", getName(), logFile.getName());					
+				return false;
+			}
+		} 
+		
+		return true;
+		
+	}
 }

@@ -11,27 +11,33 @@ package gov.sandia.dart.workflow.runtime.components;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
-import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
 import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
 import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
 
-public abstract class AbstractExternalNode extends SAWCustomNode {
+public abstract class AbstractExternalNode extends AbstractRestartableNode {
 
 	public static final String STDIN_PORT_NAME = "stdin";
 	public static final String STDOUT_PORT_NAME = "stdout";
 	public static final String STDERR_PORT_NAME = "stderr";
 	public static final String EXIT_STATUS = "exitStatus";
 	protected static final String PROPERTIES_FILE_FLAG = "write properties to a property file";
+	private Set<String> excluded = new HashSet<>(Arrays.asList(
+			PROPERTIES_FILE_FLAG,
+			PRIVATE_WORK_DIR,
+			CLEAR_NODE_DIR,
+			HIDE_IN_NAVIGATOR,
+			ASYNC			
+			));
 	
 	protected String escapeString(String unescaped) {
 		String value = StringEscapeUtils.escapeJava(unescaped);
@@ -45,7 +51,7 @@ public abstract class AbstractExternalNode extends SAWCustomNode {
 	    return sb.toString();
 	}
 	
-	protected boolean excludeFromPropertiesFile(String name) { return PROPERTIES_FILE_FLAG.equals(name) || PRIVATE_WORK_DIR.equals(name); }
+	protected boolean excludeFromPropertiesFile(String name) { return excluded.contains(name); }
 		
 	protected void possiblyWritePropertiesFile(Map<String, String> properties, WorkflowDefinition workflow, RuntimeData runtime) {
 		if (getPropertiesFileFlag(properties)) {
@@ -88,4 +94,9 @@ public abstract class AbstractExternalNode extends SAWCustomNode {
 		else
 			return false;
 	}
+
+	protected String getFilenameRoot() {
+		return getName().replaceAll("\\W+", "_");
+	}
+
 }

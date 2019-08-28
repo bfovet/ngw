@@ -9,13 +9,13 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.runtime.components.script;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -34,9 +34,11 @@ import gov.sandia.dart.workflow.runtime.components.Squirter;
 import gov.sandia.dart.workflow.runtime.core.ICancelationListener;
 import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
 import gov.sandia.dart.workflow.runtime.core.NodeCategories;
+import gov.sandia.dart.workflow.runtime.core.NodeMemento;
 import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
 import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
+import gov.sandia.dart.workflow.runtime.core.RuntimeParameter;
 import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
 import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
 import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition.OutputPort;
@@ -89,8 +91,13 @@ public abstract class AbstractExternalScriptNode extends AbstractExternalNode {
 
 	@Override
 	public Map<String, Object> doExecute(Map<String, String> properties, WorkflowDefinition workflow, RuntimeData runtime) {
-		ByteArrayOutputStream outBytes = new ByteArrayOutputStream();
-		ByteArrayOutputStream errBytes = new ByteArrayOutputStream();
+		File componentWorkDir = getComponentWorkDir(runtime, properties);
+		
+		clearMemento(componentWorkDir);
+		NodeMemento memento = createMemento(properties, workflow, runtime);
+		String filenameRoot = getFilenameRoot();		
+		File outFile = new File(componentWorkDir, filenameRoot + ".log");
+		File errFile = new File(componentWorkDir, filenameRoot + ".err");
 
 		WorkflowDefinition.Node nodeDef = workflow.getNode(getName());
 		possiblyWritePropertiesFile(properties, workflow, runtime);
@@ -102,7 +109,6 @@ public abstract class AbstractExternalScriptNode extends AbstractExternalNode {
 
 		String scriptText = getUserScript(properties, runtime, nodeDef);
 		
-		File componentWorkDir = getComponentWorkDir(runtime, properties);
 		try {
 			// Build complete script with prolog and postscript
 			List<String> commandArgs = new ArrayList<>();
@@ -111,9 +117,9 @@ public abstract class AbstractExternalScriptNode extends AbstractExternalNode {
 				if (getPropertiesFileFlag(properties)) {
 					addScriptBody(fos, scriptText); // GEORGE MODE
 				} else {
+					addGlobalParametersToScript(workflow, runtime, fos);
 					addInputPortsToScript(runtime, workflow, nodeDef, componentWorkDir, fos);
 					addPropertiesToScript(properties, propertyNames, fos);
-					addGlobalParametersToScript(workflow, runtime, fos);
 					addComment(fos, "End of definitions");
 					addScriptBody(fos, scriptText);
 					addComment(fos, "End of user script");
@@ -125,30 +131,26 @@ public abstract class AbstractExternalScriptNode extends AbstractExternalNode {
 				throw new SAWWorkflowException("Exception writing to temporary script file.", e);
 			}
 
-			status = executeScript(runtime, outBytes, errBytes, nodeDef, componentWorkDir, commandArgs);					
+			status = executeScript(runtime, outFile, errFile, nodeDef, componentWorkDir, commandArgs);					
 			
 		} catch (Throwable t) {
-			String filenameRoot = getFilenameRoot();
 			throw new SAWWorkflowException(getName() + ": problem executing script ... try examining " + filenameRoot + ".err", t);
 			
-		} finally {
-			try {
-				// TODO Uniquify file names
-				String filenameRoot = getFilenameRoot();
-				FileUtils.copyInputStreamToFile(new ByteArrayInputStream(outBytes.toByteArray()), new File(componentWorkDir, filenameRoot + ".log"));
-				FileUtils.copyInputStreamToFile(new ByteArrayInputStream(errBytes.toByteArray()), new File(componentWorkDir, filenameRoot + ".err"));			
-			} catch (IOException e) {
-				runtime.log().warn(getName() + ": error saving script output");
-			}
 		}
 		
 		if (status != 0 && !isConnectedOutput(EXIT_STATUS, workflow)) {
 			throw new SAWWorkflowException(String.format("Script exited with status %d", status));
-		}
+		}		
 		
-		sendInternalOutputs(outBytes, errBytes, status, nodeDef, outputs);		
+		sendInternalOutputs(outFile, errFile, status, nodeDef, outputs);		
 		sendCustomOutputs(runtime, nodeDef, properties, outputs, outputPortNameToFileName);
 		
+		try {
+			addOutputsToMemento(memento, outputs).save(componentWorkDir);
+		} catch (IOException e) {
+			// No memento, I guess
+		}
+
 		return outputs;
 
 	}
@@ -168,7 +170,7 @@ public abstract class AbstractExternalScriptNode extends AbstractExternalNode {
 					File f = new File(path);
 					if (!f.isAbsolute())
 						f = new File(getComponentWorkDir(runtime, properties), path);
-					return FileUtils.readFileToString(f);
+					return FileUtils.readFileToString(f, Charset.defaultCharset());
 				}
 			}
 
@@ -182,7 +184,7 @@ public abstract class AbstractExternalScriptNode extends AbstractExternalNode {
 				File f = new File(fileName);
 				if (!f.isAbsolute())
 					f = new File(runtime.getHomeDir(), fileName);
-				return FileUtils.readFileToString(f);
+				return FileUtils.readFileToString(f, Charset.defaultCharset());
 
 			} else {
 				// TODO: Should we use script text after parameter subs have been made? Can conflict with Bash syntax :-(
@@ -228,26 +230,28 @@ public abstract class AbstractExternalScriptNode extends AbstractExternalNode {
 		}		
 	}
 
-	private void sendInternalOutputs(ByteArrayOutputStream outBytes, ByteArrayOutputStream errBytes, int exitStatus,
+	private void sendInternalOutputs(File outBytes, File errBytes, int exitStatus,
 			WorkflowDefinition.Node thisNode, Map<String, Object> outputs) {
-		// EJFH Doing these "ifs" to allow for the ports maybe having been removed. Not sure I approve of that, but...		
-		if (thisNode.outputs.get(STDOUT_PORT_NAME) != null) {
-			outputs.put(STDOUT_PORT_NAME, outBytes.toByteArray());
-		}
+		try {
+			// EJFH Doing these "ifs" to allow for the ports maybe having been removed. Not sure I approve of that, but...		
+			if (thisNode.outputs.get(STDOUT_PORT_NAME) != null) {
+				outputs.put(STDOUT_PORT_NAME, FileUtils.readFileToString(outBytes, Charset.defaultCharset()));
+			}
 
-		if (thisNode.outputs.get(STDERR_PORT_NAME) != null) {
-			outputs.put(STDERR_PORT_NAME, errBytes.toByteArray());
+			if (thisNode.outputs.get(STDERR_PORT_NAME) != null) {
+				outputs.put(STDERR_PORT_NAME,FileUtils.readFileToString(errBytes, Charset.defaultCharset()));
+			}
+		} catch (IOException ioe) {
+			throw new SAWWorkflowException(getName() + ": can't read log files", ioe);
 		}
-		
 		if (thisNode.outputs.get(EXIT_STATUS) != null) {
 			outputs.put(EXIT_STATUS, exitStatus);
 		}
 	}
 
-	private int executeScript(RuntimeData runtime, ByteArrayOutputStream outBytes, ByteArrayOutputStream errBytes,
+	private int executeScript(RuntimeData runtime, File outFile, File errFile,
 			WorkflowDefinition.Node nodeDef, File componentWorkDir, List<String> commandArgs)
 			throws IOException, InterruptedException {
-		int status;
 		Process p;
 		ProcessBuilder proc = ProcessUtils.createProcess(runtime);
 		proc.command(commandArgs);
@@ -256,10 +260,11 @@ public abstract class AbstractExternalScriptNode extends AbstractExternalNode {
 		ICancelationListener listener = null;
 		int exitStatus = UNSET;
 
-		try {
+		try (FileOutputStream outBytes = new FileOutputStream(outFile);
+			FileOutputStream errBytes = new FileOutputStream(errFile);){
 			//proc.redirectOutput(ProcessBuilder.Redirect.INHERIT);
 			p = proc.start();
-			listener = () -> p.destroy();
+			listener = () -> ProcessUtils.destroyProcess(p);
 			runtime.addCancelationListener(listener);
 			
 			byte inBytes[] = (byte[]) runtime.getInput(getName(), STDIN_PORT_NAME, byte[].class);
@@ -307,7 +312,7 @@ public abstract class AbstractExternalScriptNode extends AbstractExternalNode {
 		for (String propertyName : propertyNames) {
 			if (!isInternalProperty(propertyName)) {
 				String propertyValue = properties.get(propertyName);
-				if (propertyValue != null) {
+				if (!StringUtils.isEmpty(propertyValue)) {
 					String escaped = escapeString(propertyValue);
 					String identifier = makeIdentifier(propertyName);
 					addPropertyToScript(fos, identifier, escaped);
@@ -323,10 +328,11 @@ public abstract class AbstractExternalScriptNode extends AbstractExternalNode {
 	 */
 	private void addGlobalParametersToScript(WorkflowDefinition workflow, RuntimeData runtime, PrintWriter fos)
 			throws IOException {
-		for (String name: runtime.getParameters().keySet()) {
-			if (runtime.isGlobal(name)) {
-				String identifier = makeIdentifier(name);
-				String propertyValue = String.valueOf(runtime.getParameter(name));
+		for (String name: runtime.getParameterNames()) {
+			RuntimeParameter p = runtime.getParameter(name);
+			if (p.isGlobal()) {
+				String identifier = makeIdentifier(p.getName());
+				String propertyValue = String.valueOf(p.getValue());				
 				String escaped = escapeString(propertyValue);
 				addPropertyToScript(fos, identifier, escaped);	
 			}
@@ -386,18 +392,17 @@ public abstract class AbstractExternalScriptNode extends AbstractExternalNode {
 		if (StringUtils.isEmpty(interp)) {
 			interp = dflt;	
 		}
+		// On Windows, we can end up with extra quotes pretty easily.
+		interp = StringUtils.unwrap(interp, '"');
 		commandArgs.addAll(Arrays.asList(interp.split("\\s+")));					
 	}
 	
-	protected String getFilenameRoot() {
-		return getName().replaceAll("\\W+", "_");
-	}
-	
-	
 	@Override public final List<InputPortInfo> getDefaultInputs() { return Arrays.asList(new InputPortInfo(STDIN_PORT_NAME), new InputPortInfo(SCRIPT)); }
 	@Override public final List<OutputPortInfo> getDefaultOutputs() { return Arrays.asList(new OutputPortInfo(STDOUT_PORT_NAME), new OutputPortInfo(STDERR_PORT_NAME), new OutputPortInfo(EXIT_STATUS)); }
-	@Override public final List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo(SCRIPT, "multitext"), new PropertyInfo(PROPERTIES_FILE_FLAG, "boolean") ); }
-	@Override public String getCategory() { return NodeCategories.EXTERNAL_PROCESSES; }
+	@Override public final List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo(SCRIPT, "multitext"), new PropertyInfo(PROPERTIES_FILE_FLAG, "boolean"),
+			new PropertyInfo(PRIVATE_WORK_DIR, "boolean", "true")); }
+	@Override public List<String> getCategories() { return Arrays.asList(NodeCategories.SCRIPTING, NodeCategories.EXTERNAL_PROCESSES); }
+
 
 }
 

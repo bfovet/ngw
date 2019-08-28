@@ -37,6 +37,12 @@ import gov.sandia.dart.workflow.util.ParameterUtils;
 
 public class AddWFNodeFeature extends AbstractAddFeature {
 	
+	public static final int NODE_HEIGHT = 75;
+
+	public static final int NODE_WIDTH = 130;
+
+	public static final int PARAMETER_HEIGHT = 24;
+	
 	public static final String LEND = "_LEND_";
 	public static final String LBEGIN = "_LBEGIN_";
 	static final int TOP_PORT = 32;
@@ -112,19 +118,19 @@ public class AddWFNodeFeature extends AbstractAddFeature {
 		}
 		return false;
 	}	
-	private int computeNodeHeight(WFNode addednode) {
+	public static int computeNodeHeight(WFNode addednode) {
 		if (ParameterUtils.isParameter(addednode))
-			return 24;
+			return PARAMETER_HEIGHT;
 		
 		int numPorts = Math.max(addednode.getInputPorts().size(), addednode.getOutputPorts().size());
 		// Minimum height is tall enough for several lines of text
-		return Math.max(75, TOP_PORT + (PORT_SPACING * numPorts));
+		return Math.max(NODE_HEIGHT, TOP_PORT + (PORT_SPACING * numPorts));
 	}
 
-	private int computeNodeWidth(WFNode addednode) {
+	public static int computeNodeWidth(WFNode addednode) {
 		// About 16 pixels for each character in the text 
 		// return (4 + addednode.getType().length()) * 16;
-		return 130;
+		return NODE_WIDTH;
 	}
 	
 	public void createOutputAnchor(ContainerShape containerShape, GraphicsAlgorithm ga, int i, final OutputPort port) {

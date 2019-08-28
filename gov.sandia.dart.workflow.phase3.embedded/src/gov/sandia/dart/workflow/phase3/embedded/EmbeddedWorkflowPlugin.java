@@ -65,12 +65,11 @@ public class EmbeddedWorkflowPlugin extends AbsReportingUIPlugin {
 			boolean isUnix = System.getProperty("os.name").toLowerCase().indexOf("win") < 0;
 			String scriptName = isUnix ? "runNgw.sh" : "runNgw.bat";				
 			File file = new File(System.getProperty("user.home") + File.separator + ".dart", scriptName);
-			if (!file.exists()) {
-				try (FileWriter f = new FileWriter(file)) {
-					IOUtils.write(isUnix ? ClasspathTool.generateBashScript() : ClasspathTool.generateBatchFile(), f);
-					file.setExecutable(true, false);
-				}
+			try (FileWriter f = new FileWriter(file)) {
+				IOUtils.write(isUnix ? ClasspathTool.generateBashScript() : ClasspathTool.generateBatchFile(), f);
+				file.setExecutable(true, false);
 			}
+			
 		} catch (Exception e) {				
 			EmbeddedWorkflowPlugin.getDefault().logError("Error creating standalone workflow script", e);
 		}

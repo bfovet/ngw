@@ -17,8 +17,12 @@ public interface IWorkflowEditorPreferences {
 	String MANHATTAN_CONNECTIONS = PREFIX + "manhattan_connection";
 	String NODE_TYPE_HEADERS = PREFIX + "node_type_headers";
 	String PORT_LABELS = PREFIX + "port_labels";
+	String SKIP_SINGLETON_PORT_LABELS = PREFIX + "smart_port_labels";
+	String REQUIRE_CTRL_FOR_POPUP = PREFIX + "require_ctrl_for_popup";
+
 	String EDITOR_FONT = PREFIX + "editor_font";
 	String CONNECTIONS_BEHIND = PREFIX + "connections_behind";
 	String TRANSLUCENT_COMPONENTS = PREFIX + "translucent_components";
-
+	String RENDER_NESTED = PREFIX + "render_nested";
+	String RENDER_NESTED_INDENTED = PREFIX + "render_nested_indented";
 }

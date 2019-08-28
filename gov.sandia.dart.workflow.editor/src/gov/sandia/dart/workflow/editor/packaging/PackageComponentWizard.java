@@ -60,7 +60,7 @@ public class PackageComponentWizard extends Wizard {
     		for (String path: files) {
     			if (new File(path).isAbsolute()) {
     				// Right now we're only allowing relative paths for files; not sure what else we could do.
-   				throw new IllegalArgumentException(String.format("File path %s is absolute and cannot be packaged.", path));    				
+    				throw new IllegalArgumentException(String.format("File path %s is absolute and cannot be packaged.", path));    				
     			} else if (path.indexOf("..") > -1) {
     				throw new IllegalArgumentException(String.format("File path %s contains navigation characters '..' and cannot be packaged", path));    				
     			} else if (!new File(suggested.removeLastSegments(1).toPortableString(), path).exists()) {

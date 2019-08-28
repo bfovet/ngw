@@ -9,6 +9,7 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.editor.settings;
 
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Comparator;
@@ -42,14 +43,18 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.transaction.RecordingCommand;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.emf.transaction.util.TransactionUtil;
+import org.eclipse.graphiti.dt.IDiagramTypeProvider;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.impl.DeleteContext;
 import org.eclipse.graphiti.features.context.impl.MultiDeleteInfo;
 import org.eclipse.graphiti.mm.pictograms.FixPointAnchor;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
+import org.eclipse.graphiti.tb.IDecorator;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IInputValidator;
+import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -89,6 +94,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.events.HyperlinkAdapter;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
+import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Hyperlink;
 import org.eclipse.ui.ide.IDE;
 import org.osgi.framework.Bundle;
@@ -105,11 +111,14 @@ import gov.sandia.dart.common.preferences.CommonPreferencesPlugin;
 import gov.sandia.dart.common.preferences.settings.ISettingsViewPreferences;
 import gov.sandia.dart.workflow.domain.DomainFactory;
 import gov.sandia.dart.workflow.domain.InputPort;
+import gov.sandia.dart.workflow.domain.NamedObject;
 import gov.sandia.dart.workflow.domain.OutputPort;
 import gov.sandia.dart.workflow.domain.Port;
 import gov.sandia.dart.workflow.domain.Property;
 import gov.sandia.dart.workflow.domain.WFNode;
+import gov.sandia.dart.workflow.editor.DecoratorManager;
 import gov.sandia.dart.workflow.editor.WorkflowEditorPlugin;
+import gov.sandia.dart.workflow.editor.WorkflowValidator;
 import gov.sandia.dart.workflow.editor.configuration.Prop;
 import gov.sandia.dart.workflow.editor.configuration.Prop.TYPE;
 import gov.sandia.dart.workflow.editor.rendering.GenericWFNodeGARenderer;
@@ -118,6 +127,15 @@ import gov.sandia.dart.workflow.util.PropertyUtils;
 import gov.sandia.dart.workflow.util.WorkflowHelp;
 
 public class WFNodeSettingsEditor extends AbstractSettingsEditor<WFNode>  implements Adapter {
+
+	private class FilenameValidator implements IInputValidator {
+
+		@Override
+		public String isValid(String newText) {
+			return StringUtils.isBlank(newText)  ? 
+				"Enter a valid filename" : null;
+		}
+	}
 
 	private static final String BUTTON_DELETE = "Delete";
 	private static final String BUTTON_ADD = "Add";
@@ -191,7 +209,10 @@ public class WFNodeSettingsEditor extends AbstractSettingsEditor<WFNode>  implem
 
 	protected Control createPropertiesControl(Composite composite, Property p) {
 		Prop prop = new Prop(p);
-
+		
+		if (prop.isAdvanced())
+			return null;
+		
 		switch (prop.getType()) {
 		case HOME_FILE:
 			return createPathControl(composite, prop);
@@ -245,7 +266,9 @@ public class WFNodeSettingsEditor extends AbstractSettingsEditor<WFNode>  implem
 						public void doExecute() {
 							PropertyUtils.setProperty(node.get(), propertyName, value);	
 							validateProperties();
+							validateWorkflow();
 						}
+
 					});
 
 				} catch (Exception e2) {
@@ -264,6 +287,24 @@ public class WFNodeSettingsEditor extends AbstractSettingsEditor<WFNode>  implem
 		
 		return combo;
 	}	
+
+	public void validateWorkflow() {
+		IFeatureProvider fp = NOWPSettingsEditorUtils.getFeatureProvider(getNode());
+		
+		if(fp == null) {
+			return;
+		}
+		
+		IDiagramTypeProvider dtp = fp.getDiagramTypeProvider();
+		Map<EObject, IDecorator> decorators = DecoratorManager.getDecoratorMap(dtp.getDiagram().eResource());
+		new WorkflowValidator().validate(decorators, dtp.getFeatureProvider());
+		dtp.getDiagramBehavior().refresh();
+		IDecorator iDecorator = decorators.get(getNode());
+		if (iDecorator != null)
+			messageView.setMessage(iDecorator.getMessage(), IMessageProvider.WARNING);
+		else
+			messageView.setMessageFor(Status.OK_STATUS);
+	}
 
 	private String[] getParameterNames() {
 		EList<EObject> contents = getNode().eResource().getContents();
@@ -334,6 +375,7 @@ public class WFNodeSettingsEditor extends AbstractSettingsEditor<WFNode>  implem
 						@Override
 						public void doExecute() {
 							PropertyUtils.setProperty(node.get(), propertyName, value);	
+							validateWorkflow();
 						}
 					});
 
@@ -457,6 +499,7 @@ public class WFNodeSettingsEditor extends AbstractSettingsEditor<WFNode>  implem
 						public void doExecute() {
 							PropertyUtils.setProperty(node.get(), propertyName, value);	
 							validateProperties();
+							validateWorkflow();
 						}
 					});
 
@@ -493,21 +536,23 @@ public class WFNodeSettingsEditor extends AbstractSettingsEditor<WFNode>  implem
 					InputDialog dialog =
 							new InputDialog(Display.getCurrent().getActiveShell(),
 									"Enter filename", "Specify a name for the file", filename,
-									s -> StringUtils.isBlank(s) ? "Enter a valid filename" : null);	
+									new FilenameValidator());	
 					int result = dialog.open(); 
 					if (result == Dialog.OK) {
+						String newFilename = dialog.getValue();
 						TransactionalEditingDomain domain = TransactionUtil.getEditingDomain(node.get());
 						domain.getCommandStack().execute(new RecordingCommand(domain) {
 							@Override
 							public void doExecute() {
-								PropertyUtils.setProperty(getNode(), p.getName(), filename);
-								theText.setText(filename);
+								PropertyUtils.setProperty(getNode(), p.getName(), newFilename);
+								theText.setText(newFilename);
 								validateProperties();
+								validateWorkflow();
 							}
 						});
 						Bundle bundle = Platform.getBundle(element.getContributor().getName());
 						URL fileURL = bundle.getEntry(resource);
-						IFile destination = getWorkflowFile().getParent().getFile(new Path(filename));
+						IFile destination = getWorkflowFile().getParent().getFile(new Path(newFilename));
 						try {
 							if (destination.exists())
 								destination.setContents(fileURL.openStream(), IResource.FORCE, null);
@@ -609,6 +654,7 @@ public class WFNodeSettingsEditor extends AbstractSettingsEditor<WFNode>  implem
 						@Override
 						public void doExecute() {
 							PropertyUtils.setProperty(node.get(), propertyName, String.valueOf(value));	
+							validateWorkflow();
 						}
 					});
 
@@ -674,7 +720,7 @@ public class WFNodeSettingsEditor extends AbstractSettingsEditor<WFNode>  implem
 		form.getBody().setLayout(grid);
 	
 		toolkit.createLabel(form.getBody(), "Name");
-		name_ = WorkflowEditorSettingsUtils.createTextField(form.getBody(), "name", toolkit, node);
+		name_ = createTextField(form.getBody(), "name", toolkit, node);
 		name_.setEditable(true);
 		GridData gd = new GridData(SWT.FILL,SWT.FILL,true,false);
 		name_.setLayoutData(gd);
@@ -686,13 +732,13 @@ public class WFNodeSettingsEditor extends AbstractSettingsEditor<WFNode>  implem
 		});
 	
 		toolkit.createLabel(form.getBody(), "Type");
-		type_ = WorkflowEditorSettingsUtils.createTextField(form.getBody(), "type", toolkit, node);
+		type_ = createTextField(form.getBody(), "type", toolkit, node);
 		type_.setEditable(false);
 		gd = new GridData(SWT.FILL,SWT.FILL,true,false);
 		type_.setLayoutData(gd);
 		
 		toolkit.createLabel(form.getBody(), "Label");
-		label_ = WorkflowEditorSettingsUtils.createTextField(form.getBody(), "label", toolkit, node);
+		label_ = createTextField(form.getBody(), "label", toolkit, node);
 		label_.setEditable(true);
 		gd = new GridData(SWT.FILL,SWT.FILL,true,false);
 		label_.setLayoutData(gd);
@@ -771,7 +817,7 @@ public class WFNodeSettingsEditor extends AbstractSettingsEditor<WFNode>  implem
 			setEditorTitle();
 			this.node.get().eAdapters().add(this);			
 		}
-		
+		validateWorkflow();
 	}
 
 
@@ -1066,9 +1112,15 @@ public class WFNodeSettingsEditor extends AbstractSettingsEditor<WFNode>  implem
 	public void notifyChanged(Notification notification) {
 		WFNode wfNode = node.get();
 		if (wfNode != null && propertiesParent != null ) {
-			CompositeUtils.removeChildrenFromComposite(propertiesParent);
-			setupPropertiesEditor(propertiesParent, wfNode);
-			propertiesParent.layout(true, true);
+			Display.getDefault().asyncExec(() -> {
+				if (!propertiesParent.isDisposed()) {
+					CompositeUtils.removeChildrenFromComposite(propertiesParent);
+					if (!propertiesParent.isDisposed()) {
+						setupPropertiesEditor(propertiesParent, wfNode);
+						propertiesParent.layout(true, true);
+					}
+				}
+			});		
 		}
 	}
 
@@ -1077,6 +1129,44 @@ public class WFNodeSettingsEditor extends AbstractSettingsEditor<WFNode>  implem
 	public boolean setFocus() {
 		return form.setFocus();
 		// return name_.setFocus();
+	}
+	
+	private Text createTextField(Composite composite, String propertyName, FormToolkit toolkit, AtomicReference<? extends NamedObject> node) {
+		Text theText = toolkit.createText(composite, "", SWT.BORDER);
+		theText.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
+		theText.addModifyListener(new ModifyListener() {
+			@Override
+			public void modifyText(ModifyEvent e) {
+				try {
+					if(node.get() == null)
+					{
+						return;
+					}
+					String value = theText.getText().trim();
+					String name = (String) org.apache.commons.beanutils.PropertyUtils.getSimpleProperty(node.get(), propertyName);
+					if (Objects.equals(value, name))
+						return;
+					TransactionalEditingDomain domain = TransactionUtil.getEditingDomain(node.get());
+	        		domain.getCommandStack().execute(new RecordingCommand(domain) {
+						@Override
+						public void doExecute() {
+							try {
+								org.apache.commons.beanutils.PropertyUtils.setSimpleProperty(node.get(), propertyName, value);
+								validateWorkflow();
+							} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
+								WorkflowEditorPlugin.getDefault().logError("Can't find property in object", ex);
+							}
+						}
+					});	
+	
+				} catch (Exception e2) {
+					WorkflowEditorPlugin.getDefault().logError("Can't find property in object", e2);
+				}
+			}
+	
+	
+		});
+		return theText;
 	}
 
 }

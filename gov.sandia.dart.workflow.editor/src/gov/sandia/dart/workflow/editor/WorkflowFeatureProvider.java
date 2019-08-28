@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.graphiti.dt.IDiagramTypeProvider;
+import org.eclipse.graphiti.features.IAddBendpointFeature;
 import org.eclipse.graphiti.features.IAddFeature;
 import org.eclipse.graphiti.features.ICopyFeature;
 import org.eclipse.graphiti.features.ICreateConnectionFeature;
@@ -20,20 +21,30 @@ import org.eclipse.graphiti.features.IDeleteFeature;
 import org.eclipse.graphiti.features.IDirectEditingFeature;
 import org.eclipse.graphiti.features.IFeature;
 import org.eclipse.graphiti.features.ILayoutFeature;
+import org.eclipse.graphiti.features.IMoveBendpointFeature;
 import org.eclipse.graphiti.features.IMoveShapeFeature;
 import org.eclipse.graphiti.features.IPasteFeature;
+import org.eclipse.graphiti.features.IPrintFeature;
 import org.eclipse.graphiti.features.IReconnectionFeature;
+import org.eclipse.graphiti.features.IRemoveBendpointFeature;
+import org.eclipse.graphiti.features.ISaveImageFeature;
 import org.eclipse.graphiti.features.IUpdateFeature;
+import org.eclipse.graphiti.features.context.IAddBendpointContext;
 import org.eclipse.graphiti.features.context.IAddContext;
 import org.eclipse.graphiti.features.context.ICopyContext;
 import org.eclipse.graphiti.features.context.IDeleteContext;
 import org.eclipse.graphiti.features.context.IDirectEditingContext;
 import org.eclipse.graphiti.features.context.ILayoutContext;
+import org.eclipse.graphiti.features.context.IMoveBendpointContext;
 import org.eclipse.graphiti.features.context.IMoveShapeContext;
 import org.eclipse.graphiti.features.context.IPasteContext;
 import org.eclipse.graphiti.features.context.IPictogramElementContext;
 import org.eclipse.graphiti.features.context.IReconnectionContext;
+import org.eclipse.graphiti.features.context.IRemoveBendpointContext;
 import org.eclipse.graphiti.features.context.IUpdateContext;
+import org.eclipse.graphiti.features.impl.DefaultAddBendpointFeature;
+import org.eclipse.graphiti.features.impl.DefaultMoveBendpointFeature;
+import org.eclipse.graphiti.features.impl.DefaultRemoveBendpointFeature;
 import org.eclipse.graphiti.mm.pictograms.Connection;
 import org.eclipse.graphiti.mm.pictograms.ContainerShape;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
@@ -59,7 +70,6 @@ import gov.sandia.dart.workflow.editor.features.DeleteConductorFeature;
 import gov.sandia.dart.workflow.editor.features.DeletePortFeature;
 import gov.sandia.dart.workflow.editor.features.DeleteWFArcFeature;
 import gov.sandia.dart.workflow.editor.features.DeleteWFNodeFeature;
-import gov.sandia.dart.workflow.editor.features.DirectEditImageFeature;
 import gov.sandia.dart.workflow.editor.features.DirectEditNoteFeature;
 import gov.sandia.dart.workflow.editor.features.DirectEditParameterNameFeature;
 import gov.sandia.dart.workflow.editor.features.DirectEditParameterValueFeature;
@@ -76,6 +86,7 @@ import gov.sandia.dart.workflow.editor.features.UpdateNoteFeature;
 import gov.sandia.dart.workflow.editor.features.UpdateResponseFeature;
 import gov.sandia.dart.workflow.editor.features.UpdateWFArcFeature;
 import gov.sandia.dart.workflow.editor.features.UpdateWFNodeFeature;
+import gov.sandia.dart.workflow.editor.features.WorkflowEditorSaveImageFeature;
 import gov.sandia.dart.workflow.editor.features.WorkflowReconnectionFeature;
 import gov.sandia.dart.workflow.util.ParameterUtils;
 
@@ -171,8 +182,6 @@ public class WorkflowFeatureProvider extends DefaultFeatureProvider {
 		Object bo = getBusinessObjectForPictogramElement(pe);
 		if (bo instanceof Note) {
 			return new DirectEditNoteFeature(this, (Note) bo);
-		} else if (bo instanceof Image) {
-			return new DirectEditImageFeature(this);
 		} else if (bo instanceof Response) {
 			return new DirectEditResponseFeature(this);
 		} else if (bo instanceof WFNode && ParameterUtils.isParameter((WFNode) bo)) {
@@ -210,7 +219,7 @@ public class WorkflowFeatureProvider extends DefaultFeatureProvider {
    public IMoveShapeFeature getMoveShapeFeature(IMoveShapeContext context) {
 	   PictogramElement pe = context.getPictogramElement();
        Object bo = getBusinessObjectForPictogramElement(pe);
-       if (bo instanceof WFNode || bo instanceof Response) {
+       if (bo instanceof WFNode || bo instanceof Response || bo instanceof Note || bo instanceof Image) {
            return new MoveThingsOntoNotesFeature(this);
        }
        return super.getMoveShapeFeature(context);
@@ -227,4 +236,30 @@ public class WorkflowFeatureProvider extends DefaultFeatureProvider {
 	   PasteWorkflowObjectFeature feature = new PasteWorkflowObjectFeature(this);
 	   return feature.canPaste(context) ? feature : super.getPasteFeature(context);
    }
+   
+   @Override
+   public IMoveBendpointFeature getMoveBendpointFeature(IMoveBendpointContext context) {
+	   return new DefaultMoveBendpointFeature(this);
+   }
+
+   @Override
+   public IAddBendpointFeature getAddBendpointFeature(IAddBendpointContext context) {
+	   return new DefaultAddBendpointFeature(this) ;
+   }
+
+   @Override
+   public IRemoveBendpointFeature getRemoveBendpointFeature(IRemoveBendpointContext context) {
+	   return new DefaultRemoveBendpointFeature(this);
+   }
+   
+	@Override
+	public ISaveImageFeature getSaveImageFeature() {
+		return new WorkflowEditorSaveImageFeature(this);
+	}
+	
+	@Override
+	public IPrintFeature getPrintFeature() {
+		return null;
+	}
+
 } 

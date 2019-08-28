@@ -30,12 +30,12 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IDecoratorManager;
 import org.eclipse.ui.PlatformUI;
 
-import gov.sandia.dart.workflow.editor.WorkflowEditorPlugin;
 import gov.sandia.dart.workflow.phase3.embedded.EmbeddedWorkflowPlugin;
+import gov.sandia.dart.workflow.runtime.Main;
 
 public class WorkflowRunDecorator extends LabelProvider implements ILightweightLabelDecorator, IResourceChangeListener {	
 	private static final String WORKFLOW_STATE = "workflow.status.log";
-	public static final String ID = "gov.sandia.dart.workflow.phase3.embedded.workflowRunDecorator";
+	public static final String ID = "gov.sandia.dart.workflow.phase3.embedded.navigator";
 
 	public WorkflowRunDecorator() {
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);	
@@ -58,7 +58,11 @@ public class WorkflowRunDecorator extends LabelProvider implements ILightweightL
 					// TODO Central parser for these!
 					try (FileReader sr = new FileReader(file.getLocation().toFile())) {
 						for (String s: IOUtils.readLines(sr)) {
-							if (s.startsWith("ABORT: ")) {
+							if (s.contains(Main.ERROR_REPORTING_RESPONSES)) {
+								aborted = true; 
+								running = false;
+								break;								
+							} else if (s.startsWith("ABORT: ")) {
 								aborted = true; 
 								running = false;
 								break;
@@ -69,7 +73,7 @@ public class WorkflowRunDecorator extends LabelProvider implements ILightweightL
 							}
 						}
 					} catch (IOException e) {
-						WorkflowEditorPlugin.getDefault().logError("Failed to read status", e);
+						EmbeddedWorkflowPlugin.getDefault().logError("Failed to read status", e);
 					}
 					if (running) {
 						decoration.addSuffix(" [RUNNING]");

@@ -24,6 +24,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
@@ -46,10 +47,8 @@ public class NoteSettingsEditor extends AbstractSettingsEditor<Note> {
 	private Note note;
 	private Image image;
 	private Text text;
+	private Button drawBorderAndBackground;
 	private Combo color;	
-	/**
-	 * Font and color stuff commented out for now.
-	 */
 	
 	@Override
 	public void createPartControl(IManagedForm mform, IMessageView messageView, MultiControlSelectionProvider selectionProvider, IContextMenuRegistrar ctxMenuReg)
@@ -65,6 +64,8 @@ public class NoteSettingsEditor extends AbstractSettingsEditor<Note> {
 		textSection.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		text = toolkit.createText(textSection, "", SWT.MULTI | SWT.WRAP);
+		text.setFont(WorkflowEditorPlugin.getDefault().getEditorAreaFont());
+
 		text.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
@@ -89,6 +90,8 @@ public class NoteSettingsEditor extends AbstractSettingsEditor<Note> {
 			}
 		});
 		textSection.setClient(text);		
+		
+		drawBorderAndBackground = createCheckboxControl(form.getBody());
 		
 		color = createComboControl(form.getBody(), NoteGARenderer.COLORS);
 
@@ -147,6 +150,60 @@ public class NoteSettingsEditor extends AbstractSettingsEditor<Note> {
 		return combo;
 	}	
 
+	protected Button createCheckboxControl(Composite composite) {
+		String propertyName = "Draw border and background";		
+		Composite row = toolkit.createComposite(composite);
+		IPreferenceStore store = CommonPreferencesPlugin.getDefault().getPreferenceStore();
+		if (store.getBoolean(ISettingsViewPreferences.DRAW_BORDERS)) {
+			toolkit.paintBordersFor(row);
+		}
+
+		row.setLayout(new GridLayout(2, false));
+		row.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
+
+		toolkit.createLabel(row, propertyName);
+
+		Button checkbox = new Button(row, SWT.CHECK);
+		checkbox.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
+		checkbox.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				widgetDefaultSelected(e);
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				try {
+					if (note == null)
+					{
+						return;
+					}
+					Boolean value = checkbox.getSelection();
+					Boolean current = note.isDrawBorderAndBackground(); 
+					if (Objects.equals(value, current))
+						return;
+
+					color.setEnabled(value);
+					
+					TransactionalEditingDomain domain = TransactionUtil.getEditingDomain(note);
+	        			domain.getCommandStack().execute(new RecordingCommand(domain) {
+						@Override
+						public void doExecute() { 
+							note.setDrawBorderAndBackground(value);
+						}
+					});
+
+				} catch (Exception e2) {
+					WorkflowEditorPlugin.getDefault().logError("Can't process draw-border-and-background flag ", e2);
+				}
+			}
+
+
+		});
+		
+		return checkbox;
+	}	
+
 	
 	
 	
@@ -155,6 +212,9 @@ public class NoteSettingsEditor extends AbstractSettingsEditor<Note> {
 		form.setText("Workflow Annotation");
 		this.note = node;		
 		text.setText(node.getText());
+		boolean draw = note.isDrawBorderAndBackground();
+		drawBorderAndBackground.setSelection(draw);
+		color.setEnabled(draw);
 		color.setText(node.getColor() == null ? "yellow" : node.getColor());
 
 	}

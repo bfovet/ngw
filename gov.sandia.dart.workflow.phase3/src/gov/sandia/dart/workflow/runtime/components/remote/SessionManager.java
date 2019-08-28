@@ -25,6 +25,7 @@ import gov.sandia.dart.IUserAndHost;
 import gov.sandia.dart.impl.UserAndHost;
 import gov.sandia.dart.jh.ISSHJumpHost;
 import gov.sandia.dart.jh.impl.SSHJumpHost;
+import gov.sandia.dart.workflow.runtime.core.SAWWorkflowLogger;
 
 public class SessionManager {
 	private static final int CONNECTION_TIMEOUT = 20000;
@@ -40,7 +41,7 @@ public class SessionManager {
 		JSch.setLogger(logger);
 	}
 	
-	Session getSession(String dstUser, String dstHost, String jmpUser, String jmpHost) throws JSchException, IOException {
+	Session getSession(String dstUser, String dstHost, String jmpUser, String jmpHost, SAWWorkflowLogger log) throws JSchException, IOException {
 
 	    IUserAndHost dst = new UserAndHost(dstUser, dstHost);
 	    IUserAndHost jmp = new UserAndHost(jmpUser, jmpHost);
@@ -55,13 +56,17 @@ public class SessionManager {
 				return sshJumpHost.connect(dst, jmp);
 			} catch (IOException e) { 				
 				ex = e;
+				if (tries < RETRIES - 1)
+					log.info("Retrying connection to {0}: {1}", dstHost, ex.getMessage());
+				else
+					log.info("Failed connection to {0}: {1}", dstHost, ex.getMessage());
 			}
 		}
 	    throw ex;
 	}
 	
 	
-	Session getSession(String user, String host) throws JSchException {
+	Session getSession(String user, String host, SAWWorkflowLogger log) throws JSchException {
 		Session s = sessions.get(host);		
 		if (s != null && user.equals(s.getUserName()) && s.isConnected()) {
 			return s;
@@ -83,6 +88,11 @@ public class SessionManager {
 				return s;
 			} catch (JSchException e) {	
 				ex = e;
+				// TODO Don't retry UnknownHostException
+				if (tries < RETRIES - 1)
+					log.info("Retrying connection to {0}: {1}", host, ex.getMessage());
+				else
+					log.info("Failed connection to {0}: {1}", host, ex.getMessage());
 			}
 		}
 		throw ex;		

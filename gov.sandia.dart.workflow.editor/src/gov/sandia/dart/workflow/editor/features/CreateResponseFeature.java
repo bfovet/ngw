@@ -9,12 +9,14 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.editor.features;
 
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.ICreateContext;
 import org.eclipse.graphiti.features.impl.AbstractCreateFeature;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
 
 import gov.sandia.dart.workflow.domain.DomainFactory;
+import gov.sandia.dart.workflow.domain.NamedObject;
 import gov.sandia.dart.workflow.domain.Response;
  
 public class CreateResponseFeature extends AbstractCreateFeature {		
@@ -32,7 +34,7 @@ public class CreateResponseFeature extends AbstractCreateFeature {
     @Override
 	public Object[] create(ICreateContext context) {         
         Response newResponse = DomainFactory.eINSTANCE.createResponse();       
-        newResponse.setName("r"); 
+        newResponse.setName(makeNameUnique("r", context)); 
         newResponse.setType("default"); 
         
         // do the add
@@ -49,4 +51,31 @@ public class CreateResponseFeature extends AbstractCreateFeature {
 	public void setDuplicating() {
 		duplicating = true;		
 	}   
+	
+	private String makeNameUnique(String newName, ICreateContext context) {
+		String checkName = newName;		
+		if(context.getTargetContainer() instanceof Diagram){
+			Diagram diagram = (Diagram) context.getTargetContainer();
+
+			boolean foundMatch = false;			
+			int suffix = 1;
+			
+			do{				
+				if(foundMatch){
+					checkName = newName + suffix;
+					suffix++;
+				}
+				
+				foundMatch = false;
+				
+				for(EObject object : diagram.eResource().getContents()){
+					if(object instanceof Response && ((NamedObject)object).getName().equals(checkName)){
+						foundMatch = true;
+						break;
+					}
+				}
+			}while(foundMatch);			
+		}		
+		return checkName;
+	}
  }

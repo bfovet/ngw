@@ -49,9 +49,12 @@ public class WorkflowEditorPreferenceInitializer extends
 		store.setDefault(PALETTE_FILE_DIR, new File(System.getProperty("user.home")).getAbsolutePath());		
 		store.setDefault(MANHATTAN_CONNECTIONS, false);
 		store.setDefault(PORT_LABELS, true);
+		store.setDefault(SKIP_SINGLETON_PORT_LABELS, true);
+		store.setDefault(REQUIRE_CTRL_FOR_POPUP, false);
 		store.setDefault(CONNECTIONS_BEHIND, true);
 		store.setDefault(TRANSLUCENT_COMPONENTS, true);
-
+		store.setDefault(RENDER_NESTED, true);
+		store.setDefault(RENDER_NESTED_INDENTED, true);
 	}
 	
 	private FontData[] getDefaultDiagramFont() {

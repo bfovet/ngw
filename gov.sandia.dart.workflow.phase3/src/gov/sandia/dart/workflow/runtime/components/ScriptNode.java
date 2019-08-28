@@ -11,6 +11,7 @@ package gov.sandia.dart.workflow.runtime.components;
 
 import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
 import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.NodeCategories;
 import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
 import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
@@ -59,4 +60,5 @@ public class ScriptNode extends SAWCustomNode {
 
 	@Override public List<OutputPortInfo> getDefaultOutputs() { return Collections.singletonList(new OutputPortInfo("f")); }	
 	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo("customCode", "multitext")); }
+	@Override public List<String> getCategories() { return Arrays.asList(NodeCategories.SCRIPTING); }
 }

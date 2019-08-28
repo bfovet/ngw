@@ -43,7 +43,7 @@ public class PropertiesDialog extends Dialog {
 	private TableViewer propertiesTable_;
 	private Button deleteButton;
 
-	protected PropertiesDialog(Shell parentShell, NamedObjectWithProperties node) {
+	public PropertiesDialog(Shell parentShell, NamedObjectWithProperties node) {
 		super(parentShell);
 		this.node = node;
 		setBlockOnOpen(true);
@@ -85,12 +85,24 @@ public class PropertiesDialog extends Dialog {
 		column2.setText("Type");
 		column2.setWidth(100);
 			
+		TableViewerColumn vcolumn3 = new TableViewerColumn(viewer, SWT.RIGHT);		
+		TableColumn column3 = vcolumn3.getColumn();	
+		column3.setText("Value");
+		column3.setWidth(100);
+
+		TableViewerColumn vcolumn4 = new TableViewerColumn(viewer, SWT.RIGHT);		
+		TableColumn column4 = vcolumn4.getColumn();	
+		column4.setText("Hidden");
+		column4.setWidth(75);
+
 		viewer.setLabelProvider(new PropertiesLabelProvider());
 		viewer.setContentProvider(provider);
 		viewer.setInput(node);
 		vcolumn1.setEditingSupport(new PropertiesEditingSupport(viewer, 0));
 		vcolumn2.setEditingSupport(new PropertiesEditingSupport(viewer, 1));
-	
+		vcolumn3.setEditingSupport(new PropertiesEditingSupport(viewer, 2));
+		vcolumn4.setEditingSupport(new PropertiesEditingSupport(viewer, 3));
+
 		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			@Override
 			public void selectionChanged(SelectionChangedEvent event) {

@@ -141,11 +141,24 @@ public class SarasvatiWriter {
 				for (IWFResponseArc source: response.sources) {
 					IWFOutputPort port = source.source;
 					IWFNode node = port.node;
-					out.printIndented(String.format("<response name='%s' type='%s' node='%s' port='%s'/>",
+					out.printAndIndent(String.format("<response name='%s' type='%s' node='%s' port='%s'>",
 							escapeXml(response.name),
 							escapeXml(response.type),
 							escapeXml(node.name),
 							escapeXml(port.name)));
+						List<IWFProperty> plist = source.properties;
+						if (!plist.isEmpty()) {
+							out.printAndIndent("<properties>");
+							for (IWFProperty p: plist) {
+								out.printAndIndent("<property>");
+								out.printIndentedAsElement("name", escapeXml(p.name));
+								out.printIndentedAsElement("type", escapeXml(p.type));
+								out.printIndentedAsElement("value", escapeXml(p.value));						
+								out.unindentAndPrint("</property>");
+							}
+							out.unindentAndPrint("</properties>");
+						}
+					out.unindentAndPrint("</response>");
 
 
 				}

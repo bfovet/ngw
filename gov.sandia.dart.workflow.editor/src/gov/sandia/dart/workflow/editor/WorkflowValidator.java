@@ -31,16 +31,23 @@ import gov.sandia.dart.workflow.domain.OutputPort;
 import gov.sandia.dart.workflow.domain.WFArc;
 import gov.sandia.dart.workflow.domain.WFNode;
 import gov.sandia.dart.workflow.editor.features.AddWFNodeFeature;
+import gov.sandia.dart.workflow.util.PropertyUtils;
 
 public class WorkflowValidator {
+
 	void validate(IExecutionInfo executionInfo, Map<EObject, IDecorator> decorators) {
 		if (executionInfo.getExecutionList().length == 0)
 			return;
 
-		decorators.clear();
 		
 		// Demeter is rolling over in his grave.
 		IFeatureProvider fp = executionInfo.getExecutionList()[0].getFeature().getFeatureProvider();
+		
+		validate(decorators, fp);
+	}
+
+	public void validate(Map<EObject, IDecorator> decorators, IFeatureProvider fp) {
+		decorators.clear();
 		EList<EObject> contents = fp.getDiagramTypeProvider().getDiagram().eResource().getContents();
 		Set<String> dupeCheck = new HashSet<>();
 		for (EObject object: contents) {
@@ -94,6 +101,19 @@ public class WorkflowValidator {
 
 					decorators.put(object, imageRenderingDecorator);	
 				}
+
+				// RULE: Can only clear private workdirs
+				if (PropertyUtils.isTrue(node, PropertyUtils.CLEAR_WORK_DIR) &&
+						!(PropertyUtils.isTrue(node, PropertyUtils.PRIVATE_WORK_DIR) || PropertyUtils.isTrue(node, PropertyUtils.OLD_PRIVATE_WORK_DIR))) {
+					ImageDecorator imageRenderingDecorator = new ImageDecorator(IPlatformImageConstants.IMG_ECLIPSE_WARNING_TSK);
+					imageRenderingDecorator.setMessage("Only private work directories can be cleared");
+					imageRenderingDecorator.setX(pe.getGraphicsAlgorithm().getWidth() - 20);	
+					
+					decorators.put(object, imageRenderingDecorator);	
+
+				}
+					
+				
 				
 				for (InputPort port: node.getInputPorts()) {
 					validateName(fp, decorators, node, port);					

@@ -108,7 +108,7 @@ public class GnuplotNode extends SAWCustomNode {
 	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo("commands", "multitext"), new PropertyInfo("imageFile", "text")); }
 //	@Override public List<String> getDefaultProperties() { return Arrays.asList("commands", "imageFile"); }
 //	@Override public List<String> getDefaultPropertyTypes() { return Arrays.asList("multitext", "text"); }
-	@Override public List<String> getCategories() { return Arrays.asList("Engineering", NodeCategories.EXTERNAL_PROCESSES); }
+	@Override public List<String> getCategories() { return Arrays.asList(NodeCategories.UI, NodeCategories.EXTERNAL_PROCESSES); }
 		
 	public String getCommands(Map<String, String> properties) {
 		String raw = properties.get("commands");

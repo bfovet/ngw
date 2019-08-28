@@ -51,6 +51,10 @@ public class LoggingWorkflowMonitor implements IWorkflowMonitor, AutoCloseable{
 		statusLog.close();
 	}
 
+	public synchronized void logMessage(String message) {
+		statusLog.println("MESSAGE: " + message);
+	}
+
 	@Override
 	public void terminated(RuntimeData runtime, Throwable t) {
 		runtime.log().info("Sample {0}, Terminated: {1}", runtime.getSampleId(), t.getMessage());

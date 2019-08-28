@@ -26,10 +26,10 @@
     <nodeType name='constant'>
       <categories>
         <category name='Workflow Organization'/>
-        <category name='Sources'/>
+        <category name='Data Sources'/>
       </categories>
       <properties>
-        <property name='value' type='default'/>
+        <property name='value' type='default' advanced='false'/>
       </properties>
       <outputs>
         <output name='f' type='default'/>
@@ -48,22 +48,24 @@
     </nodeType>
     <nodeType name='queueSubmit'>
       <categories>
-        <category name='Engineering'/>
-        <category name='External Processes'/>
+        <category name='Applications'/>
       </categories>
       <properties>
-        <property name='inputFile' type='home_file'/>
-        <property name='account' type='default'/>
-        <property name='sierra_code' type='default'/>
-        <property name='num.nodes' type='integer'/>
-        <property name='num.processors' type='integer'/>
-        <property name='job.hours' type='integer'/>
-        <property name='job.minutes' type='integer'/>
-        <property name='submitScript' type='home_file'/>
-        <property name='executeScript' type='home_file'/>
-        <property name='checkjobScript' type='home_file'/>
-        <property name='checkjobFrequency' type='integer'/>
-        <property name='statusScript' type='home_file'/>
+        <property name='inputFile' type='home_file' advanced='false'/>
+        <property name='sierra_code' type='default' advanced='false'/>
+        <property name='num.processors' type='integer' value='16' advanced='false'/>
+        <property name='executeScript' type='home_file' advanced='false'/>
+        <property name='statusScript' type='home_file' advanced='false'/>
+        <property name='submit to queue and monitor status' type='boolean' value='true' advanced='false'/>
+        <property name='account' type='default' advanced='false'/>
+        <property name='queue' type='text' value='nw' advanced='false'/>
+        <property name='num.nodes' type='integer' value='1' advanced='false'/>
+        <property name='job.hours' type='integer' value='0' advanced='false'/>
+        <property name='job.minutes' type='integer' value='30' advanced='false'/>
+        <property name='submitScript' type='home_file' advanced='false'/>
+        <property name='checkjobScript' type='home_file' advanced='false'/>
+        <property name='checkjobFrequency' type='integer' value='15' advanced='false'/>
+        <property name='use private work directory' type='boolean' value='true' advanced='false'/>
       </properties>
       <inputs>
         <input name='inputFile' type='input_file'/>
@@ -72,27 +74,35 @@
         <output name='logFile' type='output_file'/>
       </outputs>
     </nodeType>
-    <nodeType name='nestedInternalWorkflow'>
+    <nodeType name='tclScript'>
       <categories>
-        <category name='Control'/>
-        <category name='Workflow Organization'/>
+        <category name='Scripting'/>
+        <category name='Applications'/>
       </categories>
       <properties>
-        <property name='conductor' type='conductor'/>
+        <property name='script' type='multitext' advanced='false'/>
+        <property name='write properties to a property file' type='boolean' advanced='false'/>
+        <property name='use private work directory' type='boolean' value='true' advanced='false'/>
       </properties>
+      <inputs>
+        <input name='stdin' type='default'/>
+        <input name='script' type='default'/>
+      </inputs>
       <outputs>
-        <output name='responses_csv' type='default'/>
+        <output name='stdout' type='default'/>
+        <output name='stderr' type='default'/>
+        <output name='exitStatus' type='default'/>
       </outputs>
     </nodeType>
     <nodeType name='apostpro'>
       <categories>
-        <category name='Engineering'/>
+        <category name='Text Data'/>
       </categories>
       <properties>
-        <property name='inputFile' type='home_file'/>
-        <property name='match' type='default'/>
-        <property name='field' type='default'/>
-        <property name='skip' type='default'/>
+        <property name='inputFile' type='home_file' advanced='false'/>
+        <property name='match' type='default' advanced='false'/>
+        <property name='field' type='default' advanced='false'/>
+        <property name='skip' type='default' advanced='false'/>
       </properties>
       <inputs>
         <input name='inputFile' type='input_file'/>
@@ -114,11 +124,13 @@
     </nodeType>
     <nodeType name='cshScript'>
       <categories>
-        <category name='External Processes'/>
+        <category name='Scripting'/>
+        <category name='Applications'/>
       </categories>
       <properties>
-        <property name='script' type='multitext'/>
-        <property name='write properties to a property file' type='boolean'/>
+        <property name='script' type='multitext' advanced='false'/>
+        <property name='write properties to a property file' type='boolean' advanced='false'/>
+        <property name='use private work directory' type='boolean' value='true' advanced='false'/>
       </properties>
       <inputs>
         <input name='stdin' type='default'/>
@@ -144,10 +156,10 @@
     <nodeType name='parameterFile'>
       <categories>
         <category name='Workflow Organization'/>
-        <category name='Sources'/>
+        <category name='Data Sources'/>
       </categories>
       <properties>
-        <property name='fileName' type='home_file'/>
+        <property name='fileName' type='home_file' advanced='false'/>
       </properties>
       <outputs>
         <output name='f' type='map'/>
@@ -155,13 +167,14 @@
     </nodeType>
     <nodeType name='aprepro'>
       <categories>
-        <category name='Engineering'/>
-        <category name='External Processes'/>
+        <category name='Text Data'/>
+        <category name='Applications'/>
       </categories>
       <properties>
-        <property name='templateFile' type='home_file'/>
-        <property name='outputFile' type='default'/>
-        <property name='commentChar' type='default'/>
+        <property name='templateFile' type='home_file' advanced='false'/>
+        <property name='outputFile' type='default' advanced='false'/>
+        <property name='commentChar' type='default' advanced='false'/>
+        <property name='use private work directory' type='boolean' value='true' advanced='false'/>
       </properties>
       <inputs>
         <input name='templateFile' type='input_file'/>
@@ -187,9 +200,9 @@
         <category name='Control'/>
       </categories>
       <properties>
-        <property name='start' type='integer'/>
-        <property name='step' type='integer'/>
-        <property name='end' type='integer'/>
+        <property name='start' type='integer' advanced='false'/>
+        <property name='step' type='integer' advanced='false'/>
+        <property name='end' type='integer' advanced='false'/>
       </properties>
       <inputs>
         <input name='x' type='default'/>
@@ -241,7 +254,7 @@
         <category name='Control'/>
       </categories>
       <properties>
-        <property name='compareString' type='default'/>
+        <property name='compareString' type='default' advanced='false'/>
       </properties>
       <inputs>
         <input name='x' type='default'/>
@@ -270,14 +283,15 @@
         <category name='Workflow Organization'/>
       </categories>
       <properties>
-        <property name='fileName' type='home_file'/>
-        <property name='hostname' type='default'/>
-        <property name='username' type='default'/>
-        <property name='jumphost' type='default'/>
-        <property name='jumpuser' type='default'/>
-        <property name='remotePath' type='default'/>
-        <property name='wflib' type='default'/>
-        <property name='Other files/directories' type='multitext'/>
+        <property name='fileName' type='home_file' advanced='false'/>
+        <property name='hostname' type='default' advanced='false'/>
+        <property name='username' type='default' advanced='false'/>
+        <property name='jumphost' type='default' advanced='false'/>
+        <property name='jumpuser' type='default' advanced='false'/>
+        <property name='remotePath' type='default' advanced='false'/>
+        <property name='wflib' type='default' advanced='false'/>
+        <property name='Other files/directories' type='multitext' advanced='false'/>
+        <property name='use private work directory' type='boolean' value='true' advanced='false'/>
       </properties>
       <outputs>
         <output name='stdout' type='default'/>
@@ -309,10 +323,10 @@
     </nodeType>
     <nodeType name='javascript'>
       <categories>
-        <category name='Miscellaneous'/>
+        <category name='Scripting'/>
       </categories>
       <properties>
-        <property name='customCode' type='multitext'/>
+        <property name='customCode' type='multitext' advanced='false'/>
       </properties>
       <inputs>
         <input name='x' type='default'/>
@@ -326,7 +340,7 @@
         <category name='Sequential Data'/>
       </categories>
       <properties>
-        <property name='index' type='int'/>
+        <property name='index' type='int' advanced='false'/>
       </properties>
       <inputs>
         <input name='array' type='default'/>
@@ -341,10 +355,10 @@
         <category name='Remote/Network Ops'/>
       </categories>
       <properties>
-        <property name='hostname' type='default'/>
-        <property name='localFile' type='default'/>
-        <property name='remoteFile' type='default'/>
-        <property name='remotePath' type='default'/>
+        <property name='hostname' type='default' advanced='false'/>
+        <property name='localFile' type='default' advanced='false'/>
+        <property name='remoteFile' type='default' advanced='false'/>
+        <property name='remotePath' type='default' advanced='false'/>
       </properties>
       <inputs>
         <input name='trigger' type='default'/>
@@ -369,7 +383,7 @@
         <category name='Control'/>
       </categories>
       <properties>
-        <property name='formatString' type='default'/>
+        <property name='formatString' type='default' advanced='false'/>
       </properties>
       <inputs>
         <input name='x' type='default'/>
@@ -380,7 +394,7 @@
         <category name='Control'/>
       </categories>
       <properties>
-        <property name='formatString' type='default'/>
+        <property name='formatString' type='default' advanced='false'/>
       </properties>
       <inputs>
         <input name='x' type='default'/>
@@ -388,11 +402,12 @@
     </nodeType>
     <nodeType name='externalProcess'>
       <categories>
-        <category name='External Processes'/>
+        <category name='Applications'/>
       </categories>
       <properties>
-        <property name='command' type='text'/>
-        <property name='write properties to a property file' type='boolean'/>
+        <property name='command' type='text' advanced='false'/>
+        <property name='write properties to a property file' type='boolean' advanced='false'/>
+        <property name='use private work directory' type='boolean' value='true' advanced='false'/>
       </properties>
       <inputs>
         <input name='stdin' type='default'/>
@@ -406,9 +421,10 @@
     <nodeType name='regex'>
       <categories>
         <category name='Control'/>
+        <category name='Text Data'/>
       </categories>
       <properties>
-        <property name='regex' type='default'/>
+        <property name='regex' type='default' advanced='false'/>
       </properties>
       <inputs>
         <input name='x' type='default'/>
@@ -420,10 +436,10 @@
     </nodeType>
     <nodeType name='folder'>
       <categories>
-        <category name='I/O'/>
+        <category name='File Operations'/>
       </categories>
       <properties>
-        <property name='folderName' type='home_file'/>
+        <property name='folderName' type='home_file' advanced='false'/>
       </properties>
       <inputs>
         <input name='folderName' type='default'/>
@@ -434,12 +450,12 @@
     </nodeType>
     <nodeType name='gnuplot'>
       <categories>
-        <category name='Engineering'/>
-        <category name='External Processes'/>
+        <category name='User Interface'/>
+        <category name='Applications'/>
       </categories>
       <properties>
-        <property name='commands' type='multitext'/>
-        <property name='imageFile' type='text'/>
+        <property name='commands' type='multitext' advanced='false'/>
+        <property name='imageFile' type='text' advanced='false'/>
       </properties>
       <inputs>
         <input name='x' type='default'/>
@@ -448,11 +464,13 @@
     </nodeType>
     <nodeType name='bashScript'>
       <categories>
-        <category name='External Processes'/>
+        <category name='Scripting'/>
+        <category name='Applications'/>
       </categories>
       <properties>
-        <property name='script' type='multitext'/>
-        <property name='write properties to a property file' type='boolean'/>
+        <property name='script' type='multitext' advanced='false'/>
+        <property name='write properties to a property file' type='boolean' advanced='false'/>
+        <property name='use private work directory' type='boolean' value='true' advanced='false'/>
       </properties>
       <inputs>
         <input name='stdin' type='default'/>
@@ -470,9 +488,10 @@
         <category name='Workflow Organization'/>
       </categories>
       <properties>
-        <property name='fileName' type='home_file'/>
-        <property name='concurrency' type='integer'/>
-        <property name='errorMode' type='text'/>
+        <property name='fileName' type='home_file' advanced='false'/>
+        <property name='concurrency' type='integer' advanced='false'/>
+        <property name='workdirNameTemplate' type='text' advanced='false'/>
+        <property name='use private work directory' type='boolean' value='true' advanced='false'/>
       </properties>
       <outputs>
         <output name='responses_csv' type='default'/>
@@ -495,7 +514,7 @@
         <category name='Control'/>
       </categories>
       <properties>
-        <property name='operator' type='default'/>
+        <property name='operator' type='default' advanced='false'/>
       </properties>
       <inputs>
         <input name='x' type='default'/>
@@ -519,22 +538,24 @@
     </nodeType>
     <nodeType name='sierra'>
       <categories>
-        <category name='Engineering'/>
-        <category name='External Processes'/>
+        <category name='Applications'/>
       </categories>
       <properties>
-        <property name='inputFile' type='home_file'/>
-        <property name='account' type='default'/>
-        <property name='sierra_code' type='default'/>
-        <property name='num.nodes' type='integer'/>
-        <property name='num.processors' type='integer'/>
-        <property name='job.hours' type='integer'/>
-        <property name='job.minutes' type='integer'/>
-        <property name='submitScript' type='home_file'/>
-        <property name='executeScript' type='home_file'/>
-        <property name='checkjobScript' type='home_file'/>
-        <property name='checkjobFrequency' type='integer'/>
-        <property name='statusScript' type='home_file'/>
+        <property name='inputFile' type='home_file' advanced='false'/>
+        <property name='sierra_code' type='default' advanced='false'/>
+        <property name='num.processors' type='integer' value='16' advanced='false'/>
+        <property name='executeScript' type='home_file' advanced='false'/>
+        <property name='statusScript' type='home_file' advanced='false'/>
+        <property name='submit to queue and monitor status' type='boolean' value='true' advanced='false'/>
+        <property name='account' type='default' advanced='false'/>
+        <property name='queue' type='text' value='nw' advanced='false'/>
+        <property name='num.nodes' type='integer' value='1' advanced='false'/>
+        <property name='job.hours' type='integer' value='0' advanced='false'/>
+        <property name='job.minutes' type='integer' value='30' advanced='false'/>
+        <property name='submitScript' type='home_file' advanced='false'/>
+        <property name='checkjobScript' type='home_file' advanced='false'/>
+        <property name='checkjobFrequency' type='integer' value='15' advanced='false'/>
+        <property name='use private work directory' type='boolean' value='true' advanced='false'/>
       </properties>
       <inputs>
         <input name='inputFile' type='input_file'/>
@@ -570,8 +591,8 @@
         <category name='Text Data'/>
       </categories>
       <properties>
-        <property name='regex' type='default'/>
-        <property name='replacement' type='default'/>
+        <property name='regex' type='default' advanced='false'/>
+        <property name='replacement' type='default' advanced='false'/>
       </properties>
       <inputs>
         <input name='x' type='default'/>
@@ -587,8 +608,8 @@
         <category name='Sequential Data'/>
       </categories>
       <properties>
-        <property name='number of footer lines to ignore (optional)' type='default'/>
-        <property name='separator regular expression (optional)' type='default'/>
+        <property name='number of footer lines to ignore (optional)' type='default' advanced='false'/>
+        <property name='separator regular expression (optional)' type='default' advanced='false'/>
       </properties>
       <inputs>
         <input name='columns' type='default'/>
@@ -599,8 +620,8 @@
         <category name='Text Data'/>
       </categories>
       <properties>
-        <property name='start' type='integer'/>
-        <property name='length' type='integer'/>
+        <property name='start' type='integer' advanced='false'/>
+        <property name='length' type='integer' advanced='false'/>
       </properties>
       <inputs>
         <input name='x' type='default'/>
@@ -612,9 +633,10 @@
     <nodeType name='onOffSwitch'>
       <categories>
         <category name='Control'/>
+        <category name='User Interface'/>
       </categories>
       <properties>
-        <property name='onOff' type='boolean'/>
+        <property name='onOff' type='boolean' advanced='false'/>
       </properties>
       <inputs>
         <input name='input' type='default'/>
@@ -623,12 +645,31 @@
         <output name='output' type='default'/>
       </outputs>
     </nodeType>
+    <nodeType name='getColumns'>
+      <categories>
+        <category name='Sequential Data'/>
+      </categories>
+      <properties>
+        <property name='number of header lines' type='default' value='1' advanced='false'/>
+        <property name='number of footer lines' type='default' value='0' advanced='false'/>
+        <property name='separator regular expression (optional)' type='default' advanced='false'/>
+        <property name='column number (optional)' type='default' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='data' type='default'/>
+        <input name='fileName' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='RENAME TO GET NAMED COLUMN' type='default'/>
+        <output name='indexed column' type='default'/>
+      </outputs>
+    </nodeType>
     <nodeType name='sleep'>
       <categories>
         <category name='Control'/>
       </categories>
       <properties>
-        <property name='ms' type='integer'/>
+        <property name='ms' type='integer' advanced='false'/>
       </properties>
       <inputs>
         <input name='x' type='default'/>
@@ -639,11 +680,13 @@
     </nodeType>
     <nodeType name='windowsBatchScript'>
       <categories>
-        <category name='External Processes'/>
+        <category name='Scripting'/>
+        <category name='Applications'/>
       </categories>
       <properties>
-        <property name='script' type='multitext'/>
-        <property name='write properties to a property file' type='boolean'/>
+        <property name='script' type='multitext' advanced='false'/>
+        <property name='write properties to a property file' type='boolean' advanced='false'/>
+        <property name='use private work directory' type='boolean' value='true' advanced='false'/>
       </properties>
       <inputs>
         <input name='stdin' type='default'/>
@@ -658,7 +701,7 @@
     <nodeType name='random'>
       <categories>
         <category name='Scalar Operations'/>
-        <category name='Sources'/>
+        <category name='Data Sources'/>
       </categories>
       <inputs>
         <input name='x' type='default'/>
@@ -667,13 +710,30 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
-    <nodeType name='file'>
+    <nodeType name='rotaryInputSwitch'>
       <categories>
-        <category name='I/O'/>
+        <category name='Control'/>
+        <category name='User Interface'/>
       </categories>
       <properties>
-        <property name='fileName' type='home_file'/>
-        <property name='append' type='boolean'/>
+        <property name='selector' type='text' value='a' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='a' type='default'/>
+        <input name='b' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='output' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='file'>
+      <categories>
+        <category name='File Operations'/>
+      </categories>
+      <properties>
+        <property name='fileName' type='home_file' advanced='false'/>
+        <property name='append' type='boolean' advanced='false'/>
+        <property name='checkExists' type='boolean' advanced='false'/>
       </properties>
       <inputs>
         <input name='fileName' type='default'/>
@@ -698,10 +758,10 @@
     <nodeType name='parameter'>
       <categories>
         <category name='Workflow Organization'/>
-        <category name='Sources'/>
+        <category name='Data Sources'/>
       </categories>
       <properties>
-        <property name='value' type='default'/>
+        <property name='value' type='default' advanced='false'/>
       </properties>
       <outputs>
         <output name='f' type='text'/>
@@ -765,12 +825,29 @@
         <output name='f' type='default'/>
       </outputs>
     </nodeType>
+    <nodeType name='rotaryOutputSwitch'>
+      <categories>
+        <category name='Control'/>
+        <category name='User Interface'/>
+      </categories>
+      <properties>
+        <property name='selector' type='text' value='a' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='input' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='a' type='default'/>
+        <output name='b' type='default'/>
+      </outputs>
+    </nodeType>
     <nodeType name='abSwitch'>
       <categories>
         <category name='Control'/>
+        <category name='User Interface'/>
       </categories>
       <properties>
-        <property name='a' type='boolean'/>
+        <property name='a' type='boolean' advanced='false'/>
       </properties>
       <inputs>
         <input name='input' type='default'/>
@@ -785,10 +862,10 @@
         <category name='Remote/Network Ops'/>
       </categories>
       <properties>
-        <property name='hostname' type='default'/>
-        <property name='localFile' type='default'/>
-        <property name='remoteFile' type='default'/>
-        <property name='remotePath' type='default'/>
+        <property name='hostname' type='default' advanced='false'/>
+        <property name='localFile' type='default' advanced='false'/>
+        <property name='remoteFile' type='default' advanced='false'/>
+        <property name='remotePath' type='default' advanced='false'/>
       </properties>
       <inputs>
         <input name='trigger' type='default'/>
@@ -802,7 +879,7 @@
         <category name='Control'/>
       </categories>
       <properties>
-        <property name='nameOfCheckpoint' type='text'/>
+        <property name='nameOfCheckpoint' type='text' advanced='false'/>
       </properties>
       <inputs>
         <input name='x' type='default'/>
@@ -836,9 +913,9 @@
         <category name='Sequential Data'/>
       </categories>
       <properties>
-        <property name='columnIndex' type='default'/>
-        <property name='headerLines' type='default'/>
-        <property name='separator' type='default'/>
+        <property name='columnIndex' type='default' advanced='false'/>
+        <property name='headerLines' type='default' advanced='false'/>
+        <property name='separator' type='default' advanced='false'/>
       </properties>
       <inputs>
         <input name='data' type='default'/>
@@ -853,8 +930,8 @@
         <category name='Control'/>
       </categories>
       <properties>
-        <property name='selector' type='default'/>
-        <property name='passThrough' type='default'/>
+        <property name='selector' type='default' advanced='false'/>
+        <property name='passThrough' type='default' advanced='false'/>
       </properties>
       <inputs>
         <input name='selector' type='default'/>
@@ -864,12 +941,23 @@
         <output name='_else' type='default'/>
       </outputs>
     </nodeType>
+    <nodeType name='int'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
     <nodeType name='stringSearch'>
       <categories>
         <category name='Text Data'/>
       </categories>
       <properties>
-        <property name='searchValue' type='default'/>
+        <property name='searchValue' type='default' advanced='false'/>
       </properties>
       <inputs>
         <input name='x' type='default'/>
@@ -880,10 +968,10 @@
     </nodeType>
     <nodeType name='print'>
       <categories>
-        <category name='I/O'/>
+        <category name='User Interface'/>
       </categories>
       <properties>
-        <property name='formatString' type='default'/>
+        <property name='formatString' type='default' advanced='false'/>
       </properties>
       <inputs>
         <input name='x' type='default'/>
@@ -894,13 +982,13 @@
     </nodeType>
     <nodeType name='cubit'>
       <categories>
-        <category name='Mesh Assembly'/>
-        <category name='Engineering'/>
-        <category name='External Processes'/>
+        <category name='Meshing'/>
+        <category name='Applications'/>
       </categories>
       <properties>
-        <property name='journalFile' type='home_file'/>
-        <property name='pythonFile' type='home_file'/>
+        <property name='journalFile' type='home_file' advanced='false'/>
+        <property name='pythonFile' type='home_file' advanced='false'/>
+        <property name='use private work directory' type='boolean' value='true' advanced='false'/>
       </properties>
       <inputs>
         <input name='journalFile' type='input_file'/>
@@ -915,7 +1003,7 @@
         <category name='Text Data'/>
       </categories>
       <properties>
-        <property name='template' type='default'/>
+        <property name='template' type='default' advanced='false'/>
       </properties>
       <inputs>
         <input name='template' type='default'/>
@@ -959,11 +1047,13 @@
     </nodeType>
     <nodeType name='pythonScript'>
       <categories>
-        <category name='External Processes'/>
+        <category name='Scripting'/>
+        <category name='Applications'/>
       </categories>
       <properties>
-        <property name='script' type='multitext'/>
-        <property name='write properties to a property file' type='boolean'/>
+        <property name='script' type='multitext' advanced='false'/>
+        <property name='write properties to a property file' type='boolean' advanced='false'/>
+        <property name='use private work directory' type='boolean' value='true' advanced='false'/>
       </properties>
       <inputs>
         <input name='stdin' type='default'/>
@@ -993,13 +1083,13 @@
     </nodeType>
     <nodeType name='remoteCommand'>
       <categories>
-        <category name='External Processes'/>
+        <category name='Applications'/>
         <category name='Remote/Network Ops'/>
       </categories>
       <properties>
-        <property name='hostname' type='default'/>
-        <property name='command' type='default'/>
-        <property name='remotePath' type='default'/>
+        <property name='hostname' type='default' advanced='false'/>
+        <property name='command' type='default' advanced='false'/>
+        <property name='remotePath' type='default' advanced='false'/>
       </properties>
       <inputs>
         <input name='trigger' type='default'/>
@@ -1007,6 +1097,7 @@
       <outputs>
         <output name='output' type='default'/>
         <output name='error' type='default'/>
+        <output name='exitCode' type='int'/>
       </outputs>
     </nodeType>
   </nodeTypes>

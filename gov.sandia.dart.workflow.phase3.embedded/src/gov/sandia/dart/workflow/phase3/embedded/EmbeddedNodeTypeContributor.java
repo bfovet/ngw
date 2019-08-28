@@ -25,46 +25,44 @@ public class EmbeddedNodeTypeContributor implements IWorkflowEditorNodeTypeContr
 	}
 
 	@Override
-	public List<NodeType> getNodeTypes() {		
-		NodeType display = new NodeType("display", NodeCategories.GUI);
-		display.setOutputs(new Output("f", "default", ""));		
-		display.setInputs(new Input("x", "default"));				
-		display.setProperties(new Prop("formatString", "default", ""));			
+	public List<NodeType> getNodeTypes() {
+		NodeType display = new NodeType("display", NodeCategories.UI);
+		display.setOutputs(new Output("f", "default", ""));
+		display.setInputs(new Input("x", "default"));
+		display.setProperties(new Prop("formatString", "default", ""));
 
-		NodeType browser = new NodeType("browser", NodeCategories.GUI);
-		browser.setOutputs(new Output("f", "default", ""));		
-		browser.setInputs(new Input("x", "default"));				
+		NodeType browser = new NodeType("browser", NodeCategories.UI);
+		browser.setOutputs(new Output("f", "default", ""));
+		browser.setInputs(new Input("x", "default"));
 		browser.setProperties(new Prop("instantiate browser", "boolean", "false"),
-				new Prop("browser ID", "default", "Workflow Browser Component"),
-				new Prop("URL", "default", ""),
-				new Prop("wait for event", "default", ""),
-				new Prop("expression", "default", ""));			
+				new Prop("browser ID", "default", "Workflow Browser Component"), new Prop("URL", "default", ""),
+				new Prop("wait for event", "default", ""), new Prop("expression", "default", ""));
 
-		NodeType prompt = new NodeType("prompt", Arrays.asList(NodeCategories.CONTROL, NodeCategories.GUI));
-		prompt.setOutputs(new Output("f", "default", ""));		
-		prompt.setInputs(new Input("x", "default"));				
-		prompt.setProperties(new Prop("question", "default", ""));			
+		NodeType prompt = new NodeType("prompt", Arrays.asList(NodeCategories.CONTROL, NodeCategories.UI));
+		prompt.setOutputs(new Output("f", "default", ""));
+		prompt.setInputs(new Input("x", "default"));
+		prompt.setProperties(new Prop("question", "default", ""));
 
-		NodeType fileChooser = new NodeType("fileChooser", NodeCategories.GUI);
-		fileChooser.setOutputs(new Output("f", "default", ""));		
-		fileChooser.setInputs(new Input("x", "default"));				
-		fileChooser.setProperties(new Prop("initalPath", "default", ""));			
-		
-		NodeType askYesNo = new NodeType("ask_yes_no", Arrays.asList(NodeCategories.CONTROL, NodeCategories.GUI));
-		askYesNo.setOutputs(new Output("yes", "default", ""), new Output("no", "default", ""));		
-		askYesNo.setInputs(new Input("x", "default"));				
-		askYesNo.setProperties(new Prop("question", "default", "Yes or no?"));				
+		NodeType fileChooser = new NodeType("fileChooser", NodeCategories.UI);
+		fileChooser.setOutputs(new Output("f", "default", ""));
+		fileChooser.setInputs(new Input("x", "default"));
+		fileChooser.setProperties(new Prop("initalPath", "default", ""));
 
-		NodeType openFile = new NodeType("openFile", NodeCategories.GUI);
-		openFile.setOutputs(new Output("f", "default", ""));		
-		openFile.setInputs(new Input("filename", "default"));				
-		openFile.setProperties(new Prop("filename", "default", ""));				
-		
-		NodeType xyplot = new NodeType("xyplot", Arrays.asList("Engineering", NodeCategories.GUI));
-		xyplot.setOutputs(new Output("f", "default", ""));		
-		xyplot.setInputs(new Input("x", "default"), new Input("y", "default"));				
-		xyplot.setProperties(new Prop("title", "default", "Untitled"));				
-		
+		NodeType askYesNo = new NodeType("ask_yes_no", Arrays.asList(NodeCategories.CONTROL, NodeCategories.UI));
+		askYesNo.setOutputs(new Output("yes", "default", ""), new Output("no", "default", ""));
+		askYesNo.setInputs(new Input("x", "default"));
+		askYesNo.setProperties(new Prop("question", "default", "Yes or no?"));
+
+		NodeType openFile = new NodeType("openFile", Arrays.asList(NodeCategories.FILES, NodeCategories.UI));
+		openFile.setOutputs(new Output("f", "default", ""));
+		openFile.setInputs(new Input("filename", "default"));
+		openFile.setProperties(new Prop("filename", "default", ""));
+
+		NodeType xyplot = new NodeType("xyplot", Arrays.asList(NodeCategories.UI));
+		xyplot.setOutputs(new Output("f", "default", ""));
+		xyplot.setInputs(new Input("x", "default"), new Input("y", "default"));
+		xyplot.setProperties(new Prop("title", "default", "Untitled"));
+
 		return Arrays.asList(display, askYesNo, prompt, fileChooser, openFile, xyplot, browser);
 	}
 }

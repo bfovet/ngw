@@ -37,8 +37,10 @@ public class NodeType {
 	
 	private static Map<String, Prop> commonProps = new HashMap<>();
 	static {
-		commonProps.put("privateWorkDir", new Prop("privateWorkDir", "boolean", "false"));
-		commonProps.put("async", new Prop("async", "boolean", "false"));
+		commonProps.put(PropertyUtils.PRIVATE_WORK_DIR, new Prop(PropertyUtils.PRIVATE_WORK_DIR, "boolean", "false", false));
+		commonProps.put(PropertyUtils.ASYNC, new Prop(PropertyUtils.ASYNC, "boolean", "false", false));
+		commonProps.put("clear private work directory", new Prop("clear private work directory", "boolean", "false", false));
+		commonProps.put(PropertyUtils.HIDE_IN_NAVIGATOR, new Prop(PropertyUtils.HIDE_IN_NAVIGATOR, "boolean", "false", true));
 	}
 
 	public NodeType(String name) {
@@ -63,7 +65,7 @@ public class NodeType {
 		List<Prop> properties = new ArrayList<>();
 
 		for (Property property: node.getProperties()) {
- 			properties.add(new Prop(property.getName(), property.getType(), property.getValue()));
+ 			properties.add(new Prop(property));
 		}
 
 		setProperties(properties);

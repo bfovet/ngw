@@ -9,13 +9,12 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.runtime.components;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import gov.sandia.dart.workflow.runtime.core.ICancelationListener;
 import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
 import gov.sandia.dart.workflow.runtime.core.NodeCategories;
+import gov.sandia.dart.workflow.runtime.core.NodeMemento;
 import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
 import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
@@ -57,21 +57,24 @@ public class ExternalProcessNode extends AbstractExternalNode {
 	
 	@Override
 	public Map<String, Object> doExecute(Map<String, String> properties,  WorkflowDefinition workflow, RuntimeData runtime) {
+		File componentWorkDir = getComponentWorkDir(runtime, properties);
+		
+		clearMemento(componentWorkDir);
+		NodeMemento memento = createMemento(properties, workflow, runtime);
 		
 		WorkflowDefinition.Node thisNode = workflow.getNode(getName());
 		possiblyWritePropertiesFile(properties, workflow, runtime);
 		int exitStatus = 0;
 
-		// TODO This needs a rewrite. If there's an error executing the process, the outputs are lost.
-		ByteArrayOutputStream stdoutReceptor = new ByteArrayOutputStream();
-		ByteArrayOutputStream stderrReceptor = new ByteArrayOutputStream();
+		String filenameRoot = getFilenameRoot();
+		File stdoutReceptor = new File(componentWorkDir, filenameRoot + ".log");
+		File stderrReceptor = new File(componentWorkDir, filenameRoot + ".err");
 
 		try {
 			Process process = setUpProcess(properties, runtime);
-			ICancelationListener listener = () -> process.destroy();
+			ICancelationListener listener = () -> ProcessUtils.destroyProcess(process);
 			runtime.addCancelationListener(listener);			
-			try { 				
-				
+			try { 						
 				exitStatus = mediateStandardIO(process, thisNode, stdoutReceptor, stderrReceptor, runtime);
 			} finally {
 				runtime.removeCancelationListener(listener);
@@ -83,9 +86,21 @@ public class ExternalProcessNode extends AbstractExternalNode {
 		if (exitStatus != 0 && !isConnectedOutput(EXIT_STATUS, workflow)) {
 			throw new SAWWorkflowException(String.format("Script exited with status %d", exitStatus));
 		}
-
 		
-		return postProcessOutputs(thisNode, exitStatus, stdoutReceptor, stderrReceptor, runtime);
+		Map<String, Object> outputs = Collections.emptyMap();
+		
+		try {
+			outputs = postProcessOutputs(thisNode, exitStatus, stdoutReceptor, stderrReceptor, runtime);
+		} catch (IOException ex) {
+			throw new SAWWorkflowException(String.format("%s: Can't read log files", getName()));
+		}
+		
+		try {
+			addOutputsToMemento(memento, outputs).save(componentWorkDir);
+		} catch (IOException e) {
+			// No memento, I guess
+		}
+		return outputs;
 	}
 
 	protected Process setUpProcess(Map<String, String> properties, RuntimeData runtime) throws IOException {
@@ -108,14 +123,17 @@ public class ExternalProcessNode extends AbstractExternalNode {
 		
 	private int mediateStandardIO(Process p,
 			Node thisNode,
-			OutputStream stdoutReceptor,
-			OutputStream stderrReceptor,
+			File stdoutReceptor,
+			File stderrReceptor,
 			RuntimeData runtime) throws Throwable {
-		PrintStream stdoutPrintStream = new PrintStream(stdoutReceptor);	
-		PrintStream stderrPrintStream = new PrintStream(stderrReceptor);	
+
+		int exitStatus = UNSET;
+		try (PrintStream stdoutPrintStream = new PrintStream(stdoutReceptor);	
+		     PrintStream stderrPrintStream = new PrintStream(stderrReceptor)) {	
 		
 		// Send data from STDIN to process input
 		// TODO This shouldn't be necessary. Need to just be able to ask for input datum and get the right thing.
+
 		InputPort port = thisNode.inputs.get(STDIN_PORT_NAME);
 		if (port != null) {
 			byte inBytes[] = null;
@@ -137,7 +155,6 @@ public class ExternalProcessNode extends AbstractExternalNode {
 		Thread t1, t2;
 		(t1 = new Thread(new Squirter(p.getInputStream(), stdoutPrintStream), "externalProcessNode stdout")).start();
 		(t2 = new Thread(new Squirter(p.getErrorStream(), stderrPrintStream), "externalProcessNode stderr")).start();
-		int exitStatus = UNSET;
 		while (exitStatus == UNSET && !runtime.isCancelled()) {
 			try {
 				exitStatus = p.waitFor();
@@ -148,32 +165,34 @@ public class ExternalProcessNode extends AbstractExternalNode {
 		}
 		t2.join();
 		t1.join();
+		}
 		return exitStatus;
 	}
 	
 	private Map<String, Object> postProcessOutputs(Node thisNode,
 			int exitStatus,
-			ByteArrayOutputStream stdoutReceptor,
-			ByteArrayOutputStream stderrReceptor,
-			RuntimeData runtime) {
+			File stdoutReceptor,
+			File stderrReceptor,
+			RuntimeData runtime) throws IOException {
 		
 		Map<String, Object> outputMap = new HashMap<>();
 		
 		// EJFH Doing these "ifs" to allow for the ports maybe having been removed. Not sure I approve of that, but...		
 		if (thisNode.outputs.get(STDOUT_PORT_NAME) != null) {
-				outputMap.put(STDOUT_PORT_NAME, stdoutReceptor.toByteArray());
-				runtime.getOut().println(stdoutReceptor.toString());
+			String content =  FileUtils.readFileToString(stdoutReceptor);
+			outputMap.put(STDOUT_PORT_NAME, content);
+			runtime.getOut().println(content);
 		}
 		
 		if (thisNode.outputs.get(STDERR_PORT_NAME) != null) {
-				outputMap.put(STDERR_PORT_NAME, stderrReceptor.toByteArray());
-				runtime.getErr().println(stdoutReceptor.toString());
+			String content =  FileUtils.readFileToString(stderrReceptor);
+			outputMap.put(STDERR_PORT_NAME, content);
+			runtime.getErr().println(content);
 		}
+		
 		if (thisNode.outputs.get(EXIT_STATUS) != null) {
 			outputMap.put(EXIT_STATUS, exitStatus);
 		}
-		
-		
 		
 		return outputMap;
 	}
@@ -184,7 +203,8 @@ public class ExternalProcessNode extends AbstractExternalNode {
 	
 	@Override public List<InputPortInfo> getDefaultInputs() { return Arrays.asList(new InputPortInfo(STDIN_PORT_NAME)); }
 	@Override public List<OutputPortInfo> getDefaultOutputs() { return Arrays.asList(new OutputPortInfo(STDOUT_PORT_NAME), new OutputPortInfo(STDERR_PORT_NAME), new OutputPortInfo(EXIT_STATUS)); }
-	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo(COMMAND_PROPERTY, "text"), new PropertyInfo(PROPERTIES_FILE_FLAG, "boolean")); }
+	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo(COMMAND_PROPERTY, "text"), new PropertyInfo(PROPERTIES_FILE_FLAG, "boolean"),
+			new PropertyInfo(PRIVATE_WORK_DIR, "boolean", "true")); }
 //	@Override public List<String> getDefaultProperties() { return Arrays.asList(COMMAND_PROPERTY, PROPERTIES_FILE_FLAG); }
 //	@Override public List<String> getDefaultPropertyTypes() { return Arrays.asList("text", "boolean"); }
 	@Override public String getCategory() { return NodeCategories.EXTERNAL_PROCESSES; }

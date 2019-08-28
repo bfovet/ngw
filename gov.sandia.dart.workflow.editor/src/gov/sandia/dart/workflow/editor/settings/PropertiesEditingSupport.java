@@ -28,6 +28,7 @@ import gov.sandia.dart.workflow.editor.configuration.Prop;
 public class PropertiesEditingSupport extends EditingSupport {
 
         public static final int EDITED = 9999;
+		private static final String[] booleanValues = {"false", "true"};
 		private TableViewer viewer;
         private CellEditor editor;
 		private int column;
@@ -41,6 +42,15 @@ public class PropertiesEditingSupport extends EditingSupport {
 						break;
 					case 1:						
 						this.editor = new ComboBoxCellEditor(viewer.getTable(), Prop.availableTypes());
+						break;
+					case 2:
+						this.editor = new TextCellEditor(viewer.getTable());
+						break;
+					case 3:
+						this.editor = new ComboBoxCellEditor(viewer.getTable(), booleanValues);
+						break;
+
+
 				}
                 this.column = column;
         }
@@ -66,6 +76,12 @@ public class PropertiesEditingSupport extends EditingSupport {
         			String[] labels = Prop.availableTypes();
         			result = Arrays.binarySearch(labels, ((Property) element).getType());
                     break;
+        		case 2:        			
+        			result = ((Property) element).getValue();
+                    break;
+           		case 3:        			
+        			result = ((Property) element).isAdvanced() ? 1 : 0;
+                    break;
 
         		}
         		return result == null ? "" : result;        			
@@ -84,7 +100,7 @@ public class PropertiesEditingSupport extends EditingSupport {
         					((Property) element).setName(String.valueOf(userInputValue));
         					((Property) element).getNode().eNotify(new NotificationImpl(EDITED, 0, 0));
         					break;
-        				case 1:
+        				case 1: {
                 			String[] labels = Prop.availableTypes();
                 			int index = (Integer) userInputValue;
                 			if (index > -1 && index < labels.length) {
@@ -92,6 +108,17 @@ public class PropertiesEditingSupport extends EditingSupport {
             					((Property) element).getNode().eNotify(new NotificationImpl(EDITED, 0, 0));
                 			}
         					break;
+        				}
+        				case 2:					
+        					((Property) element).setValue(String.valueOf(userInputValue));
+        					((Property) element).getNode().eNotify(new NotificationImpl(EDITED, 0, 0));
+        					break;
+        				case 3: {	
+                			int index = (Integer) userInputValue;
+        					((Property) element).setAdvanced(index == 1);
+        					((Property) element).getNode().eNotify(new NotificationImpl(EDITED, 0, 0));
+        					break;
+        				}
         				}                    
         			}
         		});

@@ -24,6 +24,7 @@ package gov.sandia.dart.workflow.domain;
  *   <li>{@link gov.sandia.dart.workflow.domain.Property#getType <em>Type</em>}</li>
  *   <li>{@link gov.sandia.dart.workflow.domain.Property#getValue <em>Value</em>}</li>
  *   <li>{@link gov.sandia.dart.workflow.domain.Property#getNode <em>Node</em>}</li>
+ *   <li>{@link gov.sandia.dart.workflow.domain.Property#isAdvanced <em>Advanced</em>}</li>
  * </ul>
  *
  * @see gov.sandia.dart.workflow.domain.DomainPackage#getProperty()
@@ -111,5 +112,32 @@ public interface Property extends NamedObject {
 	 * @generated
 	 */
 	void setNode(NamedObjectWithProperties value);
+
+	/**
+	 * Returns the value of the '<em><b>Advanced</b></em>' attribute.
+	 * The default value is <code>"false"</code>.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Advanced</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Advanced</em>' attribute.
+	 * @see #setAdvanced(boolean)
+	 * @see gov.sandia.dart.workflow.domain.DomainPackage#getProperty_Advanced()
+	 * @model default="false"
+	 * @generated
+	 */
+	boolean isAdvanced();
+
+	/**
+	 * Sets the value of the '{@link gov.sandia.dart.workflow.domain.Property#isAdvanced <em>Advanced</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Advanced</em>' attribute.
+	 * @see #isAdvanced()
+	 * @generated
+	 */
+	void setAdvanced(boolean value);
 
 } // Property

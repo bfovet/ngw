@@ -273,11 +273,11 @@ public class IWFParser {
 				IWFResponseArc item = (IWFResponseArc) object;
 				updateLinks(objectList, Collections.singletonList(item.source), element, "source");
 				updateLinks(objectList, Collections.singletonList(item.target), element, "target");
+				updateLinks(objectList, item.properties, element, "properties");
+
 			}else if(object instanceof IWFParameter) {
-				IWFParameter item = (IWFParameter) object;
 				updateLinks(objectList, Collections.emptyList(), element, "node");				
 			}else if(object instanceof IWFProperty) {
-				IWFProperty item = (IWFProperty) object;
 				updateLinks(objectList, Collections.emptyList(), element, "node");				
 			}
 		}			
@@ -352,6 +352,8 @@ public class IWFParser {
 			case "ResponseArc": {
 				((IWFResponseArc) objects[index]).source = (IWFOutputPort) get(objects, e.getAttribute("source"));
 				((IWFResponseArc) objects[index]).target = (IWFResponse) get(objects, e.getAttribute("target"));
+				((IWFResponseArc) objects[index]).properties.addAll((Collection<? extends IWFProperty>) gather(objects, e.getAttribute("properties")));
+
 				break;
 			}
 

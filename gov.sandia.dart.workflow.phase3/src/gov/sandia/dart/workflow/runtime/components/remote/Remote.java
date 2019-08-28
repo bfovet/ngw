@@ -15,8 +15,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.file.Paths;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.jcraft.jsch.Channel;
@@ -25,6 +31,7 @@ import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
+import gov.sandia.dart.workflow.runtime.core.SAWWorkflowLogger;
 
 public class Remote {
 	private String host;
@@ -48,30 +55,27 @@ public class Remote {
 	}	
 
 	public void setPath(String path) {
-		this.path = path.replaceAll("\\\\", "/");
+		this.path = path.replaceAll("\\\\", "/").trim();
 	}
 
 	public String getPath() {
 		return path;
 	}
 
-	public void connect() throws IOException  {
+	public void connect(SAWWorkflowLogger log) throws IOException  {
 		if (session != null) {
 			throw new IOException("Already connected");
 		}
 
 		try {
-			String path = RuntimeData.getWFLIB();
-			System.setProperty("java.security.krb5.conf", new File(path, "krb5.conf").getAbsolutePath());
-			System.setProperty("java.security.auth.login.config", new File(path, "jaas.conf").getAbsolutePath());
-			System.setProperty("javax.security.auth.useSubjectCredsOnly", "false");
-			// System.setProperty("sun.security.krb5.debug", "true");
+						
+			initKerberos(log);
 
 			Session aSession;
 			if (StringUtils.isNoneEmpty(jmpUser, jmpHost, user, host)) {
-				aSession = SessionManager.INSTANCE.getSession(user, host, jmpUser, jmpHost);
+				aSession = SessionManager.INSTANCE.getSession(user, host, jmpUser, jmpHost, log);
 			} else if (StringUtils.isNoneEmpty(user, host)) {			
-				aSession = SessionManager.INSTANCE.getSession(user, host);
+				aSession = SessionManager.INSTANCE.getSession(user, host, log);
 			} else {
 				throw new IOException("Cannot connect; user and host must both be specified");
 			}
@@ -80,8 +84,45 @@ public class Remote {
 			throw new IOException("Error connecting to remote host", e);
 		}
 	}
+	private static AtomicBoolean initialized = new AtomicBoolean();
+	public static void initKerberos(SAWWorkflowLogger log) {
+		if (initialized.getAndSet(true))
+			return;
+		File krb5File = getConfigFile("krb5.conf");
+		if (!krb5File.exists())
+			log.warn("krb5File does not exist: {0}", krb5File.getAbsolutePath());
+		System.setProperty("java.security.krb5.conf", krb5File.getAbsolutePath());
+		File jaasFile = getConfigFile("jaas.conf");
+		if (!jaasFile.exists())
+			log.warn("jaasFile does not exist: {0}", jaasFile.getAbsolutePath());
+		System.setProperty("java.security.auth.login.config", jaasFile.getAbsolutePath());
+		System.setProperty("javax.security.auth.useSubjectCredsOnly", "false");
+		// System.setProperty("sun.security.krb5.debug", "true");
+	}
 
-	public String execute(String command, OutputStream err, RuntimeData runtime) throws IOException {
+	private static File getConfigFile(String name) {
+		String wflib = RuntimeData.getWFLIB();
+		if (new File(wflib).exists())
+			return new File(wflib, name);
+		URL resource = null;
+		try {
+		    resource = Remote.class.getResource("/resources/" + name);
+			return Paths.get(resource.toURI()).toFile();
+		} catch (Exception e) {
+			// Fall through				
+		}
+		try {
+			String data = IOUtils.toString(resource, Charset.defaultCharset());	
+			File tempFile = File.createTempFile("dart", "conf");
+			tempFile.deleteOnExit();			
+			FileUtils.write(tempFile, data);
+		} catch (Exception e) {
+			// Fall through
+		}
+		
+		return new File(name);
+	}
+	public int execute(String command, OutputStream out, OutputStream err, RuntimeData runtime) throws IOException {
 		Channel channel = null;
 		try {
 			channel = session.openChannel("exec");
@@ -98,13 +139,15 @@ public class Remote {
 			InputStream in = channel.getInputStream();
 			channel.connect();
 			byte[] tmp = new byte[1024];
-			StringBuilder output = new StringBuilder();
 			while (!runtime.isCancelled()) {
 				while (in.available() > 0) {
 					int i = in.read(tmp, 0, 1024);
 					if (i < 0)
 						break;
-					output.append(new String(tmp, 0, i));
+					if (out != null) {
+						out.write(tmp, 0, i);					
+						out.flush();
+					}					
 				}
 				if (channel.isClosed()) {
 					break;
@@ -114,7 +157,7 @@ public class Remote {
 				} catch (Exception ee) {
 				}
 			}
-			return output.toString();
+			return channel.getExitStatus();
 		} catch (JSchException e) {
 			throw new IOException("Error executing remote command", e);
 		} finally {
@@ -286,19 +329,14 @@ public class Remote {
 					filesize = filesize * 10L + buf[0] - '0';
 				}
 
-				String file = null;
 				for (int i = 0;; i++) {
 					in.read(buf, i, 1);
 					if (buf[i] == (byte) 0x0a) {
-						file = new String(buf, 0, i);
 						break;
 					}
 					if (runtime.isCancelled())
 						break;
 				}
-
-				// System.out.println("filesize="+filesize+", file="+file);
-
 				// send '\0'
 				buf[0] = 0;
 				out.write(buf, 0, 1);

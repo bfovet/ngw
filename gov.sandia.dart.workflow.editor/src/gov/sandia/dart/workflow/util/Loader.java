@@ -9,19 +9,32 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.util;
 
-import gov.sandia.dart.workflow.domain.DomainPackage;
-
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.eclipse.graphiti.features.IFeatureProvider;
+import org.eclipse.graphiti.mm.pictograms.Diagram;
+import org.eclipse.graphiti.mm.pictograms.PictogramElement;
+import org.eclipse.graphiti.ui.services.GraphitiUi;
+
+import gov.sandia.dart.workflow.domain.DomainPackage;
+import gov.sandia.dart.workflow.domain.Response;
+import gov.sandia.dart.workflow.domain.WFNode;
 
 public class Loader {
+	private List<Object> objects;
+	private Diagram diagram;
+	private IFeatureProvider fp;
 	public List<Object> load(String path) {
 		DomainPackage.eINSTANCE.eClass();
 
@@ -33,11 +46,62 @@ public class Loader {
 		ResourceSet resSet = new ResourceSetImpl();
 
 		Resource resource = resSet.getResource(URI.createFileURI(path), true);
-		List<Object> nodes = new ArrayList<>();
-		for (Object o: resource.getContents()) {
-			nodes.add(o);	
+		objects = new ArrayList<>();
+		objects.addAll(resource.getContents());
+		
+		// Get offline diagram
+		Optional<Object> oDiagram = objects.stream().filter(o -> o instanceof Diagram).findFirst();
+		diagram = (Diagram) oDiagram.get();
+		fp = GraphitiUi.getExtensionManager().createFeatureProvider(diagram);
+
+		return objects;
+	}
+	
+	public List<WFNode> getParameters() {
+		if (objects == null)
+			throw new IllegalStateException("Loader has not loaded diagram");
+		List<Pair<Integer, WFNode>> pairs = new ArrayList<>();
+				
+		for (Object o: objects) {
+			if (o instanceof WFNode && ParameterUtils.isParameter((WFNode) o)) {
+				WFNode node = (WFNode) o;
+				PictogramElement pe = fp.getPictogramElementForBusinessObject(node);
+				int y = pe != null ? pe.getGraphicsAlgorithm().getY() : 0;
+				pairs.add(Pair.of(y, node));
+			}
 		}
-		return nodes;
+		
+		pairs.sort(new Comparator<Pair<Integer, WFNode>>() {
+			@Override
+			public int compare(Pair<Integer, WFNode> arg0, Pair<Integer, WFNode> arg1) {
+				return arg0.getLeft() - arg1.getLeft();
+			}
+		});
+			
+		return pairs.stream().map(p -> p.getRight()).collect(Collectors.toList());
 	}
 
+	public List<Response> getResponses() {
+		if (objects == null)
+			throw new IllegalStateException("Loader has not loaded diagram");
+		List<Pair<Integer, Response>> pairs = new ArrayList<>();
+				
+		for (Object o: objects) {
+			if (o instanceof Response) {
+				Response response = (Response) o;
+				PictogramElement pe = fp.getPictogramElementForBusinessObject(response);
+				int y = pe != null ? pe.getGraphicsAlgorithm().getY() : 0;
+				pairs.add(Pair.of(y, response));
+			}
+		}
+		
+		pairs.sort(new Comparator<Pair<Integer, Response>>() {
+			@Override
+			public int compare(Pair<Integer, Response> arg0, Pair<Integer, Response> arg1) {
+				return arg0.getLeft() - arg1.getLeft();
+			}
+		});
+			
+		return pairs.stream().map(p -> p.getRight()).collect(Collectors.toList());
+	}
 }

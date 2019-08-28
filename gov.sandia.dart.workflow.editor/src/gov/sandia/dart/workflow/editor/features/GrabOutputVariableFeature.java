@@ -67,7 +67,7 @@ public class GrabOutputVariableFeature extends AbstractCustomFeature {
 		}
 	}
 
-	private static String[] SCRIPT_TYPES = {"bashScript", "cshScript", "pythonScript", "windowsBatchScript"};
+	private static String[] SCRIPT_TYPES = {"bashScript", "cshScript", "pythonScript", "tclScript", "windowsBatchScript"};
 	@Override
 	public boolean canExecute(ICustomContext context) {
 		if (context.getPictogramElements().length != 1)

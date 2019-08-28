@@ -14,6 +14,7 @@ import org.eclipse.graphiti.features.context.ICustomContext;
 import org.eclipse.graphiti.features.custom.AbstractCustomFeature;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 
+import gov.sandia.dart.common.core.env.OS;
 import gov.sandia.dart.workflow.domain.WFNode;
 import gov.sandia.dart.workflow.editor.library.UserCustomNodeLibrary;
 
@@ -39,7 +40,7 @@ public class CopyToPaletteFeature extends AbstractCustomFeature {
 
 	@Override
 	public boolean canExecute(ICustomContext context) {
-		return context.getPictogramElements().length == 1;
+		return context.getPictogramElements().length == 1 && OS.isMac();
 	}
 	
 	@Override

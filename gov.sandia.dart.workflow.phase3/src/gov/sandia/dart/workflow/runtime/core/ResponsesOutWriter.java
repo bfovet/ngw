@@ -50,17 +50,13 @@ public class ResponsesOutWriter implements IResponseWriter {
 	public synchronized void writeRow() {
 		Map<String, Response> responses = workflow.getResponses();
 		Map<String, Object> responseValues = aRuntime.getResponses();
-
-		Map<String, Parameter> parameters = workflow.getParameters();
-		Map<String, Object> parameterValues = aRuntime.getParameters();
-
 		writer.print(aRuntime.getSampleId());
 		
-		for (String parameter: parameters.keySet()) {
+		for (String parameter: aRuntime.getParameterNames()) {
 			if (!RuntimeData.isBuiltIn(parameter)) {
 
 				writer.print(", ");
-				writer.print(parameterValues.get(parameter));
+				writer.print(aRuntime.getParameter(parameter).getValue());
 			}
 		}
 		
@@ -76,15 +72,12 @@ public class ResponsesOutWriter implements IResponseWriter {
 		Map<String, Response> responses = workflow.getResponses();
 		Map<String, Object> responseValues = runtime.getResponses();
 
-		Map<String, Parameter> parameters = workflow.getParameters();
-		Map<String, Object> parameterValues = runtime.getParameters();
-
 		writer.print(runtime.getSampleId());
 		
-		for (String parameter: parameters.keySet()) {
+		for (String parameter: runtime.getParameterNames()) {
 			if (!RuntimeData.isBuiltIn(parameter)) {
 				writer.print(", ");
-				writer.print(parameterValues.get(parameter));
+				writer.print(runtime.getParameter(parameter).getValue());
 			}
 		}
 				

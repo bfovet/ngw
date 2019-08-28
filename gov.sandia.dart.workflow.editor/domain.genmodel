@@ -7,37 +7,73 @@
   <foreignModel>domain.ecore</foreignModel>
   <genPackages prefix="Domain" basePackage="gov.sandia.dart.workflow" disposableProviderFactory="true"
       ecorePackage="domain.ecore#/">
+    <genClasses ecoreClass="domain.ecore#//Response">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute domain.ecore#//Response/type"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference domain.ecore#//Response/source"/>
+    </genClasses>
     <genClasses ecoreClass="domain.ecore#//WFNode">
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute domain.ecore#//WFNode/name"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute domain.ecore#//WFNode/scriptFile"/>
-      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference domain.ecore#//WFNode/incoming"/>
-      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference domain.ecore#//WFNode/outgoing"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference domain.ecore#//WFNode/inputPorts"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference domain.ecore#//WFNode/outputPorts"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute domain.ecore#//WFNode/start"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute domain.ecore#//WFNode/type"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute domain.ecore#//WFNode/label"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference domain.ecore#//WFNode/conductors"/>
     </genClasses>
     <genClasses ecoreClass="domain.ecore#//WFArc">
-      <genFeatures createChild="false" propertyCategory="" propertyDescription=""
-          ecoreFeature="ecore:EAttribute domain.ecore#//WFArc/name"/>
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference domain.ecore#//WFArc/source"/>
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference domain.ecore#//WFArc/target"/>
     </genClasses>
-    <nestedGenPackages prefix="Domain" basePackage="gov.sandia.dart.workflow" disposableProviderFactory="true"
-        ecorePackage="domain.ecore#/">
-      <genClasses ecoreClass="domain.ecore#//WFNode">
-        <genFeatures createChild="false" ecoreFeature="ecore:EAttribute domain.ecore#//WFNode/name"/>
-        <genFeatures createChild="false" ecoreFeature="ecore:EAttribute domain.ecore#//WFNode/scriptFile"/>
-        <genFeatures notify="false" createChild="false" propertySortChoices="true"
-            ecoreFeature="ecore:EReference domain.ecore#//WFNode/incoming"/>
-        <genFeatures notify="false" createChild="false" propertySortChoices="true"
-            ecoreFeature="ecore:EReference domain.ecore#//WFNode/outgoing"/>
-        <genFeatures createChild="false" ecoreFeature="ecore:EAttribute domain.ecore#//WFNode/start"/>
-      </genClasses>
-      <genClasses ecoreClass="domain.ecore#//WFArc">
-        <genFeatures createChild="false" ecoreFeature="ecore:EAttribute domain.ecore#//WFArc/name"/>
-        <genFeatures notify="false" createChild="false" propertySortChoices="true"
-            ecoreFeature="ecore:EReference domain.ecore#//WFArc/source"/>
-        <genFeatures notify="false" createChild="false" propertySortChoices="true"
-            ecoreFeature="ecore:EReference domain.ecore#//WFArc/target"/>
-      </genClasses>
-    </nestedGenPackages>
+    <genClasses ecoreClass="domain.ecore#//Property">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute domain.ecore#//Property/type"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute domain.ecore#//Property/value"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference domain.ecore#//Property/node"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="domain.ecore#//Port">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute domain.ecore#//Port/type"/>
+    </genClasses>
+    <genClasses ecoreClass="domain.ecore#//InputPort">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference domain.ecore#//InputPort/node"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference domain.ecore#//InputPort/arcs"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute domain.ecore#//InputPort/triggerOnly"/>
+    </genClasses>
+    <genClasses ecoreClass="domain.ecore#//OutputPort">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference domain.ecore#//OutputPort/node"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference domain.ecore#//OutputPort/arcs"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference domain.ecore#//OutputPort/responseArcs"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="domain.ecore#//NamedObject">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute domain.ecore#//NamedObject/name"/>
+    </genClasses>
+    <genClasses ecoreClass="domain.ecore#//SAWNode">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute domain.ecore#//SAWNode/model"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute domain.ecore#//SAWNode/component"/>
+    </genClasses>
+    <genClasses ecoreClass="domain.ecore#//Note">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute domain.ecore#//Note/text"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute domain.ecore#//Note/color"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute domain.ecore#//Note/drawBorderAndBackground"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="domain.ecore#//NamedObjectWithProperties">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference domain.ecore#//NamedObjectWithProperties/properties"/>
+    </genClasses>
+    <genClasses ecoreClass="domain.ecore#//ResponseArc">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference domain.ecore#//ResponseArc/source"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference domain.ecore#//ResponseArc/target"/>
+    </genClasses>
+    <genClasses ecoreClass="domain.ecore#//Conductor">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference domain.ecore#//Conductor/node"/>
+    </genClasses>
+    <genClasses ecoreClass="domain.ecore#//Parameter">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute domain.ecore#//Parameter/type"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute domain.ecore#//Parameter/value"/>
+    </genClasses>
+    <genClasses ecoreClass="domain.ecore#//Runner">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute domain.ecore#//Runner/type"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="domain.ecore#//Arc"/>
+    <genClasses ecoreClass="domain.ecore#//Image">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute domain.ecore#//Image/text"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute domain.ecore#//Image/zoomToFit"/>
+    </genClasses>
   </genPackages>
 </genmodel:GenModel>

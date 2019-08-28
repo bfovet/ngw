@@ -142,26 +142,6 @@ public class DomainAdapterFactory extends AdapterFactoryImpl {
 				return createImageAdapter();
 			}
 			@Override
-			public Adapter caseDomain_NamedObject(NamedObject object) {
-				return createDomain_NamedObjectAdapter();
-			}
-			@Override
-			public Adapter caseDomain_NamedObjectWithProperties(NamedObjectWithProperties object) {
-				return createDomain_NamedObjectWithPropertiesAdapter();
-			}
-			@Override
-			public Adapter caseDomain_Arc(Arc object) {
-				return createDomain_ArcAdapter();
-			}
-			@Override
-			public Adapter caseDomain_Port(Port object) {
-				return createDomain_PortAdapter();
-			}
-			@Override
-			public Adapter caseDomain_WFNode(WFNode object) {
-				return createDomain_WFNodeAdapter();
-			}
-			@Override
 			public Adapter defaultCase(EObject object) {
 				return createEObjectAdapter();
 			}
@@ -416,76 +396,6 @@ public class DomainAdapterFactory extends AdapterFactoryImpl {
 	 * @generated
 	 */
 	public Adapter createImageAdapter() {
-		return null;
-	}
-
-	/**
-	 * Creates a new adapter for an object of class '{@link gov.sandia.dart.workflow.domain.NamedObject <em>Named Object</em>}'.
-	 * <!-- begin-user-doc -->
-	 * This default implementation returns null so that we can easily ignore cases;
-	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
-	 * <!-- end-user-doc -->
-	 * @return the new adapter.
-	 * @see gov.sandia.dart.workflow.domain.NamedObject
-	 * @generated
-	 */
-	public Adapter createDomain_NamedObjectAdapter() {
-		return null;
-	}
-
-	/**
-	 * Creates a new adapter for an object of class '{@link gov.sandia.dart.workflow.domain.NamedObjectWithProperties <em>Named Object With Properties</em>}'.
-	 * <!-- begin-user-doc -->
-	 * This default implementation returns null so that we can easily ignore cases;
-	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
-	 * <!-- end-user-doc -->
-	 * @return the new adapter.
-	 * @see gov.sandia.dart.workflow.domain.NamedObjectWithProperties
-	 * @generated
-	 */
-	public Adapter createDomain_NamedObjectWithPropertiesAdapter() {
-		return null;
-	}
-
-	/**
-	 * Creates a new adapter for an object of class '{@link gov.sandia.dart.workflow.domain.Arc <em>Arc</em>}'.
-	 * <!-- begin-user-doc -->
-	 * This default implementation returns null so that we can easily ignore cases;
-	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
-	 * <!-- end-user-doc -->
-	 * @return the new adapter.
-	 * @see gov.sandia.dart.workflow.domain.Arc
-	 * @generated
-	 */
-	public Adapter createDomain_ArcAdapter() {
-		return null;
-	}
-
-	/**
-	 * Creates a new adapter for an object of class '{@link gov.sandia.dart.workflow.domain.Port <em>Port</em>}'.
-	 * <!-- begin-user-doc -->
-	 * This default implementation returns null so that we can easily ignore cases;
-	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
-	 * <!-- end-user-doc -->
-	 * @return the new adapter.
-	 * @see gov.sandia.dart.workflow.domain.Port
-	 * @generated
-	 */
-	public Adapter createDomain_PortAdapter() {
-		return null;
-	}
-
-	/**
-	 * Creates a new adapter for an object of class '{@link gov.sandia.dart.workflow.domain.WFNode <em>WF Node</em>}'.
-	 * <!-- begin-user-doc -->
-	 * This default implementation returns null so that we can easily ignore cases;
-	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
-	 * <!-- end-user-doc -->
-	 * @return the new adapter.
-	 * @see gov.sandia.dart.workflow.domain.WFNode
-	 * @generated
-	 */
-	public Adapter createDomain_WFNodeAdapter() {
 		return null;
 	}
 

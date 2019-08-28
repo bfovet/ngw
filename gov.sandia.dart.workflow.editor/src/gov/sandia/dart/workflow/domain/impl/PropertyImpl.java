@@ -31,6 +31,7 @@ import org.eclipse.emf.ecore.impl.ENotificationImpl;
  *   <li>{@link gov.sandia.dart.workflow.domain.impl.PropertyImpl#getType <em>Type</em>}</li>
  *   <li>{@link gov.sandia.dart.workflow.domain.impl.PropertyImpl#getValue <em>Value</em>}</li>
  *   <li>{@link gov.sandia.dart.workflow.domain.impl.PropertyImpl#getNode <em>Node</em>}</li>
+ *   <li>{@link gov.sandia.dart.workflow.domain.impl.PropertyImpl#isAdvanced <em>Advanced</em>}</li>
  * </ul>
  *
  * @generated
@@ -85,6 +86,26 @@ public class PropertyImpl extends NamedObjectImpl implements Property {
 	 * @ordered
 	 */
 	protected NamedObjectWithProperties node;
+
+	/**
+	 * The default value of the '{@link #isAdvanced() <em>Advanced</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isAdvanced()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final boolean ADVANCED_EDEFAULT = false;
+
+	/**
+	 * The cached value of the '{@link #isAdvanced() <em>Advanced</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isAdvanced()
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean advanced = ADVANCED_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -212,6 +233,27 @@ public class PropertyImpl extends NamedObjectImpl implements Property {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public boolean isAdvanced() {
+		return advanced;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setAdvanced(boolean newAdvanced) {
+		boolean oldAdvanced = advanced;
+		advanced = newAdvanced;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, DomainPackage.PROPERTY__ADVANCED, oldAdvanced, advanced));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	@Override
 	public NotificationChain eInverseAdd(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
@@ -252,6 +294,8 @@ public class PropertyImpl extends NamedObjectImpl implements Property {
 			case DomainPackage.PROPERTY__NODE:
 				if (resolve) return getNode();
 				return basicGetNode();
+			case DomainPackage.PROPERTY__ADVANCED:
+				return isAdvanced();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -272,6 +316,9 @@ public class PropertyImpl extends NamedObjectImpl implements Property {
 				return;
 			case DomainPackage.PROPERTY__NODE:
 				setNode((NamedObjectWithProperties)newValue);
+				return;
+			case DomainPackage.PROPERTY__ADVANCED:
+				setAdvanced((Boolean)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -294,6 +341,9 @@ public class PropertyImpl extends NamedObjectImpl implements Property {
 			case DomainPackage.PROPERTY__NODE:
 				setNode((NamedObjectWithProperties)null);
 				return;
+			case DomainPackage.PROPERTY__ADVANCED:
+				setAdvanced(ADVANCED_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -312,6 +362,8 @@ public class PropertyImpl extends NamedObjectImpl implements Property {
 				return VALUE_EDEFAULT == null ? value != null : !VALUE_EDEFAULT.equals(value);
 			case DomainPackage.PROPERTY__NODE:
 				return node != null;
+			case DomainPackage.PROPERTY__ADVANCED:
+				return advanced != ADVANCED_EDEFAULT;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -330,6 +382,8 @@ public class PropertyImpl extends NamedObjectImpl implements Property {
 		result.append(type);
 		result.append(", value: ");
 		result.append(value);
+		result.append(", advanced: ");
+		result.append(advanced);
 		result.append(')');
 		return result.toString();
 	}

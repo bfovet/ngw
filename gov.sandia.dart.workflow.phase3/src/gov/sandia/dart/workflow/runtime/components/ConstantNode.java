@@ -35,5 +35,5 @@ public class ConstantNode extends SAWCustomNode {
 	@Override public List<OutputPortInfo> getDefaultOutputs() { return Collections.singletonList(new OutputPortInfo("f")); }
 	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo("value")); }
 
-	@Override public List<String> getCategories() { return Arrays.asList(NodeCategories.WORKFLOW, "Sources"); }
+	@Override public List<String> getCategories() { return Arrays.asList(NodeCategories.WORKFLOW, NodeCategories.DATA_SOURCES); }
 }	

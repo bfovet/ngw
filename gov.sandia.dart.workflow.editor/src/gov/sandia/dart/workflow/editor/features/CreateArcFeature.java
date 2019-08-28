@@ -9,20 +9,33 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.editor.features;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.graphiti.datatypes.ILocation;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.ICreateConnectionContext;
 import org.eclipse.graphiti.features.context.impl.AddConnectionContext;
+import org.eclipse.graphiti.features.context.impl.CreateContext;
 import org.eclipse.graphiti.features.context.impl.UpdateContext;
 import org.eclipse.graphiti.features.impl.AbstractCreateConnectionFeature;
 import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
 import org.eclipse.graphiti.mm.pictograms.Anchor;
 import org.eclipse.graphiti.mm.pictograms.Connection;
+import org.eclipse.graphiti.mm.pictograms.ContainerShape;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.services.Graphiti;
+import org.eclipse.graphiti.ui.editor.DiagramEditorInput;
+import org.eclipse.graphiti.ui.internal.util.ui.PopupMenu;
+import org.eclipse.graphiti.ui.services.GraphitiUi;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PlatformUI;
 
 import gov.sandia.dart.workflow.domain.DomainFactory;
 import gov.sandia.dart.workflow.domain.InputPort;
@@ -31,7 +44,11 @@ import gov.sandia.dart.workflow.domain.Response;
 import gov.sandia.dart.workflow.domain.ResponseArc;
 import gov.sandia.dart.workflow.domain.WFArc;
 import gov.sandia.dart.workflow.domain.WFNode;
+import gov.sandia.dart.workflow.editor.KeyboardStateListener;
+import gov.sandia.dart.workflow.editor.PaletteBuilder;
 import gov.sandia.dart.workflow.editor.WorkflowImageProvider;
+import gov.sandia.dart.workflow.editor.configuration.NodeType;
+import gov.sandia.dart.workflow.editor.configuration.WorkflowTypesManager;
 import gov.sandia.dart.workflow.editor.settings.NOWPSettingsEditorUtils;
 import gov.sandia.dart.workflow.util.ParameterUtils;
 import gov.sandia.dart.workflow.util.PropertyUtils;
@@ -39,6 +56,8 @@ import gov.sandia.dart.workflow.util.PropertyUtils;
 public class CreateArcFeature extends
        AbstractCreateConnectionFeature {
  
+	private volatile boolean doneChanges;
+	
 	public CreateArcFeature (IFeatureProvider fp) {
         // provide name and description for the UI, e.g. the palette
         super(fp, "Make Connections", "Connect elements within a workflow");
@@ -50,24 +69,29 @@ public class CreateArcFeature extends
 
         // We have to have a source
         if (source == null) {
-        		return false;        
+        	return false;        
         }
         
         // It the target is an input port, it can't have more than one incoming connection
         InputPort ipTarget = getInputPort(context.getTargetAnchor());
         if (ipTarget != null && ipTarget.getArcs().isEmpty()) {
-        		return true;
+        	return true;
         } 
         
        // If it's a response it can.
         Response rTarget = getResponse(context.getTargetAnchor());
         if (rTarget != null) {
-        		return true;
+        	return true;
         }
         
         WFNode nodeTarget = getWFNode(context);
-        if (nodeTarget != null)
-        		return true;
+        if (nodeTarget != null) {
+        	return true;
+        }
+        
+        if (KeyboardStateListener.isKeyDown()) {
+        	return true;
+        }
         
         return false;
     }
@@ -76,12 +100,12 @@ public class CreateArcFeature extends
     		PictogramElement pe = context.getTargetPictogramElement();
     		if (pe != null) {
     			GraphicsAlgorithm ga = pe.getGraphicsAlgorithm();
-			Object bo = getBusinessObjectForPictogramElement(pe);
-            if (bo instanceof WFNode) {
-            		ILocation loc = context.getTargetLocation();
-            		if (loc.getX() - ga.getX() > 10 && (ga.getX() + ga.getWidth()) - loc.getX() > 10)
-            			return ((WFNode) bo);
-            } 
+    			Object bo = getBusinessObjectForPictogramElement(pe);
+    			if (bo instanceof WFNode) {
+    				ILocation loc = context.getTargetLocation();
+    				if (loc.getX() - ga.getX() > 10 && (ga.getX() + ga.getWidth()) - loc.getX() > 10)
+    					return ((WFNode) bo);
+    			} 
     		}
         return null;
 	}
@@ -95,7 +119,7 @@ public class CreateArcFeature extends
 	@Override
 	public Connection create(ICreateConnectionContext context) {
 		Connection newConnection = null;
-
+		doneChanges = false;
 		// get EClasses which should be connected
 		OutputPort source = getOutputPort(context.getSourceAnchor());
 		InputPort ipTarget = getInputPort(context.getTargetAnchor());
@@ -111,9 +135,109 @@ public class CreateArcFeature extends
 
 			} else if (nTarget != null) {
 				newConnection = connectToNodeOnNewPort(context, source, nTarget);
+
+			} else if (KeyboardStateListener.isKeyDown()) {
+				newConnection = createNewConnectedNode(context, source);
 			}
 		}
+		doneChanges = (newConnection != null);
 		return newConnection;
+	}
+	
+	@Override
+	public boolean hasDoneChanges() {		
+		return doneChanges;
+	}
+
+	protected Connection createNewConnectedNode(ICreateConnectionContext context, OutputPort source) {
+		ILocation loc = context.getTargetLocation();
+		int y = loc.getY() - AddWFNodeFeature.TOP_PORT;
+		Object object = createUserSelectedNode(true, getFeatureProvider(), getDiagram(), loc.getX(), y);	
+		if (object instanceof WFNode) {
+			WFNode node = (WFNode) object;
+			WFArc arc = createDARTArc(source, node.getInputPorts().get(0));
+			Anchor anchor = (Anchor) getFeatureProvider().getPictogramElementForBusinessObject(node.getInputPorts().get(0));
+			AddConnectionContext addContext = new AddConnectionContext(context.getSourceAnchor(), anchor);
+			addContext.setNewObject(arc);
+			Display.getDefault().asyncExec(() -> focusEditor(node));
+			
+			return (Connection) getFeatureProvider().addIfPossible(addContext);						
+			
+		} else if (object instanceof Response) {
+			Response response = (Response) object;
+			// create new business object 
+			ResponseArc arc = createResponseArc(source, response);
+			// add connection for business object
+			AddConnectionContext addContext =
+					new AddConnectionContext(context.getSourceAnchor(), findAnchor(response));
+			response.setName(source.getName());
+			addContext.setNewObject(arc);
+			Display.getDefault().asyncExec(() -> focusEditor(response));
+
+			return (Connection) getFeatureProvider().addIfPossible(addContext);
+		}
+
+		Display.getDefault().beep();
+		return null;		
+	}
+
+	private Anchor findAnchor(Response response) {
+		PictogramElement[] pes = getFeatureProvider().getAllPictogramElementsForBusinessObject(response);
+		for (PictogramElement pe : pes) {
+			if (pe instanceof Anchor)
+				return (Anchor) pe;
+		}
+		return null;
+	}
+
+	@SuppressWarnings("restriction")
+	public static Object createUserSelectedNode(boolean needInputs, IFeatureProvider fp, ContainerShape container, int x, int y) {
+		// Ugh. We lose the keyup event if it happens while the popup menu is displayed.
+		KeyboardStateListener.setKeyDown(false);
+		Set<String> nodeTypeNames = WorkflowTypesManager.get().getNodeTypes().keySet();
+		
+		ArrayList<Object> aContent = PaletteBuilder.buildMenu(nodeTypeNames);
+		PopupMenu popupMenu = new PopupMenu(aContent, new LabelProvider()); 
+		boolean b = popupMenu.show(Display.getCurrent().getActiveShell());		
+		if (b) { 
+			List<?> result = (List<?>) popupMenu.getResult();
+			CreateContext createContext = new CreateContext();
+			createContext.setTargetContainer(container);
+			createContext.setLocation(x, y);
+			Object name = result.get(1);
+			NodeType nodeType = WorkflowTypesManager.get().getNodeType(String.valueOf(name));
+			if (nodeType != null && (!needInputs || nodeType.getInputs().size() > 0)) {
+				setSizeFor(nodeType, createContext);
+				CreateWFNodeFeature cf = new CreateWFNodeFeature(fp, nodeType);	
+				return (WFNode) cf.create(createContext)[0];
+				
+			} else if ("note".equals(name)) {
+				createContext.setSize(150, 75);
+				CreateNoteFeature cnf = new CreateNoteFeature(fp);
+				cnf.create(createContext);
+				return null;
+
+			} else if ("image".equals(name)) {
+				createContext.setSize(150, 150);
+				CreateImageFeature cif = new CreateImageFeature(fp);
+				cif.create(createContext);
+				return null;
+				
+			} else if ("response".equals(name)) {
+				createContext.setSize(100, 24);
+				CreateResponseFeature crf = new CreateResponseFeature(fp);
+				return crf.create(createContext)[0];
+			}
+		}
+		return null;					
+	}
+
+	private static void setSizeFor(NodeType nodeType, CreateContext createContext) {
+		if (ParameterUtils.isParameterType(nodeType))
+			createContext.setSize(AddWFNodeFeature.NODE_WIDTH, AddWFNodeFeature.PARAMETER_HEIGHT);		
+		else
+			createContext.setSize(AddWFNodeFeature.NODE_WIDTH, AddWFNodeFeature.NODE_HEIGHT);			
+			
 	}
 
 	protected Connection connectToInputPort(ICreateConnectionContext context, OutputPort source, InputPort ipTarget) {
@@ -275,4 +399,14 @@ public class CreateArcFeature extends
     	return WorkflowImageProvider.IMG_PLUG;
     }
 
+	private void focusEditor(EObject bo) {
+		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		String providerId = GraphitiUi.getExtensionManager().getDiagramTypeProviderId("dartWorkflow");		
+		DiagramEditorInput input = new DiagramEditorInput(bo.eResource().getURI(), providerId);
+		IEditorPart part = page.findEditor(input);
+		if (part != null) {
+			page.activate(part);
+			part.setFocus();
+		}
+	}
 }

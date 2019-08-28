@@ -16,30 +16,32 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import gov.sandia.dart.workflow.runtime.components.AbstractRestartableNode;
 import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
 import gov.sandia.dart.workflow.runtime.core.NodeCategories;
+import gov.sandia.dart.workflow.runtime.core.NodeMemento;
 import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
 import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
-import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
 import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
 import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
 
-public class ApreproNode extends SAWCustomNode {
+public class ApreproNode extends AbstractRestartableNode {
 
 	private static final String INPUT_PARAMETERS_MAP = "inputParametersMap";
 	private static final String TEMPLATE_FILE = "templateFile";
 
 	@Override
 	protected Map<String, Object> doExecute(Map<String, String> properties, WorkflowDefinition workflow, RuntimeData runtime) {
-		
-		File templateFile = getFileFromPortOrProperty(runtime,  properties, TEMPLATE_FILE, true, false);
-
 		File componentWorkDir = getComponentWorkDir(runtime, properties);
+		clearMemento(componentWorkDir);
+		NodeMemento memento = createMemento(properties, workflow, runtime);
+		File templateFile = getFileFromPortOrProperty(runtime,  properties, TEMPLATE_FILE, true, false);
 		
 		File outputFile = new File(componentWorkDir, getOutputFileName(properties, templateFile));
 		
@@ -53,10 +55,18 @@ public class ApreproNode extends SAWCustomNode {
 			if (result != 0) {
 				throw new SAWWorkflowException(getName() + " : error running aprepro");
 			}
+			Map<String, Object> outputs = Collections.singletonMap("outputFile", outputFile.getAbsolutePath());
+			try {
+				addOutputsToMemento(memento, outputs).save(componentWorkDir);
+			} catch (IOException e) {
+				// No memento, no problem
+			}
+			return outputs;
+			
 		} catch (IOException | InterruptedException e) {
 			throw new SAWWorkflowException(getName() + " : error running aprepro", e);
 		}
-		return Collections.singletonMap("outputFile", outputFile.getAbsolutePath());
+		
 	}
 
 	//
@@ -84,13 +94,15 @@ public class ApreproNode extends SAWCustomNode {
 			}
 		}
 		
-		for (String parameterName: runtime.getParameters().keySet()) {
+		for (String parameterName: runtime.getParameterNames()) {
 			if (runtime.isGlobal(parameterName)) {
-				String value = String.valueOf(runtime.getParameter(parameterName));
+				String value = String.valueOf(runtime.getParameter(parameterName).getValue());
 				parameters.put(parameterName, value);
 			}
 		}
-		return parameters;		
+		return parameters.entrySet().stream().
+				filter(e -> e.getKey().indexOf('.') == -1).
+				collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));	
 	}
 
 	private String getOutputFileName(Map<String, String> properties, File templateFile) {
@@ -114,7 +126,8 @@ public class ApreproNode extends SAWCustomNode {
 		return Arrays.asList(
 			new PropertyInfo(TEMPLATE_FILE, "home_file"),
 			new PropertyInfo("outputFile", "default"),
-			new PropertyInfo("commentChar", "default")
+			new PropertyInfo("commentChar", "default"),
+			new PropertyInfo(PRIVATE_WORK_DIR, "boolean", "true")
 		);
 	}	
 		
@@ -128,6 +141,15 @@ public class ApreproNode extends SAWCustomNode {
 	
 	@Override
 	public List<String> getCategories() {
-		return Arrays.asList("Engineering", NodeCategories.EXTERNAL_PROCESSES);
+		return Arrays.asList(NodeCategories.TEXT_DATA, NodeCategories.EXTERNAL_PROCESSES);
+	}
+	
+	@Override
+	protected boolean outputsAvailable(WorkflowDefinition workflow, RuntimeData runtime,
+			Map<String, String> properties) {
+		File componentWorkDir = getComponentWorkDir(runtime, properties);
+		File templateFile = getFileFromPortOrProperty(runtime,  properties, TEMPLATE_FILE, true, false);		
+		File outputFile = new File(componentWorkDir, getOutputFileName(properties, templateFile));
+		return outputFile.exists();
 	}
 }

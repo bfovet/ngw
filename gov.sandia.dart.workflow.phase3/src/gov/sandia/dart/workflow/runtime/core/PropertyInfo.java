@@ -11,19 +11,34 @@ package gov.sandia.dart.workflow.runtime.core;
 
 public class PropertyInfo implements IPropertyInfo {
 
-	private String name;
-	private String type;
+	private final String name;
+	private final String type;
+	private final String defaultValue;
+	private final boolean advanced;
 	
-	public PropertyInfo(String name, String type) {
+	public PropertyInfo(String name, String type, String defaultValue, boolean advanced) {
 		this.name = name;
 		this.type = type;
+		this.defaultValue = defaultValue;
+		this.advanced = advanced;
+	}
+
+	public PropertyInfo(String name, String type, String defaultValue) {
+		this(name, type, defaultValue, false);
+	}
+
+	public PropertyInfo(String name, String type) {
+		this(name, type, null);
 	}
 
 	public PropertyInfo(String name) {
-		this.name = name;
-		this.type = RuntimeData.DEFAULT_TYPE;
+		this(name, RuntimeData.DEFAULT_TYPE);
 	}
 
+	@Override
 	public String getName() { return name; }
+	@Override
 	public String getType() { return type; }
+	public String getDefaultValue() { return defaultValue; }
+	public boolean isAdvanced() { return advanced; }
 }

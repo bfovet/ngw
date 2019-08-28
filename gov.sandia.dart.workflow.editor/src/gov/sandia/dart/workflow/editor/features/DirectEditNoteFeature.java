@@ -10,7 +10,9 @@
 package gov.sandia.dart.workflow.editor.features;
 
 import org.eclipse.draw2d.IFigure;
+import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.gef.editparts.ZoomManager;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.IDirectEditingContext;
 import org.eclipse.graphiti.features.impl.AbstractDirectEditingFeature;
@@ -22,8 +24,12 @@ import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PlatformUI;
 
 import gov.sandia.dart.workflow.domain.Note;
+import gov.sandia.dart.workflow.editor.WorkflowDiagramEditor;
 import gov.sandia.dart.workflow.editor.WorkflowEditorPlugin;
 import gov.sandia.dart.workflow.editor.rendering.NoteGARenderer;
  
@@ -90,12 +96,32 @@ public class DirectEditNoteFeature extends AbstractDirectEditingFeature implemen
 
 	@Override
 	public void relocate(CellEditor cellEditor, IFigure figure) {
-		Rectangle bounds = figure.getBounds();
+		Rectangle bounds = figure.getBounds().getCopy();
+		DirectEditNoteFeature.zoomBounds(bounds);
+
 		Control control = cellEditor.getControl();
 		control.setLocation(bounds.x + NoteGARenderer.CORNER + 2, bounds.y + 2);
 		control.setSize(bounds.width - NoteGARenderer.CORNER - 4, bounds.height - 4);	
 		control.setFont(WorkflowEditorPlugin.getDefault().getNotesFont());
 		// TODO How to get the actual color??
 		control.setBackground(NoteGARenderer.getColor(note.getColor()));
+	}
+
+	public static void zoomBounds(Rectangle bounds) {
+		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		IEditorPart editor = page.getActiveEditor();
+		double zoom = 1;
+		if(editor instanceof WorkflowDiagramEditor) {
+			WorkflowDiagramEditor workflowEditor = (WorkflowDiagramEditor) editor;
+			ZoomManager zm = (ZoomManager) workflowEditor.getAdapter(ZoomManager.class);
+			if (zm != null) {
+				System.out.println(zoom);
+				zoom = zm.getZoom();
+				bounds.scale(zoom, zoom);
+				Point location = zm.getViewport().getViewLocation();
+				System.out.println(location);
+				bounds.translate(-location.x, -location.y);
+			}
+		}
 	}
 }

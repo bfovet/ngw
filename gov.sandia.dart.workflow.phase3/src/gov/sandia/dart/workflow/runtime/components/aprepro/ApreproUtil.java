@@ -65,7 +65,7 @@ public class ApreproUtil {
 		List<String> commands = new ArrayList<>();	
 		String apreproCommand = environment.get("APREPRO_PATH");
 		if (apreproCommand == null)
-			throw new SAWWorkflowException("Required environment variable APREPRO_PATH not defined.");
+			apreproCommand = "aprepro";
 		commands.add(apreproCommand);
 		
 		// Don't emit header
@@ -87,7 +87,7 @@ public class ApreproUtil {
 		
 		builder.command(commands);
 		Process process = builder.start();
-		ICancelationListener listener = () -> process.destroy();
+		ICancelationListener listener = () -> ProcessUtils.destroyProcess(process);
 		runtime.addCancelationListener(listener);
 		try {
 			ByteArrayOutputStream out = new ByteArrayOutputStream();

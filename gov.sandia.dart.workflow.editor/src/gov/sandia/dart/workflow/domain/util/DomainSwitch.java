@@ -76,57 +76,57 @@ public class DomainSwitch<T> extends Switch<T> {
 			case DomainPackage.RESPONSE: {
 				Response response = (Response)theEObject;
 				T result = caseResponse(response);
-				if (result == null) result = caseDomain_NamedObject(response);
+				if (result == null) result = caseNamedObject(response);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
 			case DomainPackage.WF_NODE: {
 				WFNode wfNode = (WFNode)theEObject;
 				T result = caseWFNode(wfNode);
-				if (result == null) result = caseDomain_NamedObjectWithProperties(wfNode);
-				if (result == null) result = caseDomain_NamedObject(wfNode);
+				if (result == null) result = caseNamedObjectWithProperties(wfNode);
+				if (result == null) result = caseNamedObject(wfNode);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
 			case DomainPackage.WF_ARC: {
 				WFArc wfArc = (WFArc)theEObject;
 				T result = caseWFArc(wfArc);
-				if (result == null) result = caseDomain_Arc(wfArc);
-				if (result == null) result = caseDomain_NamedObjectWithProperties(wfArc);
-				if (result == null) result = caseDomain_NamedObject(wfArc);
+				if (result == null) result = caseArc(wfArc);
+				if (result == null) result = caseNamedObjectWithProperties(wfArc);
+				if (result == null) result = caseNamedObject(wfArc);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
 			case DomainPackage.PROPERTY: {
 				Property property = (Property)theEObject;
 				T result = caseProperty(property);
-				if (result == null) result = caseDomain_NamedObject(property);
+				if (result == null) result = caseNamedObject(property);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
 			case DomainPackage.PORT: {
 				Port port = (Port)theEObject;
 				T result = casePort(port);
-				if (result == null) result = caseDomain_NamedObjectWithProperties(port);
-				if (result == null) result = caseDomain_NamedObject(port);
+				if (result == null) result = caseNamedObjectWithProperties(port);
+				if (result == null) result = caseNamedObject(port);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
 			case DomainPackage.INPUT_PORT: {
 				InputPort inputPort = (InputPort)theEObject;
 				T result = caseInputPort(inputPort);
-				if (result == null) result = caseDomain_Port(inputPort);
-				if (result == null) result = caseDomain_NamedObjectWithProperties(inputPort);
-				if (result == null) result = caseDomain_NamedObject(inputPort);
+				if (result == null) result = casePort(inputPort);
+				if (result == null) result = caseNamedObjectWithProperties(inputPort);
+				if (result == null) result = caseNamedObject(inputPort);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
 			case DomainPackage.OUTPUT_PORT: {
 				OutputPort outputPort = (OutputPort)theEObject;
 				T result = caseOutputPort(outputPort);
-				if (result == null) result = caseDomain_Port(outputPort);
-				if (result == null) result = caseDomain_NamedObjectWithProperties(outputPort);
-				if (result == null) result = caseDomain_NamedObject(outputPort);
+				if (result == null) result = casePort(outputPort);
+				if (result == null) result = caseNamedObjectWithProperties(outputPort);
+				if (result == null) result = caseNamedObject(outputPort);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
@@ -139,9 +139,9 @@ public class DomainSwitch<T> extends Switch<T> {
 			case DomainPackage.SAW_NODE: {
 				SAWNode sawNode = (SAWNode)theEObject;
 				T result = caseSAWNode(sawNode);
-				if (result == null) result = caseDomain_WFNode(sawNode);
-				if (result == null) result = caseDomain_NamedObjectWithProperties(sawNode);
-				if (result == null) result = caseDomain_NamedObject(sawNode);
+				if (result == null) result = caseWFNode(sawNode);
+				if (result == null) result = caseNamedObjectWithProperties(sawNode);
+				if (result == null) result = caseNamedObject(sawNode);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
@@ -154,47 +154,47 @@ public class DomainSwitch<T> extends Switch<T> {
 			case DomainPackage.NAMED_OBJECT_WITH_PROPERTIES: {
 				NamedObjectWithProperties namedObjectWithProperties = (NamedObjectWithProperties)theEObject;
 				T result = caseNamedObjectWithProperties(namedObjectWithProperties);
-				if (result == null) result = caseDomain_NamedObject(namedObjectWithProperties);
+				if (result == null) result = caseNamedObject(namedObjectWithProperties);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
 			case DomainPackage.RESPONSE_ARC: {
 				ResponseArc responseArc = (ResponseArc)theEObject;
 				T result = caseResponseArc(responseArc);
-				if (result == null) result = caseDomain_Arc(responseArc);
-				if (result == null) result = caseDomain_NamedObjectWithProperties(responseArc);
-				if (result == null) result = caseDomain_NamedObject(responseArc);
+				if (result == null) result = caseArc(responseArc);
+				if (result == null) result = caseNamedObjectWithProperties(responseArc);
+				if (result == null) result = caseNamedObject(responseArc);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
 			case DomainPackage.CONDUCTOR: {
 				Conductor conductor = (Conductor)theEObject;
 				T result = caseConductor(conductor);
-				if (result == null) result = caseDomain_NamedObjectWithProperties(conductor);
-				if (result == null) result = caseDomain_NamedObject(conductor);
+				if (result == null) result = caseNamedObjectWithProperties(conductor);
+				if (result == null) result = caseNamedObject(conductor);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
 			case DomainPackage.PARAMETER: {
 				Parameter parameter = (Parameter)theEObject;
 				T result = caseParameter(parameter);
-				if (result == null) result = caseDomain_NamedObject(parameter);
+				if (result == null) result = caseNamedObject(parameter);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
 			case DomainPackage.RUNNER: {
 				Runner runner = (Runner)theEObject;
 				T result = caseRunner(runner);
-				if (result == null) result = caseDomain_NamedObjectWithProperties(runner);
-				if (result == null) result = caseDomain_NamedObject(runner);
+				if (result == null) result = caseNamedObjectWithProperties(runner);
+				if (result == null) result = caseNamedObject(runner);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
 			case DomainPackage.ARC: {
 				Arc arc = (Arc)theEObject;
 				T result = caseArc(arc);
-				if (result == null) result = caseDomain_NamedObjectWithProperties(arc);
-				if (result == null) result = caseDomain_NamedObject(arc);
+				if (result == null) result = caseNamedObjectWithProperties(arc);
+				if (result == null) result = caseNamedObject(arc);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
@@ -460,81 +460,6 @@ public class DomainSwitch<T> extends Switch<T> {
 	 * @generated
 	 */
 	public T caseImage(Image object) {
-		return null;
-	}
-
-	/**
-	 * Returns the result of interpreting the object as an instance of '<em>Named Object</em>'.
-	 * <!-- begin-user-doc -->
-	 * This implementation returns null;
-	 * returning a non-null result will terminate the switch.
-	 * <!-- end-user-doc -->
-	 * @param object the target of the switch.
-	 * @return the result of interpreting the object as an instance of '<em>Named Object</em>'.
-	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
-	 * @generated
-	 */
-	public T caseDomain_NamedObject(NamedObject object) {
-		return null;
-	}
-
-	/**
-	 * Returns the result of interpreting the object as an instance of '<em>Named Object With Properties</em>'.
-	 * <!-- begin-user-doc -->
-	 * This implementation returns null;
-	 * returning a non-null result will terminate the switch.
-	 * <!-- end-user-doc -->
-	 * @param object the target of the switch.
-	 * @return the result of interpreting the object as an instance of '<em>Named Object With Properties</em>'.
-	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
-	 * @generated
-	 */
-	public T caseDomain_NamedObjectWithProperties(NamedObjectWithProperties object) {
-		return null;
-	}
-
-	/**
-	 * Returns the result of interpreting the object as an instance of '<em>Arc</em>'.
-	 * <!-- begin-user-doc -->
-	 * This implementation returns null;
-	 * returning a non-null result will terminate the switch.
-	 * <!-- end-user-doc -->
-	 * @param object the target of the switch.
-	 * @return the result of interpreting the object as an instance of '<em>Arc</em>'.
-	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
-	 * @generated
-	 */
-	public T caseDomain_Arc(Arc object) {
-		return null;
-	}
-
-	/**
-	 * Returns the result of interpreting the object as an instance of '<em>Port</em>'.
-	 * <!-- begin-user-doc -->
-	 * This implementation returns null;
-	 * returning a non-null result will terminate the switch.
-	 * <!-- end-user-doc -->
-	 * @param object the target of the switch.
-	 * @return the result of interpreting the object as an instance of '<em>Port</em>'.
-	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
-	 * @generated
-	 */
-	public T caseDomain_Port(Port object) {
-		return null;
-	}
-
-	/**
-	 * Returns the result of interpreting the object as an instance of '<em>WF Node</em>'.
-	 * <!-- begin-user-doc -->
-	 * This implementation returns null;
-	 * returning a non-null result will terminate the switch.
-	 * <!-- end-user-doc -->
-	 * @param object the target of the switch.
-	 * @return the result of interpreting the object as an instance of '<em>WF Node</em>'.
-	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
-	 * @generated
-	 */
-	public T caseDomain_WFNode(WFNode object) {
 		return null;
 	}
 

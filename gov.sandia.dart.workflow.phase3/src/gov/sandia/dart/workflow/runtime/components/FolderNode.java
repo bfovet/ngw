@@ -45,5 +45,5 @@ public class FolderNode extends SAWCustomNode {
 	@Override public List<OutputPortInfo> getDefaultOutputs() { return Arrays.asList(new OutputPortInfo(FOLDER_OUT_PORT, "text")); }
 	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo(FOLDER_NAME, "home_file")); }
 
-	@Override public String getCategory() { return NodeCategories.INPUT_OUTPUT; }
+	@Override public String getCategory() { return NodeCategories.FILES	; }
 }

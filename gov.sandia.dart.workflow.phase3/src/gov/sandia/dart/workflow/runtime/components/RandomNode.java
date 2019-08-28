@@ -32,5 +32,5 @@ public class RandomNode extends SAWCustomNode {
 	@Override public List<OutputPortInfo> getDefaultOutputs() { return Collections.singletonList(new OutputPortInfo("f")); }
 	@Override public List<InputPortInfo> getDefaultInputs() { return Collections.singletonList(new InputPortInfo("x")); }
 
-	@Override public List<String> getCategories() { return Arrays.asList(NodeCategories.SCALAR_OPS, "Sources"); }
+	@Override public List<String> getCategories() { return Arrays.asList(NodeCategories.SCALAR_OPS, NodeCategories.DATA_SOURCES); }
 }	

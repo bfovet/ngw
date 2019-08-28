@@ -23,6 +23,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.NodeCategories;
 import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
 import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
@@ -69,7 +70,7 @@ public class RegexNode extends SAWCustomNode {
 	@Override public List<InputPortInfo> getDefaultInputs() { return Arrays.asList(new InputPortInfo("x")); }
 	@Override public List<OutputPortInfo> getDefaultOutputs() { return Arrays.asList(new OutputPortInfo("match"), new OutputPortInfo("no_match")); }
 	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo("regex")); }
-	@Override public String getCategory() { return "Control"; }
+	@Override public List<String> getCategories() { return Arrays.asList(NodeCategories.CONTROL, NodeCategories.TEXT_DATA); }
 	
 	public String getRegex(Map<String, String> properties) {
 		String raw = properties.get("regex");	

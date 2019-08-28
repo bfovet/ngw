@@ -43,18 +43,7 @@
             genModel="domain.genmodel"/>
    </extension>
 
-   <extension point="org.eclipse.emf.ecore.generated_package">
-      <!-- @generated domain -->
-      <package
-            uri="https://dart.sandia.gov/workflow/domain"
-            class="gov.sandia.dart.workflow.domain.DomainPackage"
-            genModel="domain.genmodel"/>
-   </extension>
-
-null
-null
-null
-null   <extension
+   <extension
       	point="org.eclipse.graphiti.ui.imageProviders">
    		<imageProvider
          class="gov.sandia.dart.workflow.editor.WorkflowImageProvider"
@@ -123,7 +112,52 @@ null   <extension
              		  type="org.eclipse.core.resources.IFile">
          		</adapter>
       		</factory>           
+		      <factory
+		            adaptableType="org.eclipse.core.resources.IFile"
+		            class="gov.sandia.dart.workflow.editor.tree.WorkflowFileAdapterFactory">
+		         <adapter
+		               type="gov.sandia.dart.workflow.editor.tree.data.WFTreeRoot">
+		         </adapter>
+		      </factory>
+		      <factory
+		            adaptableType="gov.sandia.dart.workflow.domain.WFNode"
+		            class="gov.sandia.dart.workflow.editor.tree.WorkflowFileAdapterFactory">
+		         <adapter
+		               type="gov.sandia.dart.workflow.editor.tree.data.WFTreeRoot">
+		         </adapter>
+		      </factory>
      </extension>
+   <extension
+         point="org.eclipse.ui.navigator.viewer">
+      <viewerContentBinding
+            viewerId="org.eclipse.ui.navigator.ProjectExplorer">
+         <includes>
+             <contentExtension
+                  pattern="gov.sandia.dart.workflow.phase3.embedded.workflowNavigator">
+            </contentExtension>
+          </includes>
+      </viewerContentBinding>
+   </extension>
+        <extension
+         point="org.eclipse.ui.navigator.navigatorContent">
+      <navigatorContent
+            contentProvider="gov.sandia.dart.workflow.editor.tree.WorkflowFileContentProvider"
+            id="gov.sandia.dart.workflow.phase3.embedded.workflowNavigator"
+            labelProvider="gov.sandia.dart.workflow.editor.tree.WorkflowFileLabelProvider"
+            name="Workflow File Navigator Content">
+         <triggerPoints>
+            <or>
+               <adapt
+                     type="gov.sandia.dart.workflow.editor.tree.data.WFTreeRoot">
+               </adapt>
+               <instanceof
+                     value="gov.sandia.dart.workflow.domain.WFNode">
+               </instanceof>
+            </or>
+         </triggerPoints>
+      </navigatorContent>
+   </extension>  
+     
     <extension
           point="org.eclipse.ui.editors">
        <editor
@@ -136,6 +170,13 @@ null   <extension
              matchingStrategy="org.eclipse.graphiti.ui.editor.DiagramEditorMatchingStrategy"
              name="Workflow Editor">
        </editor>
+       <editor
+             class="gov.sandia.dart.workflow.editor.retry.RetryConfigurationEditor"
+             default="true"
+             filenames="retry.conf"
+             id="gov.sandia.dart.workflow.editor.retry.config.editor"
+             name="Retry Configuration Editor">
+       </editor>       
     </extension>
     <extension
           point="org.eclipse.core.runtime.preferences">
@@ -195,13 +236,6 @@ null   <extension
                  settingsEditor="gov.sandia.dart.workflow.editor.settings.ParameterSettingsEditor">
            </editor>           
         </extension>
-        <extension
-              point="gov.sandia.dart.workflow.editor.nodeRenderer">
-           <customRenderer
-                 class="gov.sandia.dart.workflow.editor.rendering.ParameterWFNodeGARenderer"
-                 nodeType="parameter">
-           </customRenderer>
-        </extension>
        <extension
               point="gov.sandia.dart.workflow.editor.nodeRenderer">
            <customRenderer
@@ -212,6 +246,35 @@ null   <extension
                  class="gov.sandia.dart.workflow.editor.rendering.ABSwitchGARenderer"
                  nodeType="abSwitch">
            </customRenderer>
+            <customRenderer
+                  class="gov.sandia.dart.workflow.editor.rendering.ParameterFileGARenderer"
+                  nodeType="parameterFile">
+            </customRenderer>
+            <customRenderer
+                  class="gov.sandia.dart.workflow.editor.rendering.ParameterWFNodeGARenderer"
+                  nodeType="parameter">
+            </customRenderer>
+            <customRenderer
+                  class="gov.sandia.dart.workflow.editor.rendering.NestedWorkflowGARenderer"
+                  nodeType="nestedWorkflow">
+            </customRenderer>
+            <customRenderer
+                  class="gov.sandia.dart.workflow.editor.rendering.NestedWorkflowGARenderer"
+                  nodeType="remoteNestedWorkflow">
+            </customRenderer>
+            <customRenderer
+                  class="gov.sandia.dart.workflow.editor.rendering.NestedInternalWorkflowGARenderer"
+                  nodeType="nestedInternalWorkflow">
+            </customRenderer>
+            <customRenderer
+                  class="gov.sandia.dart.workflow.editor.rendering.RotaryOutputSwitchGARenderer"
+                  nodeType="rotaryOutputSwitch">
+            </customRenderer>
+            <customRenderer
+                  class="gov.sandia.dart.workflow.editor.rendering.RotaryInputSwitchGARenderer"
+                  nodeType="rotaryInputSwitch">
+            </customRenderer>
+            
         </extension>
         <extension
               point="gov.sandia.dart.workflow.editor.mouseAction">
@@ -262,8 +325,25 @@ null   <extension
                  nodeType="parameterFile"
                  property="fileName">
            </doubleClick>
+           <doubleClick
+                 customFeature="gov.sandia.dart.workflow.editor.features.OperateRotaryOutputSwitchFeature$Provider"
+                 nodeType="rotaryOutputSwitch"
+                 property="selector">
+           </doubleClick>
+           <doubleClick
+                 customFeature="gov.sandia.dart.workflow.editor.features.OperateRotaryInputSwitchFeature$Provider"
+                 nodeType="rotaryInputSwitch"
+                 property="selector">
+           </doubleClick>
+           <doubleClick
+                 customFeature="gov.sandia.dart.workflow.editor.features.AutoEditParameterFeatureProvider"
+                 nodeType="parameter"
+                 property="value">
+           </doubleClick>
+            
         </extension>
-    
+ 
+ 
     <extension
       id="gov.sandia.dart.workflow.editor.runLocation" 
       point="org.eclipse.core.resources.markers" 

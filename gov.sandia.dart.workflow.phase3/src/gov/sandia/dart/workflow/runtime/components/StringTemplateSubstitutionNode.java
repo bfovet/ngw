@@ -33,7 +33,7 @@ public class StringTemplateSubstitutionNode extends SAWCustomNode {
 		
 		// substitute every property/port name with its value
 		for (String propertyName : properties.keySet()) {
-			if (isTemplateLabel(propertyName))
+			if (isInternalProperty(propertyName))
 				continue;
 			String propertyValue = properties.get(propertyName);
 			if (propertyValue != null) {
@@ -65,6 +65,10 @@ public class StringTemplateSubstitutionNode extends SAWCustomNode {
 			runtime.log().debug("templateString port/property name DEPRECATED");
 		}		
 		return templateString;
+	}
+	
+	protected boolean isInternalProperty(String propertyName) {
+		return propertiesContains(reservedProperties, propertyName) || isTemplateLabel(propertyName);
 	}
 	
 	private boolean isTemplateLabel(String s) {

@@ -16,6 +16,7 @@ import org.eclipse.gef.KeyHandler;
 import org.eclipse.gef.KeyStroke;
 import org.eclipse.gef.editparts.ZoomManager;
 import org.eclipse.gef.ui.actions.ActionRegistry;
+import org.eclipse.gef.ui.palette.PaletteViewerProvider;
 import org.eclipse.graphiti.ui.editor.DefaultPaletteBehavior;
 import org.eclipse.graphiti.ui.editor.DefaultPersistencyBehavior;
 import org.eclipse.graphiti.ui.editor.DefaultRefreshBehavior;
@@ -24,9 +25,8 @@ import org.eclipse.graphiti.ui.editor.DiagramEditorContextMenuProvider;
 import org.eclipse.graphiti.ui.editor.IDiagramContainerUI;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.swt.SWT;
 
-class WorkflowDiagramBehavior extends DiagramBehavior {
+public class WorkflowDiagramBehavior extends DiagramBehavior {
 
 	public WorkflowDiagramBehavior(IDiagramContainerUI diagramContainer) {
 		super(diagramContainer);
@@ -46,10 +46,18 @@ class WorkflowDiagramBehavior extends DiagramBehavior {
 		};
 	}
 	
+	public PaletteViewerProvider getPaletteViewerProvider() {
+		return createPaletteViewerProvider();
+	}
+	
+	public void initialize() {
+		this.initDefaultBehaviors();
+	}
+
 	@Override
 	protected KeyHandler getCommonKeyHandler() {
 		KeyHandler handler = super.getCommonKeyHandler();
-		handler.put(KeyStroke.getPressed('d', SWT.NONE),
+		handler.put(KeyStroke.getPressed((char) 'd', 100, 0),
 				getDiagramContainer().getActionRegistry().getAction(DuplicateAction.ID));
 		return handler;
 	}
@@ -60,9 +68,10 @@ class WorkflowDiagramBehavior extends DiagramBehavior {
 		super.initActionRegistry(zoomManager);
 		IDiagramContainerUI diagramContainer = getDiagramContainer();
 		final ActionRegistry registry = diagramContainer.getActionRegistry();
+		List selectionActions = diagramContainer.getSelectionActions();
+
 		Action action = new DuplicateAction(getParentPart(), getConfigurationProvider());
 		registry.registerAction(action);
-		List selectionActions = diagramContainer.getSelectionActions();
 		selectionActions.add(DuplicateAction.ID);
 	}
 	

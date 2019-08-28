@@ -12,25 +12,7 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R">
       </key>
-   </extension>
-   
-      <extension
-         point="org.eclipse.ui.decorators">
-      <decorator
-            adaptable="false"
-            class="gov.sandia.dart.workflow.phase3.embedded.navigator.WorkflowRunDecorator"
-            id="gov.sandia.dart.workflow.phase3.embedded.workflowRunDecorator"
-            label="Workflow Run Decorator"
-            lightweight="true"
-            location="BOTTOM_RIGHT"
-            state="true">
-            <enablement>
-               <objectClass
-                     name="com.strikewire.snl.apc.projectexplorer.views.TreeObject">
-               </objectClass>
-            </enablement>
-          </decorator>
-   </extension>
+   </extension>     
    <extension
          point="org.eclipse.ui.menus">
 
@@ -287,5 +269,28 @@
             feature="gov.sandia.dart.workflow.phase3.embedded.ShowRuntimeDataFeature">
       </arcDoubleClick>
    </extension>
-  
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="gov.sandia.dart.workflow.phase3.embedded.preferences.EmbeddedWorkflowPreferenceInitializer">
+      </initializer>
+   </extension>
+   
+      <extension
+         point="org.eclipse.ui.decorators">
+      <decorator
+            adaptable="false"
+            class="gov.sandia.dart.workflow.phase3.embedded.navigator.WorkflowRunDecorator"
+            id="gov.sandia.dart.workflow.phase3.embedded.navigator.workflowRunDecorator"
+            label="Workflow Run Decorator"
+            lightweight="true"
+            location="BOTTOM_RIGHT"
+            state="true">
+            <enablement>
+               <objectClass
+                     name="com.strikewire.snl.apc.projectexplorer.views.TreeObject">
+               </objectClass>
+            </enablement>
+          </decorator>
+   </extension>
 </plugin>

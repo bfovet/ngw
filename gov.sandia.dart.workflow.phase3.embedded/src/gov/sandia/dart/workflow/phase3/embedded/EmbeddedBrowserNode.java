@@ -220,6 +220,6 @@ public class EmbeddedBrowserNode extends SAWCustomNode {
 	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo("instantiate browser"), new PropertyInfo("browser ID"), new PropertyInfo("URL"), new PropertyInfo("wait for event"), new PropertyInfo("expression")); }
 	@Override public List<InputPortInfo> getDefaultInputs() { return Arrays.asList(new InputPortInfo("x")); }
 	@Override public List<OutputPortInfo> getDefaultOutputs() { return Arrays.asList(new OutputPortInfo("f")); }
-	@Override public List<String> getCategories() { return Arrays.asList(NodeCategories.GUI); }
+	@Override public List<String> getCategories() { return Arrays.asList(NodeCategories.UI); }
 
 }

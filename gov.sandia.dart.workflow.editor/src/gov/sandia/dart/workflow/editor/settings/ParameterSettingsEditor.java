@@ -55,16 +55,18 @@ public class ParameterSettingsEditor extends AbstractSettingsEditor<WFNode> {
 		name.addModifyListener(new ModifyListener() {			
 			@Override
 			public void modifyText(ModifyEvent e) {
-				TransactionalEditingDomain domain = TransactionUtil.getEditingDomain(getNode());
-				domain.getCommandStack().execute(new RecordingCommand(domain) {
-					@Override
-					public void doExecute() {
-						WFNode node = getNode();
-						if (node != null && !Objects.equals(node.getName(), name.getText()))
+				final WFNode node = getNode();
+				if (node != null && !Objects.equals(node.getName(), name.getText())) {
+					TransactionalEditingDomain domain = TransactionUtil.getEditingDomain(getNode());
+					domain.getCommandStack().execute(new RecordingCommand(domain) {
+						@Override
+						public void doExecute() {
 							node.setName(name.getText());
-					}
-				});
-				setEditorTitle();
+						}
+
+					});
+					setEditorTitle();
+				}
 			}
 		});
 
@@ -74,15 +76,17 @@ public class ParameterSettingsEditor extends AbstractSettingsEditor<WFNode> {
 		type.addModifyListener(new ModifyListener() {			
 			@Override
 			public void modifyText(ModifyEvent e) {
-				final WFNode bo = getNode();
-				TransactionalEditingDomain domain = TransactionUtil.getEditingDomain(bo);
-				domain.getCommandStack().execute(new RecordingCommand(domain) {
-					@Override
-					public void doExecute() {
-						if (bo != null && !Objects.equals(ParameterUtils.getType(bo), type.getText()))
-							ParameterUtils.setType(bo, type.getText());
-					}
-				});
+				final WFNode node = getNode();
+				if (node != null && !Objects.equals(ParameterUtils.getType(node), type.getText())) {
+					TransactionalEditingDomain domain = TransactionUtil.getEditingDomain(getNode());
+					domain.getCommandStack().execute(new RecordingCommand(domain) {
+						@Override
+						public void doExecute() {
+							ParameterUtils.setType(node, type.getText());
+						}
+
+					});
+				}
 			}
 		});
 
@@ -92,15 +96,17 @@ public class ParameterSettingsEditor extends AbstractSettingsEditor<WFNode> {
 		value.addModifyListener(new ModifyListener() {			
 			@Override
 			public void modifyText(ModifyEvent e) {
-				TransactionalEditingDomain domain = TransactionUtil.getEditingDomain(getNode());
-				domain.getCommandStack().execute(new RecordingCommand(domain) {
-					@Override
-					public void doExecute() {
-						WFNode node = getNode();
-						if (node != null && !Objects.equals(ParameterUtils.getValue(node), value.getText()))
+				final WFNode node = getNode();
+				if (node != null && !Objects.equals(ParameterUtils.getValue(node), value.getText())) {
+					TransactionalEditingDomain domain = TransactionUtil.getEditingDomain(getNode());
+					domain.getCommandStack().execute(new RecordingCommand(domain) {
+						@Override
+						public void doExecute() {
 							ParameterUtils.setValue(node, value.getText());
-					}
-				});
+						}
+
+					});
+				}
 			}
 		});
 	}

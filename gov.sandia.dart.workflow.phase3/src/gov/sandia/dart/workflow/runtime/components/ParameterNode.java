@@ -18,19 +18,20 @@ import gov.sandia.dart.workflow.runtime.core.NodeCategories;
 import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
 import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
+import gov.sandia.dart.workflow.runtime.core.RuntimeParameter;
 import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
 import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
 
 public class ParameterNode extends SAWCustomNode {
 	@Override
 	public Map<String, Object> doExecute(Map<String, String> properties, WorkflowDefinition workflow, RuntimeData runtime) {	
-		Object value = runtime.getParameter(getName());
-		return Collections.singletonMap("f", value);		
+		RuntimeParameter value = runtime.getParameter(getName());
+		return Collections.singletonMap("f", value.getValue());		
 	}
 
 	@Override public List<OutputPortInfo> getDefaultOutputs() { return Collections.singletonList(new OutputPortInfo("f", "text")); }
 
 	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo("value")); }
 
-	@Override public List<String> getCategories() { return Arrays.asList(NodeCategories.WORKFLOW, "Sources"); }
+	@Override public List<String> getCategories() { return Arrays.asList(NodeCategories.WORKFLOW, NodeCategories.DATA_SOURCES); }
 }	

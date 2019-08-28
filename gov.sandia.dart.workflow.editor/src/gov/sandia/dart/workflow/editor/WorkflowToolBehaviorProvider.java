@@ -34,6 +34,7 @@ import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.palette.IPaletteCompartmentEntry;
+import org.eclipse.graphiti.platform.IDiagramBehavior;
 import org.eclipse.graphiti.platform.IDiagramContainer;
 import org.eclipse.graphiti.tb.ContextButtonEntry;
 import org.eclipse.graphiti.tb.ContextMenuEntry;
@@ -49,6 +50,7 @@ import gov.sandia.dart.workflow.domain.NamedObject;
 import gov.sandia.dart.workflow.domain.ResponseArc;
 import gov.sandia.dart.workflow.domain.WFArc;
 import gov.sandia.dart.workflow.domain.WFNode;
+import gov.sandia.dart.workflow.editor.features.AddSelectedNodeType;
 import gov.sandia.dart.workflow.editor.features.BringToFrontFeature;
 import gov.sandia.dart.workflow.editor.features.DuplicateNodeFeature;
 import gov.sandia.dart.workflow.editor.features.ICustomFeatureProvider;
@@ -83,6 +85,7 @@ public class WorkflowToolBehaviorProvider extends DefaultToolBehaviorProvider im
 			entries.add(item);
 		}
 
+		
 		if (pics.length == 1 && ! (pics[0] instanceof Diagram) ) {
 			ContextMenuEntry entry = new ContextMenuEntry(null, customContext);
 			entry.add(new ContextMenuEntry(new BringToFrontFeature(getFeatureProvider()), customContext));
@@ -92,6 +95,7 @@ public class WorkflowToolBehaviorProvider extends DefaultToolBehaviorProvider im
 		}
 		
 		if (pics.length == 1 && pics[0] instanceof Diagram) {			
+			entries.add(new ContextMenuEntry(new AddSelectedNodeType(getFeatureProvider()), customContext));
 			entries.add(new ContextMenuEntry(new ToggleConnectionAlphaFeature(getFeatureProvider()), customContext));
 		}
 
@@ -331,14 +335,14 @@ public class WorkflowToolBehaviorProvider extends DefaultToolBehaviorProvider im
 	public void nodeEntered(String name, String workflow) {
 		addExecutingNode(name, workflow);
 		// TODO Maybe need a DelayRunner here?
-		getDiagramTypeProvider().getDiagramBehavior().refresh();
+		refreshIfAppropriate();
 	}
 
 	@Override
 	public void nodeExited(String name, String workflow) {
 		removeExecutingNode(name, workflow);
 		clearStatusMessage(workflow);
-		getDiagramTypeProvider().getDiagramBehavior().refresh();
+		refreshIfAppropriate();
 	}
 	
 	@Override
@@ -347,27 +351,33 @@ public class WorkflowToolBehaviorProvider extends DefaultToolBehaviorProvider im
 		removeExecutingNode(name, workflow);
 		addAbortedNode(name, workflow, t);
 		clearStatusMessage(workflow);
-		getDiagramTypeProvider().getDiagramBehavior().refresh();
+		refreshIfAppropriate();
 	}
 	
 	@Override
 	public void workflowStopped(String workflow) {
 		// executingNodes.remove(workflow);
 		clearStatusMessage(workflow);
-		getDiagramTypeProvider().getDiagramBehavior().refresh();
+		refreshIfAppropriate();
 	}
 	
 	// TODO But somehow preserve state when doing "run from here" ?
 	@Override
 	public void workflowStarted(String workflow) {
 		clearExecutingNodes(workflow);
-		getDiagramTypeProvider().getDiagramBehavior().refresh();
+		refreshIfAppropriate();
+	}
+
+	private void refreshIfAppropriate() {
+		IDiagramBehavior diagramBehavior = getDiagramTypeProvider().getDiagramBehavior();
+		if (diagramBehavior instanceof WorkflowDiagramBehavior)
+			diagramBehavior.refresh();
 	}
 
 	@Override
 	public void status(String name, String workflow, String status) {
 		setStatusMessage(name, workflow, status);
-		getDiagramTypeProvider().getDiagramBehavior().refresh();
+		refreshIfAppropriate();
 	}
 
 	private void addExecutingNode(String name, String workflow) {

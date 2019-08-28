@@ -2,7 +2,7 @@ cd ${remote.dir}
 source /etc/bashrc
 
 echo submitting to the ${queue} queue
-sbatch -N ${num.nodes} --partition=${queue} --time=${job.hours}:${job.minutes}:00 -A ${account} execute.sh 2>dart.id.err | tee dart.id.out
+sbatch --quiet -N ${num.nodes} --partition=${queue} --time=${job.hours}:${job.minutes}:00 -A ${account} execute.sh 2>dart.id.err | tee dart.id.out
 execerr=$?
 suberr=$(cat dart.id.err)
 exitcode=0

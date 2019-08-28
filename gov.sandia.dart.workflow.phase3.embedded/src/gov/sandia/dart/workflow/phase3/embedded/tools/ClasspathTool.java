@@ -35,6 +35,7 @@ public class ClasspathTool {
 	
 	// Generate a UNIX script for running workflow.
 	public static String generateBashScript() throws IOException {		
+		String java = System.getProperty("java.home") + "/bin/java";
 		StringBuilder builder = new StringBuilder("#!/bin/sh\n\n");
 		builder.append("export APREPRO_PATH=").append(ApreproUtil.getApreproCommand()).append("\n");
 		// TODO System properties substitution
@@ -42,8 +43,9 @@ public class ClasspathTool {
 			getAllProperties(false).forEach(p-> builder.append("export ").append(p.getName()).append("=\"").append(p.getValue()).append("\"\n"));
 		builder.append("\nCP=");
 		builder.append(StringUtils.join(ClasspathTool.getClasspathEntries(), File.pathSeparatorChar));
-		builder.append("\n\n");		
-		builder.append("java \\\n");
+		builder.append("\n\n");
+		builder.append(java);
+		builder.append(" \\\n");
 		builder.append("  -XX:CICompilerCount=2 \\\n");
 		builder.append("  -XX:+ReduceSignalUsage \\\n");
 		builder.append("  -XX:+DisableAttachMechanism \\\n");
@@ -62,6 +64,8 @@ public class ClasspathTool {
 		
 	public static String generateBatchFile() throws IOException {		
 		StringBuilder builder = new StringBuilder("@echo off\r\n\r\n");
+		String java = System.getProperty("java.home") + "\\bin\\java.exe";
+
 		builder.append("set APREPRO_PATH=").append(ApreproUtil.getApreproCommand()).append("\r\n");
 		// TODO System properties substitution
 		EmbeddedExecutionEnvironmentVariables.getInstance().
@@ -69,7 +73,8 @@ public class ClasspathTool {
 		builder.append("\r\nset CP=");
 		builder.append(StringUtils.join(ClasspathTool.getClasspathEntries(), File.pathSeparatorChar));
 		builder.append("\r\n\r\n");		
-		builder.append("java ^\r\n");
+		builder.append(java);
+		builder.append(" ^\r\n");
 		builder.append("  -XX:CICompilerCount=2 ^\r\n"); 
 		builder.append("  -XX:+ReduceSignalUsage ^\r\n");
 		builder.append("  -XX:+DisableAttachMechanism ^\r\n"); 

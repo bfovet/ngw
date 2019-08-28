@@ -38,7 +38,7 @@ public class Persistor {
 	}
 	
 	private Map<String, Map<String, Datum>> inputs = new HashMap<>();
-	private Map<String, Object> parameters = new HashMap<>();
+	private Map<String, RuntimeParameter> parameters = new HashMap<>();
 	private Map<String, Object> responses = new HashMap<>();
 	
 	public void saveState() throws FileNotFoundException {
@@ -60,10 +60,13 @@ public class Persistor {
 
 			// Store runtime parameter values
 			xml.printAndIndent("<parameters>");
-			for (Map.Entry<String, Object> entry: getParameters().entrySet()) {
-				xml.printAndIndent("<parameter>");
-				xml.printIndentedAsElement("name", escapeXml(entry.getKey()));
-				xml.printIndentedAsElement("value", escapeXml(String.valueOf(entry.getValue())));		
+			for (RuntimeParameter p: getParameters().values()) {
+				xml.printAndIndent("<parameter version='2'>");
+				for (Map.Entry<String, Object> entry: p.getMetadata().entrySet()) {
+					xml.printAndIndent("<key name=\"" + escapeXml(entry.getKey()) + "\">");
+					xml.printIndentedAsElement("value", escapeXml(String.valueOf(entry.getValue())));	
+					xml.unindentAndPrint("</key>");
+				}
 				xml.unindentAndPrint("</parameter>");
 			}
 			xml.unindentAndPrint("</parameters>");
@@ -99,7 +102,7 @@ public class Persistor {
 		return inputs.keySet();
 	}
 
-	public Map<String, Object> getParameters() {
+	public Map<String, RuntimeParameter> getParameters() {
 		return parameters;
 	}
 
@@ -136,9 +139,21 @@ public class Persistor {
 			NodeList params = doc.getDocumentElement().getElementsByTagName("parameter");
 			for (int i=0; i<params.getLength(); i++) {
 				Element param = (Element) params.item(i);
-				String name = getChildText(param, "name");
-				String value = getChildText(param, "value");
-				setParameter(name, value);
+				if (!param.hasAttribute("version")) {
+					String name = getChildText(param, "name");
+					String value = getChildText(param, "value");
+					setParameter(name, value);
+				} else {
+					Map<String, Object> metadata = new HashMap<>();
+					NodeList keys = param.getElementsByTagName("key");
+					for (int j=0; j<keys.getLength(); j++) {
+						Element key = (Element) keys.item(j);
+						String name = key.getAttribute("name");
+						String value = getChildText(key, "value");
+						metadata.put(name, value);
+					}
+					setParameter(metadata);
+				}
 			}
 			
 			NodeList respons = doc.getDocumentElement().getElementsByTagName("response");
@@ -154,8 +169,14 @@ public class Persistor {
 		responses.put(name, value);
 	}
 
+	// The old ("version 1") persistor didn't actually preserve whether a parameter was global.
 	public void setParameter(String name, String value) {
-		parameters.put(name,  value);
+		parameters.put(name,  new RuntimeParameter(name, value, "default", false, true));
+	}
+	
+	public void setParameter(Map<String, Object> metadata) {
+		String name = (String) metadata.get(RuntimeParameter.NAME);
+		parameters.put(name, new RuntimeParameter(metadata));
 	}
 
 	public void putInput(String name, String port, String type, Object value) {
@@ -188,7 +209,7 @@ public class Persistor {
 			docBuilder.setErrorHandler(new ThrowingErrorHandler());
 			doc = docBuilder.parse(source);  			
 		} catch (Exception e) {
-			throw new SAWWorkflowException("Error parsing IWF file", e);
+			throw new SAWWorkflowException("Error parsing state file", e);
 		} 
 		return doc;
 	}	

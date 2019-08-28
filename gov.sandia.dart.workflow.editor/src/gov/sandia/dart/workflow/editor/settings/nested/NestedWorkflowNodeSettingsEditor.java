@@ -171,9 +171,6 @@ public class NestedWorkflowNodeSettingsEditor extends WFNodeSettingsEditor {
 		domain.getCommandStack().execute(new RecordingCommand(domain) {
 			@Override
 			public void doExecute() {				
-				//node.get().getConductors().remove(c);				
-				//EList<EObject> contents = NOWPSettingsEditorUtils.getDiagramEditor(node.get()).getDiagramTypeProvider().getDiagram().eResource().getContents();
-				//contents.remove(c);			
 				java.util.List<EObject> objectsToDelete = new ArrayList<>();
 				objectsToDelete.add(c);
 				objectsToDelete.addAll(c.getProperties());

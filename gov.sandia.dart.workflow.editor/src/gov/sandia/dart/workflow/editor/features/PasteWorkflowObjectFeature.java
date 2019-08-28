@@ -28,6 +28,7 @@ import gov.sandia.dart.workflow.domain.ResponseArc;
 import gov.sandia.dart.workflow.domain.WFArc;
 import gov.sandia.dart.workflow.domain.WFNode;
 import gov.sandia.dart.workflow.editor.configuration.NodeType;
+import gov.sandia.dart.workflow.editor.settings.WFArcSettingsEditor;
 import gov.sandia.dart.workflow.util.PropertyUtils;
 
 public class PasteWorkflowObjectFeature extends AbstractPasteFeature {
@@ -38,7 +39,6 @@ public class PasteWorkflowObjectFeature extends AbstractPasteFeature {
 
 	@Override
 	public void paste(IPasteContext context) {	
-		// Should be just one WFNode.
 		Object[] objects = getFromClipboard();
 		
 		int[] ul = findUpperLeftCorner(objects);
@@ -66,6 +66,8 @@ public class PasteWorkflowObjectFeature extends AbstractPasteFeature {
 				CreateContext cc = getCreateContext(context, pe, ul);
 				Note note = (Note) createFeature.create(cc)[0];
 				note.setText(oldObject.getText());
+				note.setColor(oldObject.getColor());
+				note.setDrawBorderAndBackground(oldObject.isDrawBorderAndBackground());
 
 			} else if (bo instanceof Image) {
 				Image oldObject = (Image) bo;
@@ -124,8 +126,10 @@ public class PasteWorkflowObjectFeature extends AbstractPasteFeature {
 								new AddConnectionContext(sourceAnchor, targetAnchor);
 						addContext.setNewObject(newArc);
 						addContext.putProperty(AddWFArcFeature.OLD_CONNECTION, oldConnection);
-						getFeatureProvider().addIfPossible(addContext);
-					}					
+						PictogramElement pe = getFeatureProvider().addIfPossible(addContext);
+						if (pe != null) {
+							WFArcSettingsEditor.updateConnectionAppearance(getDiagram(), getFeatureProvider(), newArc);
+						}					}					
 				}
 				for (ResponseArc oldArc: ooPort.getResponseArcs()) {
 					// If other end is on a node in this set					
@@ -156,7 +160,10 @@ public class PasteWorkflowObjectFeature extends AbstractPasteFeature {
 								new AddConnectionContext(sourceAnchor, targetAnchor);
 						addContext.setNewObject(newArc);
 						addContext.putProperty(AddWFArcFeature.OLD_CONNECTION, oldConnection);
-						getFeatureProvider().addIfPossible(addContext);
+						PictogramElement pe = getFeatureProvider().addIfPossible(addContext);
+						if (pe != null) {
+							WFArcSettingsEditor.updateConnectionAppearance(getDiagram(), getFeatureProvider(), newArc);
+						}
 					}					
 				}
 			}

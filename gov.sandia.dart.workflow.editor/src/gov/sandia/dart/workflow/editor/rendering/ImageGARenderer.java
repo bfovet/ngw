@@ -70,21 +70,32 @@ public class ImageGARenderer extends AbstractGARenderer implements IGraphicsAlgo
 			// TODO We really should be caching these.
 			Image srcImage = imageDescriptor.createImage();
 			try {
-				g.drawImage(srcImage, r.x, r.y);
+				if (image.isZoomToFit())
+					g.drawImage(srcImage, getBounds(srcImage), r);
+				else
+					g.drawImage(srcImage, r.x, r.y);
 			} finally {
 				srcImage.dispose();
 			}
 		}
 	}
 
+	private Rectangle getBounds(Image srcImage) {
+		return new Rectangle(srcImage.getBounds());
+	}
+	
 	@Override
 	protected void outlineShape(Graphics g) {	
-		Rectangle r = getInnerBounds();
-		int[] poly = { r.x, r.y, r.x + r.width, r.y, r.x + r.width, r.y + r.height, r.x, r.y + r.height, r.x, r.y, r.x, r.y, r.x, r.y, r.x, r.y };
-		g.setForegroundColor(ColorConstants.lightGray);
-		g.setLineStyle(Graphics.LINE_SOLID);
-		g.setLineWidth(1);
-		g.drawPolygon(poly);
+		PictogramElement pe = rc.getPlatformGraphicsAlgorithm().getPictogramElement();
+		gov.sandia.dart.workflow.domain.Image image = (gov.sandia.dart.workflow.domain.Image) fp.getBusinessObjectForPictogramElement(pe);
+		if (image.isDrawBorder()) {
+			Rectangle r = getInnerBounds();
+			int[] poly = { r.x, r.y, r.x + r.width, r.y, r.x + r.width, r.y + r.height, r.x, r.y + r.height, r.x, r.y, r.x, r.y, r.x, r.y, r.x, r.y };
+			g.setForegroundColor(ColorConstants.lightGray);
+			g.setLineStyle(Graphics.LINE_SOLID);
+			g.setLineWidth(1);
+			g.drawPolygon(poly);
+		}
 	}
 	
 	private IFile getWorkflowFile(gov.sandia.dart.workflow.domain.Image image) {

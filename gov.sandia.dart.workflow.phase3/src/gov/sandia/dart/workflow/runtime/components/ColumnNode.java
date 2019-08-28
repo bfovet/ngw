@@ -45,7 +45,7 @@ public class ColumnNode extends SAWCustomNode {
 
 			String result = extractColumn(data, headerLines, columnIndex, separator);
 			
-			return Collections.singletonMap("stdout", result.getBytes());
+			return Collections.singletonMap("stdout", result);
 			
 		} catch (IOException e) {
 			throw new SAWWorkflowException("Problem while reading data", e);

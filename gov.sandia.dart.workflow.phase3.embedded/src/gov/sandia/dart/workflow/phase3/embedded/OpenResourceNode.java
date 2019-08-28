@@ -79,5 +79,5 @@ public class OpenResourceNode extends SAWCustomNode {
 	@Override public List<OutputPortInfo> getDefaultOutputs() { return Collections.singletonList(new OutputPortInfo("f")); }
 	@Override public List<InputPortInfo> getDefaultInputs() { return Collections.singletonList(new InputPortInfo("filename")); }
 	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo("filename")); }
-	@Override public List<String> getCategories() { return Arrays.asList(NodeCategories.GUI); }
+	@Override public List<String> getCategories() { return Arrays.asList(NodeCategories.UI); }
 }

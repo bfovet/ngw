@@ -14,6 +14,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
 
 /**
@@ -49,8 +52,11 @@ public class PythonScriptNode extends AbstractExternalScriptNode {
 
 	@Override
 	protected
-	void addInputPortToScript(PrintWriter scriptStream, String portName, String fileName) throws IOException {
-		scriptStream.println(portName + " = \'" + fileName + "\'");		
+	void addInputPortToScript(PrintWriter scriptStream, String name, String value) throws IOException {
+		if (NumberUtils.isNumber(value))
+			scriptStream.println(name + " = " + value);		
+		else
+			scriptStream.println(name + " = \'" + value + "\'");				
 	}
 
 	@Override
@@ -63,7 +69,10 @@ public class PythonScriptNode extends AbstractExternalScriptNode {
 	@Override
 	protected
 	void addPropertyToScript(PrintWriter scriptStream, String name, String value) throws IOException {
-		scriptStream.println(name + " = \'" + value + "\'");				
+		if (StringUtils.isNumeric(value))
+			scriptStream.println(name + " = " + value);		
+		else
+			scriptStream.println(name + " = \'" + value + "\'");				
 	}
 
 	@Override

@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -23,13 +24,13 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import gov.sandia.dart.workflow.runtime.components.AbstractExternalNode;
-import gov.sandia.dart.workflow.runtime.components.NestedWorkflowNode;
+import gov.sandia.dart.workflow.runtime.components.AbstractNestedWorkflowNode;
+import gov.sandia.dart.workflow.runtime.components.nested.NestedWorkflowNode;
 import gov.sandia.dart.workflow.runtime.core.LoggingWorkflowMonitor;
 import gov.sandia.dart.workflow.runtime.core.NodeCategories;
 import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
 import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
-import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
 import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
 import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
 import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition.Connection;
@@ -37,24 +38,31 @@ import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition.InputPort;
 import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition.Property;
 import gov.sandia.dart.workflow.runtime.core.WorkflowProcess;
 
-public class RemoteNestedWorkflowNode extends SAWCustomNode {
+public class RemoteNestedWorkflowNode extends AbstractNestedWorkflowNode {
 
 	private static final String WFLIB = "wflib";
 	private static final String FILES_TO_UPLOAD = "Other files/directories";
+	public static final String TYPE = "remoteNestedWorkflow";
 
 	@Override
 	protected Map<String, Object> doExecute(Map<String, String> properties, WorkflowDefinition workflow,
 			RuntimeData runtime) {
 
 		// Fetch parameters
-		String dstHost = getStringFromPortOrProperty(runtime, properties, RemoteCommandNode.HOSTNAME);
+		String dstHost = getStringFromPortOrProperty(runtime, properties, RemoteCommandNode.HOSTNAME).trim();
 		String dstUser = getOptionalStringFromPortOrProperty(runtime, properties, RemoteCommandNode.USERNAME);
+		if (dstUser != null)
+			dstUser = dstUser.trim();
 		if (StringUtils.isEmpty(dstUser))
 			dstUser = System.getProperty("user.name");
 		String jmpHost = getOptionalStringFromPortOrProperty(runtime, properties, RemoteCommandNode.JMPHOST);
+		if (jmpHost != null)
+			jmpHost = jmpHost.trim();
 		String jmpUser = getOptionalStringFromPortOrProperty(runtime, properties, RemoteCommandNode.JMPUSER);
+		if (jmpUser != null)
+			jmpUser = jmpUser.trim();
 
-		String path = getStringFromPortOrProperty(runtime, properties, RemoteCommandNode.REMOTE_PATH);
+		String path = getStringFromPortOrProperty(runtime, properties, RemoteCommandNode.REMOTE_PATH).trim();
 		String wflib = getOptionalStringFromPortOrProperty(runtime, properties, WFLIB);
 		ByteArrayOutputStream errStream = new ByteArrayOutputStream();
 		StringBuilder stdout = new StringBuilder();
@@ -65,17 +73,22 @@ public class RemoteNestedWorkflowNode extends SAWCustomNode {
 		// TODO Can we assume -p ?
 		log(runtime, "Creating remote directory '" + path + "' on " + dstHost);
 		try {
-			String out = remote.execute("mkdir -p " + path, errStream, runtime);
+			ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+			int exitCode = remote.execute("mkdir -p " + path, outStream, errStream, runtime);
 			remote.setPath(path);
-			stdout.append(out);
+			stdout.append(outStream.toString());
 			stderr.append(errStream.toString());
 			errStream.reset();
+			if (exitCode != 0)
+				throw new SAWWorkflowException("Error creating remote directory '" + path + "' in node " + getName() + ": " + errStream.toString());
+		} catch (SAWWorkflowException t) {
+			throw t;			
 		} catch (Exception e) {
-			throw new SAWWorkflowException("Error creating remote directory '" + path + "' in node " + getName(), e);
+			throw new SAWWorkflowException("Error creating remote directory '" + path + "' in node " + getName() + ": " + errStream.toString());
 		}
 
 
-		// 2) Transfer input files to remote
+		// Transfer input files to remote
 		try {
 			log(runtime, "Uploading workflow file '" + workflowFile.getName() + "'");
 			boolean result = remote.upload(workflowFile, workflowFile.getName(), runtime);
@@ -92,7 +105,7 @@ public class RemoteNestedWorkflowNode extends SAWCustomNode {
 		stderr.append(errStream.toString());
 		errStream.reset();		
 		
-		// 3) Write remote properties file 
+		// Write remote properties file 
 		try {
 			log(runtime, "Writing remote properties file '" + getParamsFileName() + "'");
 			File paramsFile = stageParametersFile(runtime, workflow, properties, corrections);
@@ -103,17 +116,39 @@ public class RemoteNestedWorkflowNode extends SAWCustomNode {
 		} catch (IOException e) {
 			throw new SAWWorkflowException("Error creating remote properties file '" + getParamsFileName() + "' in node " + getName(), e);
 		}
+		
+		// Write remote properties file 
+		File globalsFile = stageGlobalsFile(runtime, properties);
+		try {
+			log(runtime, "Writing remote global parameters file '" + globalsFile.getName() + "'");
 
-		// 4) Run remote command using Dakota property/response protocol
+			boolean result = remote.upload(globalsFile, globalsFile.getName(), runtime);
+			if (!result)
+				throw new SAWWorkflowException("Failed uploading params file '" + globalsFile.getName() + "' in node " + getName());
+			
+		} catch (IOException e) {
+			throw new SAWWorkflowException("Error creating remote globals parameters file '" + globalsFile.getName() + "' in node " + getName(), e);
+		}
+
+
+		// Run remote command using Dakota property/response protocol
 		log(runtime, "Executing remote workflow '" + workflowFile.getName() + "'");
 		final String commandLine = makeCommandLine(workflowFile.getName(), wflib);
+		log(runtime, "  " + commandLine);
+
 		ExecutorService executor = Executors.newFixedThreadPool(2);
 		Future<?> rnwf = executor.submit( () -> {
 			try {
-				String output = remote.execute(commandLine, errStream, runtime);
-				stdout.append(output);
+				ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+				int exitCode = remote.execute(commandLine, outStream, errStream, runtime);
+				stdout.append(outStream.toString());
 				stderr.append(errStream.toString());
 				errStream.reset();
+				if (exitCode != 0)
+					throw new SAWWorkflowException(String.format("%s: Remote workflow exited with status %d: '%s'", getName(), exitCode, stderr.toString()));
+			} catch (SAWWorkflowException t) {
+				throw t;
+				
 			} catch (Throwable t) {
 				throw new SAWWorkflowException("Error executing remote workflow in node " + getName(), t);
 			}
@@ -160,8 +195,28 @@ public class RemoteNestedWorkflowNode extends SAWCustomNode {
 		}
 
 		
+		// Retrieve remote log
+		try {
+			log(runtime, "Retrieving remote workflow log '" + WorkflowProcess.WORKFLOW_ENGINE_LOG + "'");
+			File localLog;
+			if (shouldCreateComponentWorkDir(properties)) 
+				localLog = new File(getComponentWorkDir(runtime, properties), WorkflowProcess.WORKFLOW_ENGINE_LOG);
+			else
+				localLog = new File(runtime.getWorkDirectory(), getName() + "." + WorkflowProcess.WORKFLOW_ENGINE_LOG);
+			System.err.println("downloading remote log to " + localLog.getAbsolutePath());
+			boolean result = remote.download(localLog, WorkflowProcess.WORKFLOW_ENGINE_LOG, runtime);		
+			if (!result)
+				throw new SAWWorkflowException("Failed downloading workflow log '" + WorkflowProcess.WORKFLOW_ENGINE_LOG + "' in node " + getName());
 
-		// 5) Retrieve remote response file.
+			log(runtime, "Checking remote workflow status in node " + getName());
+			if (!FileUtils.readFileToString(localLog, Charset.defaultCharset()).contains(WorkflowProcess.SUCCESS))
+				throw new SAWWorkflowException("Remote workflow did not successfully complete in node " + getName());	
+		} catch (IOException e) {
+			throw new SAWWorkflowException("Error downloading workflow log '" + WorkflowProcess.WORKFLOW_ENGINE_LOG + "' in node " + getName(), e);
+
+		}
+		
+		// Retrieve remote response file.
 		String responseFileName = getResponseFileName();	
 		log(runtime, "Downloading response file '" + responseFileName + "'");
 
@@ -174,22 +229,6 @@ public class RemoteNestedWorkflowNode extends SAWCustomNode {
 		} catch (IOException e) {
 			throw new SAWWorkflowException("Error downloading response file in node " + getName(), e);
 		
-		}
-		// Retrieve remote log
-		try {
-			log(runtime, "Retrieving remote workflow log '" + WorkflowProcess.WORKFLOW_ENGINE_LOG + "'");
-			File localLog = new File(getComponentWorkDir(runtime, properties), WorkflowProcess.WORKFLOW_ENGINE_LOG);
-			System.err.println("downloading remote log to " + localLog.getAbsolutePath());
-			boolean result = remote.download(localLog, WorkflowProcess.WORKFLOW_ENGINE_LOG, runtime);		
-			if (!result)
-				throw new SAWWorkflowException("Failed downloading workflow log '" + WorkflowProcess.WORKFLOW_ENGINE_LOG + "' in node " + getName());
-
-			log(runtime, "Checking remote workflow status in node " + getName());
-			if (!FileUtils.readFileToString(localLog).contains(WorkflowProcess.SUCCESS))
-				throw new SAWWorkflowException("Remote workflow did not successfully complete in node " + getName());	
-		} catch (IOException e) {
-			throw new SAWWorkflowException("Error downloading workflow log '" + WorkflowProcess.WORKFLOW_ENGINE_LOG + "' in node " + getName(), e);
-
 		}
 
 		// Create node outputs	
@@ -205,22 +244,28 @@ public class RemoteNestedWorkflowNode extends SAWCustomNode {
 			Map<String, Object> responses, ByteArrayOutputStream errStream) {
 		for (String name: responses.keySet()) {
 			try {
-				String response = String.valueOf(responses.get(name));
-				if (checkFileExists(runtime, remote, response)) {
-					String filename = new File(response).getName();
-					log(runtime, "Downloading file '" + filename + "' in node " + getName());
-					File localFile = new File(getComponentWorkDir(runtime, properties), filename);
-					String originalPath = remote.getPath();
-					try {
-						remote.setPath("");
-						if (!remote.download(localFile, response, runtime)) {
-							throw new SAWWorkflowException(
-									"Failed to download '" + filename + "' in node " + getName());
-						} 
-					} finally {
-						remote.setPath(originalPath);
+				List<String> files = new ArrayList<>();
+				String[] tokens = remoteGlob(runtime, remote, String.valueOf(responses.get(name)));
+				for (String response: tokens) {
+					if (checkFileExists(runtime, remote, response)) {
+						String filename = new File(response).getName();
+						log(runtime, "Downloading file '" + filename + "' in node " + getName());
+						File localFile = new File(getComponentWorkDir(runtime, properties), filename);
+						String originalPath = remote.getPath();
+						try {
+							remote.setPath("");
+							if (!remote.download(localFile, response, runtime)) {
+								throw new SAWWorkflowException(
+										"Failed to download '" + filename + "' in node " + getName());
+							} 
+						} finally {
+							remote.setPath(originalPath);
+						}
+						files.add(localFile.getAbsolutePath());
 					}
-					responses.put(name, localFile.getAbsolutePath());
+				}
+				if (!files.isEmpty()) {
+					responses.put(name, (String[]) files.toArray(new String[files.size()]));
 				}
 			} catch (IOException e) {
 				throw new SAWWorkflowException("Error downloading output files in node " + getName(), e);	
@@ -228,10 +273,30 @@ public class RemoteNestedWorkflowNode extends SAWCustomNode {
 		}		
 	}
 
+	private String[] remoteGlob(RuntimeData runtime, Remote remote, String response) throws IOException {
+		if (response.indexOf('*') != -1 || response.indexOf('?') != -1) {
+			String command = "shopt -s nullglob; list=(" + response + "); echo \"${list[@]}\"";
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			ByteArrayOutputStream err = new ByteArrayOutputStream();
+
+			int code = remote.execute(command, out, err, runtime);
+			if (code != 0) {
+				throw new IOException("Error resolving remote filenames: " + err.toString());
+			}
+			response = out.toString();
+		}
+		return response.split("\\s+", 0);
+	}
+
 	private boolean checkFileExists(RuntimeData runtime, Remote remote, String response) throws IOException {
 		String command = "if [ -f '" + response + "' ]; then echo true; else echo false; fi";
-		String out = remote.execute(command, null, runtime);
-		return "true".equals(String.valueOf(out).trim());
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		ByteArrayOutputStream err = new ByteArrayOutputStream();
+		int code = remote.execute(command, out, err, runtime);
+		if (code != 0) {
+			throw new IOException("Error checking for remote file: " + err.toString());
+		}
+		return "true".equals(String.valueOf(out.toString()).trim());
 	}
 
 	private void uploadFilesToRemote(Map<String, String> properties, RuntimeData runtime, WorkflowDefinition workflow, Remote remote, Map<String, String> corrections, OutputStream errStream) {
@@ -247,7 +312,7 @@ public class RemoteNestedWorkflowNode extends SAWCustomNode {
 				Connection connection = inputPort.connection;
 				Property notALocalFile = connection.properties.get(NOT_A_LOCAL_PATH);
 				if (notALocalFile != null && "true".equals(notALocalFile.value)) {
-					log(runtime, "Not uploading '" + probe.getName() + "' due to NOT_A_LOCAL_FILE flag");
+					log(runtime, "Not uploading '" + probe.getName() + "' due to notALocalPath flag");
 				} else {
 					uploadManifest.add(probe);
 					corrections.put(name, probe.getName());
@@ -294,10 +359,14 @@ public class RemoteNestedWorkflowNode extends SAWCustomNode {
 	private void uploadDirectory(Remote remote, File dir, RuntimeData runtime, OutputStream errStream) throws IOException {
 		String originalPath = remote.getPath();
 		log(runtime, "Creating directory '" + dir.getName() + "'");		
-		String out = remote.execute("mkdir -p " + dir.getName(), errStream, runtime);
+		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+		int exitCode = remote.execute("mkdir -p " + dir.getName(), outStream, errStream, runtime);
+		if (exitCode != 0) {
+			throw new SAWWorkflowException("Error making remote directory '" + dir.getName() + "' in node " + getName());
+		}
 		remote.setPath(new File(originalPath, dir.getName()).getPath());
 
-		log(runtime, out);
+		log(runtime, outStream.toString());
 		for (File child: dir.listFiles()) {
 			if (child.isFile()) {
 				log(runtime, "Uploading '" + child.getName() + "'");
@@ -316,7 +385,7 @@ public class RemoteNestedWorkflowNode extends SAWCustomNode {
 		runtime.status(this, status);
 	}
 
-	private Remote connect(RuntimeData runtime, String dstHost, String dstUser, String jmpHost, String jmpUser) {
+	private Remote connect(RuntimeData runtime, String dstHost, String dstUser, String jmpHost, String jmpUser) {		
 		Remote remote = new Remote(dstHost, dstUser, jmpHost, jmpUser);
 		try {
 			if (StringUtils.isNoneEmpty(jmpHost, jmpUser)) {
@@ -324,7 +393,7 @@ public class RemoteNestedWorkflowNode extends SAWCustomNode {
 			} else {
 				runtime.log().debug("Connecting to {0}@{1}\n", dstUser, dstHost, jmpUser, jmpHost);
 			}
-			remote.connect();
+			remote.connect(runtime.log());
 		} catch (IOException e) {
 			throw new SAWWorkflowException("Can't connect to host " + dstHost + " in node " + getName(), e);
 		}
@@ -338,7 +407,7 @@ public class RemoteNestedWorkflowNode extends SAWCustomNode {
 	
 	protected File getSubWorkflowFile(Map<String, String> properties, RuntimeData runtime)
 	{
-		String filename = getStringFromPortOrProperty(runtime, properties, NestedWorkflowNode.FILENAME);
+		String filename = getStringFromPortOrProperty(runtime, properties, NestedWorkflowNode.FILENAME).trim();
 		File subworkflowFile = new File(filename);
 		if (!subworkflowFile.isAbsolute())
 		{
@@ -373,7 +442,7 @@ public class RemoteNestedWorkflowNode extends SAWCustomNode {
 		// TODO Search around for WFLIB?
 		if (StringUtils.isEmpty(wflib))
 			wflib = "/projects/dart/wflib/dev";
-		return wflib + "/run.sh -k " + workflowFileName + " params.in responses.out";
+		return wflib + "/run.sh -g globals.in -k " + workflowFileName + " params.in responses.out";
 	}
 
 	private File stageParametersFile(RuntimeData runtime, WorkflowDefinition workflow, Map<String, String> properties, Map<String, String> corrections) {
@@ -382,7 +451,7 @@ public class RemoteNestedWorkflowNode extends SAWCustomNode {
 		Collection<String> inputNames = runtime.getInputNames(getName());
 		Collection<String> outputNames = new HashSet<>(workflow.getNode(getName()).outputs.keySet());
 		getDefaultOutputs().forEach(o -> outputNames.remove(o.getName()));
-		Collection<String> propertyNames = properties.keySet();
+		Collection<String> propertyNames = new HashSet<>(properties.keySet());
 		getDefaultProperties().forEach(p -> propertyNames.remove(p.getName()));
 		getReservedProperties().forEach(p -> propertyNames.remove(p.getName()));
 		inputNames.stream().filter(i -> isConnectedInput(i, workflow)).forEach(i -> propertyNames.remove(i));
@@ -403,7 +472,8 @@ public class RemoteNestedWorkflowNode extends SAWCustomNode {
 			for (String outputName: outputNames) {
 				writer.println("1 ASV_1:" + outputName);
 			}
-
+			writer.println(runtime.getSampleId() + " eval_id");
+			
 		} catch (IOException e) {
 			throw new SAWWorkflowException("Error staging parameters file for remote workflow node: " + getName(), e);
 		}
@@ -419,6 +489,7 @@ public class RemoteNestedWorkflowNode extends SAWCustomNode {
 	private String getParamsFileName() {
 		return "params.in";
 	}
+	
 
 	@Override
 	public List<PropertyInfo> getDefaultProperties() {
@@ -430,7 +501,8 @@ public class RemoteNestedWorkflowNode extends SAWCustomNode {
 				new PropertyInfo(RemoteCommandNode.JMPUSER, "default"),
 				new PropertyInfo(RemoteCommandNode.REMOTE_PATH, "default"),
 				new PropertyInfo("wflib", "default"),
-				new PropertyInfo(FILES_TO_UPLOAD, "multitext")
+				new PropertyInfo(FILES_TO_UPLOAD, "multitext"),
+				new PropertyInfo(PRIVATE_WORK_DIR, "boolean", "true")
 				);				
 	}
 	

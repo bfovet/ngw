@@ -24,12 +24,12 @@ public class DakotaResultsFile {
 				// This is the Dakota-defined  protocol for handling sample evaluation errors. If the
 				// results file starts with "fail", then the sample fails and the rest of the file is ignored.
 				writer.println("FAIL");
-				throw new SAWWorkflowException(String.format("No responses computed in evaluation %s so cannot return to Dakota", sampleId));
+				throw new SAWWorkflowException(String.format("No responses computed in evaluation %s so cannot return to caller", sampleId));
 			} else {
 				for (String name : responseNames) {
 					if (results.get(name) == null) {
 						writer.println("FAIL");
-						throw new SAWWorkflowException(String.format("Response named '%s' not found; evaluation %s cannot return to Dakota", name, sampleId));
+						throw new SAWWorkflowException(String.format("Response named '%s' not found; evaluation %s cannot return to caller", name, sampleId));
 					}
 				}
 				for (String name : responseNames) {

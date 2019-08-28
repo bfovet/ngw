@@ -17,9 +17,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 import gov.sandia.dart.workflow.runtime.components.AcosNode;
 import gov.sandia.dart.workflow.runtime.components.AddNode;
@@ -29,7 +30,6 @@ import gov.sandia.dart.workflow.runtime.components.AsinNode;
 import gov.sandia.dart.workflow.runtime.components.AtanNode;
 import gov.sandia.dart.workflow.runtime.components.ColumnNode;
 import gov.sandia.dart.workflow.runtime.components.CompareNode;
-import gov.sandia.dart.workflow.runtime.components.ConditionalWorkflowConductor;
 import gov.sandia.dart.workflow.runtime.components.ConstantNode;
 import gov.sandia.dart.workflow.runtime.components.CosNode;
 import gov.sandia.dart.workflow.runtime.components.DecrementNode;
@@ -43,9 +43,10 @@ import gov.sandia.dart.workflow.runtime.components.FailNode;
 import gov.sandia.dart.workflow.runtime.components.FileNode;
 import gov.sandia.dart.workflow.runtime.components.FolderNode;
 import gov.sandia.dart.workflow.runtime.components.ForLoopNode;
+import gov.sandia.dart.workflow.runtime.components.GetColumnsNode;
 import gov.sandia.dart.workflow.runtime.components.GnuplotNode;
 import gov.sandia.dart.workflow.runtime.components.IncrementNode;
-import gov.sandia.dart.workflow.runtime.components.ListWorkflowConductor;
+import gov.sandia.dart.workflow.runtime.components.IntNode;
 import gov.sandia.dart.workflow.runtime.components.LnNode;
 import gov.sandia.dart.workflow.runtime.components.LogNode;
 import gov.sandia.dart.workflow.runtime.components.MaxNode;
@@ -54,8 +55,6 @@ import gov.sandia.dart.workflow.runtime.components.MinNode;
 import gov.sandia.dart.workflow.runtime.components.MultiSwitchNode;
 import gov.sandia.dart.workflow.runtime.components.MultiplyNode;
 import gov.sandia.dart.workflow.runtime.components.NegateNode;
-import gov.sandia.dart.workflow.runtime.components.NestedInternalWorkflowNode;
-import gov.sandia.dart.workflow.runtime.components.NestedWorkflowNode;
 import gov.sandia.dart.workflow.runtime.components.OrNode;
 import gov.sandia.dart.workflow.runtime.components.ParameterFileNode;
 import gov.sandia.dart.workflow.runtime.components.ParameterNode;
@@ -65,11 +64,9 @@ import gov.sandia.dart.workflow.runtime.components.PrintNode;
 import gov.sandia.dart.workflow.runtime.components.RandomNode;
 import gov.sandia.dart.workflow.runtime.components.RegexNode;
 import gov.sandia.dart.workflow.runtime.components.RejoinCheckpointNode;
-import gov.sandia.dart.workflow.runtime.components.RepeatWorkflowConductor;
 import gov.sandia.dart.workflow.runtime.components.ScriptNode;
 import gov.sandia.dart.workflow.runtime.components.SetCheckpointNode;
 import gov.sandia.dart.workflow.runtime.components.SignumNode;
-import gov.sandia.dart.workflow.runtime.components.SimpleWorkflowConductor;
 import gov.sandia.dart.workflow.runtime.components.SinNode;
 import gov.sandia.dart.workflow.runtime.components.SleepNode;
 import gov.sandia.dart.workflow.runtime.components.SqrtNode;
@@ -83,12 +80,18 @@ import gov.sandia.dart.workflow.runtime.components.StringTemplateSubstitutionNod
 import gov.sandia.dart.workflow.runtime.components.SubstringNode;
 import gov.sandia.dart.workflow.runtime.components.SubtractNode;
 import gov.sandia.dart.workflow.runtime.components.SumNode;
-import gov.sandia.dart.workflow.runtime.components.SweepWorkflowConductor;
 import gov.sandia.dart.workflow.runtime.components.TanNode;
-import gov.sandia.dart.workflow.runtime.components.WorkflowConductor;
 import gov.sandia.dart.workflow.runtime.components.aprepro.ApreproNode;
 import gov.sandia.dart.workflow.runtime.components.cubit.CubitComponentNode;
 import gov.sandia.dart.workflow.runtime.components.localsubmit.LocalQueueSubmit;
+import gov.sandia.dart.workflow.runtime.components.nested.ConditionalWorkflowConductor;
+import gov.sandia.dart.workflow.runtime.components.nested.ListWorkflowConductor;
+import gov.sandia.dart.workflow.runtime.components.nested.NestedInternalWorkflowNode;
+import gov.sandia.dart.workflow.runtime.components.nested.NestedWorkflowNode;
+import gov.sandia.dart.workflow.runtime.components.nested.RepeatWorkflowConductor;
+import gov.sandia.dart.workflow.runtime.components.nested.SimpleWorkflowConductor;
+import gov.sandia.dart.workflow.runtime.components.nested.SweepWorkflowConductor;
+import gov.sandia.dart.workflow.runtime.components.nested.WorkflowConductor;
 import gov.sandia.dart.workflow.runtime.components.remote.DownloadFileNode;
 import gov.sandia.dart.workflow.runtime.components.remote.RemoteCommandNode;
 import gov.sandia.dart.workflow.runtime.components.remote.RemoteNestedWorkflowNode;
@@ -96,14 +99,18 @@ import gov.sandia.dart.workflow.runtime.components.remote.UploadFileNode;
 import gov.sandia.dart.workflow.runtime.components.script.BashScriptNode;
 import gov.sandia.dart.workflow.runtime.components.script.CshScriptNode;
 import gov.sandia.dart.workflow.runtime.components.script.PythonScriptNode;
+import gov.sandia.dart.workflow.runtime.components.script.TclScriptNode;
 import gov.sandia.dart.workflow.runtime.components.script.WindowsBatchScriptNode;
 import gov.sandia.dart.workflow.runtime.controls.ABSwitchNode;
 import gov.sandia.dart.workflow.runtime.controls.OnOffSwitchNode;
+import gov.sandia.dart.workflow.runtime.controls.RotaryInputSwitchNode;
+import gov.sandia.dart.workflow.runtime.controls.RotaryOutputSwitchNode;
 import gov.sandia.dart.workflow.runtime.util.Indenter;
 
 public class NodeDatabase {
 
 	private static Map<String, Class<? extends SAWCustomNode>> nodeTypes;
+	private static Set<String> nodesToExcludeFromDump;
 	private static Map<String, Class<? extends WorkflowConductor>> conductorTypes;
 	private static Set<String> plugins = new HashSet<>();
 	public synchronized static Map<String, Class<? extends SAWCustomNode>> nodeTypes() {
@@ -126,7 +133,6 @@ public class NodeDatabase {
 			out.printAndIndent("<workflowData>");
 			dumpNodeTypes(nodeTypes, out);
 			dumpConductorTypes(conductorTypes, out);
-
 			out.unindentAndPrint("</workflowData>");
 		}
 	}
@@ -157,6 +163,8 @@ public class NodeDatabase {
 			throws InstantiationException, IllegalAccessException {
 		out.printAndIndent("<nodeTypes>");
 		for (String name : nodeTypes.keySet()) {
+			if (nodesToExcludeFromDump.contains(name))
+				continue;
 			Class<? extends SAWCustomNode> clazz = nodeTypes.get(name);
 			SAWCustomNode node = clazz.newInstance();
 			out.printAndIndent(String.format("<nodeType name='%s'>", StringEscapeUtils.escapeXml10(name)));
@@ -176,7 +184,14 @@ public class NodeDatabase {
 				for (PropertyInfo prop : properties) {
 					String property = prop.getName();
 					String type = prop.getType();
-					out.printIndented(String.format("<property name='%s' type='%s'/>", StringEscapeUtils.escapeXml10(property), StringEscapeUtils.escapeXml10(type)));
+					String value = prop.getDefaultValue();
+					boolean advanced = prop.isAdvanced();
+
+					if (value != null) 
+						out.printIndented(String.format("<property name='%s' type='%s' value='%s' advanced='%s'/>", StringEscapeUtils.escapeXml10(property),
+							StringEscapeUtils.escapeXml10(type), StringEscapeUtils.escapeXml10(value), String.valueOf(advanced)));
+					else
+						out.printIndented(String.format("<property name='%s' type='%s' advanced='%s'/>", StringEscapeUtils.escapeXml10(property), StringEscapeUtils.escapeXml10(type), String.valueOf(advanced)));
 				}
 				out.unindentAndPrint("</properties>");
 			}
@@ -213,6 +228,7 @@ public class NodeDatabase {
 			return;
 		
 		nodeTypes = new HashMap<>();
+		nodesToExcludeFromDump = new TreeSet<>();
 		conductorTypes = new HashMap<>();
 
 		// TODO This ought to be moved to a configuration file.
@@ -228,7 +244,8 @@ public class NodeDatabase {
 		nodeTypes.put("asin", AsinNode.class);
 		nodeTypes.put("acos", AcosNode.class);
 		nodeTypes.put("atan", AtanNode.class);
-	
+		nodeTypes.put("int", IntNode.class);		
+
 		nodeTypes.put("exp", ExpNode.class);
 		nodeTypes.put("pow", PowNode.class);
 		nodeTypes.put("ln", LnNode.class);
@@ -270,6 +287,7 @@ public class NodeDatabase {
 		nodeTypes.put("cshScript", CshScriptNode.class);
 		nodeTypes.put("pythonScript", PythonScriptNode.class);
 		nodeTypes.put("windowsBatchScript", WindowsBatchScriptNode.class);
+		nodeTypes.put("tclScript", TclScriptNode.class);
 		
 		nodeTypes.put("multiSwitch", MultiSwitchNode.class);
 	
@@ -277,9 +295,11 @@ public class NodeDatabase {
 		nodeTypes.put("column", ColumnNode.class);
 		nodeTypes.put("arrayElement", ArrayElementNode.class);
 		nodeTypes.put("demultiplexColumns", DemultiplexColumnsNode.class);
+		nodeTypes.put("getColumns", GetColumnsNode.class);
 		nodeTypes.put("nestedWorkflow", NestedWorkflowNode.class);
 		nodeTypes.put("nestedInternalWorkflow", NestedInternalWorkflowNode.class);
-		nodeTypes.put("remoteNestedWorkflow", RemoteNestedWorkflowNode.class);
+		nodesToExcludeFromDump.add("nestedInternalWorkflow");
+		nodeTypes.put(RemoteNestedWorkflowNode.TYPE, RemoteNestedWorkflowNode.class);
 
 		nodeTypes.put("gnuplot", GnuplotNode.class);
 		
@@ -299,6 +319,9 @@ public class NodeDatabase {
 		
 		nodeTypes.put("onOffSwitch", OnOffSwitchNode.class);		
 		nodeTypes.put("abSwitch", ABSwitchNode.class);		
+		nodeTypes.put("rotaryOutputSwitch", RotaryOutputSwitchNode.class);		
+		nodeTypes.put("rotaryInputSwitch", RotaryInputSwitchNode.class);		
+
 		nodeTypes.put("or", OrNode.class);
 		
 		conductorTypes.put("simple", SimpleWorkflowConductor.class);

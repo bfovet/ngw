@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.emf.transaction.RecordingCommand;
+import org.eclipse.emf.transaction.TransactionalEditingDomain;
+import org.eclipse.emf.transaction.util.TransactionUtil;
 import org.eclipse.gef.EditPart;
 import org.eclipse.gef.ui.actions.SelectionAction;
 import org.eclipse.graphiti.features.IFeatureProvider;
@@ -67,8 +70,15 @@ public class DuplicateAction extends SelectionAction {
 		CustomContext context = new CustomContext();
 		context.setInnerPictogramElement(pe[0]);
 		context.setPictogramElements(pe);
-		DuplicateNodeFeature feature = ((WorkflowToolBehaviorProvider) configProvider.getDiagramTypeProvider().getCurrentToolBehaviorProvider()).getDuplicateNodeFeature(context);
-		feature.execute(context);
+		Object bo = getFeatureProvider().getBusinessObjectForPictogramElement(pe[0]);
+		TransactionalEditingDomain domain = TransactionUtil.getEditingDomain(bo);
+		domain.getCommandStack().execute(new RecordingCommand(domain) {
+			@Override
+			public void doExecute() {				
+				DuplicateNodeFeature feature = ((WorkflowToolBehaviorProvider) configProvider.getDiagramTypeProvider().getCurrentToolBehaviorProvider()).getDuplicateNodeFeature(context);
+				feature.execute(context);
+			}
+		});
 	}
 	
 	protected PictogramElement[] getSelectedPictogramElements() {

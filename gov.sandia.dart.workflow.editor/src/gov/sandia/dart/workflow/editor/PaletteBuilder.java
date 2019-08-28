@@ -15,6 +15,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -27,6 +30,9 @@ import org.eclipse.graphiti.palette.IPaletteCompartmentEntry;
 import org.eclipse.graphiti.palette.IToolEntry;
 import org.eclipse.graphiti.palette.impl.ObjectCreationToolEntry;
 import org.eclipse.graphiti.palette.impl.PaletteCompartmentEntry;
+import org.eclipse.graphiti.ui.internal.util.ui.PopupMenu;
+import org.eclipse.graphiti.ui.internal.util.ui.PopupMenu.CascadingMenu;
+import org.eclipse.jface.viewers.LabelProvider;
 
 import gov.sandia.dart.workflow.editor.configuration.NodeType;
 import gov.sandia.dart.workflow.editor.configuration.WorkflowTypesManager;
@@ -39,37 +45,44 @@ import gov.sandia.dart.workflow.editor.library.UserCustomNodeLibrary;
 
 public class PaletteBuilder {
 
+	private static final String WORKFLOW_ORGANIZATION = "Workflow Organization";
+	private static final String USER_INTERFACE = "User Interface";
+
 	public static final String USER_DEFINED = "User Defined";
 
 	public IPaletteCompartmentEntry[] createPaletteEntries(IFeatureProvider featureProvider, URI diagramFile) {
 		
 		Map<String, PaletteCompartmentEntry> compartmentsByName = new HashMap<>();
 		List<IPaletteCompartmentEntry> compartments = new ArrayList<>();
-		PaletteCompartmentEntry compartmentEntry = getCompartment("Workflow Organization", compartments, compartmentsByName);
+		PaletteCompartmentEntry workflowOrganization = getCompartment(WORKFLOW_ORGANIZATION, compartments, compartmentsByName);
+		PaletteCompartmentEntry userInterface = getCompartment(USER_INTERFACE, compartments, compartmentsByName);
 
 		ICreateFeature noteFeature = new CreateNoteFeature(featureProvider);   
 		ObjectCreationToolEntry noteToolEntry = new ObjectCreationToolEntry(
-				"Note", "A descriptive note",
+				"note", "A descriptive note",
 				null,
 				null,
 				noteFeature);
-		compartmentEntry.addToolEntry(noteToolEntry);		
+		workflowOrganization.addToolEntry(noteToolEntry);	
+		userInterface.addToolEntry(noteToolEntry);
 		
 		ICreateFeature imageFeature = new CreateImageFeature(featureProvider);   
 		ObjectCreationToolEntry imageToolEntry = new ObjectCreationToolEntry(
-				"Image", "An image on the workflow canvas",
+				"image", "An image on the workflow canvas",
 				null,
 				null,
 				imageFeature);
-		compartmentEntry.addToolEntry(imageToolEntry);		
+		workflowOrganization.addToolEntry(imageToolEntry);	
+		userInterface.addToolEntry(imageToolEntry);
+
 		
 		ICreateFeature responseFeature = new CreateResponseFeature(featureProvider);   
 		ObjectCreationToolEntry responseToolEntry = new ObjectCreationToolEntry(
-				"Response", "A global response for the workflow",
+				"response", "A global response for the workflow",
 				null,
 				null,
 				responseFeature);
-		compartmentEntry.addToolEntry(responseToolEntry);
+		workflowOrganization.addToolEntry(responseToolEntry);
 		
 		WorkflowTypesManager manager = WorkflowTypesManager.get();
 		Map<String, NodeType> nodeTypes = manager.getNodeTypes();
@@ -175,5 +188,51 @@ public class PaletteBuilder {
 			}
 		}
 		return contributors;
+	}
+
+	@SuppressWarnings("restriction")
+	public static ArrayList<Object> buildMenu(Set<String> nodeTypeNames) {
+		WorkflowTypesManager manager = WorkflowTypesManager.get();
+		Map<String, NodeType> nodeTypes = manager.getNodeTypes();
+		Map<String, Set<String>> compartments = new TreeMap<>();
+
+		for (NodeType nodeType: nodeTypes.values()) {
+			// These are added back elsewhere
+			List<String> categories = nodeType.getCategories();
+			if (categories.size() == 1 && "Uncategorized".equals(categories.get(0))) {
+				continue;
+			}
+			for (String category : categories) {
+				Set<String> compartment = getSubmenu(category, compartments);
+				String name = nodeType.getName();
+				compartment.add(name);
+			}
+		}
+		compartments.get(WORKFLOW_ORGANIZATION).add("note");
+		compartments.get(WORKFLOW_ORGANIZATION).add("image");
+		compartments.get(WORKFLOW_ORGANIZATION).add("response");
+		
+		compartments.get(USER_INTERFACE).add("note");
+		compartments.get(USER_INTERFACE).add("image");
+
+		
+		ArrayList<Object> aContent = new ArrayList<>();
+		for (String cName: compartments.keySet()) {
+			Set<String> compartment = compartments.get(cName);
+			PopupMenu pm = new PopupMenu(new ArrayList<>(compartment), new LabelProvider()); 
+			CascadingMenu cm = new CascadingMenu(cName, pm);
+			aContent.add(cm);
+		}
+		
+		return aContent;
+	}
+
+	private static Set<String> getSubmenu(String category, Map<String, Set<String>> compartments) {
+		Set<String> set = compartments.get(category);
+		if (set == null) {
+			set = new TreeSet<>();
+			compartments.put(category, set);
+		}
+		return set;
 	}
 }

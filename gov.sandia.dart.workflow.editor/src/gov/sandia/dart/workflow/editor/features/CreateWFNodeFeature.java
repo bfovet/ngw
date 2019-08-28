@@ -47,7 +47,7 @@ public class CreateWFNodeFeature extends AbstractCreateNodeFeature {
 
         addPortsAndProperties(newNode, nodeType);  
     	
-        if (ParameterUtils.isParameter(newNode))
+        if (ParameterUtils.isParameter(newNode) && !duplicating)
         	ParameterUtils.setValue(newNode, "");
         
         // do the add

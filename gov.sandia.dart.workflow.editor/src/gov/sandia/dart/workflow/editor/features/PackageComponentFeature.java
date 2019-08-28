@@ -82,7 +82,7 @@ public class PackageComponentFeature extends AbstractCustomFeature {
 	
 	@Override
 	public boolean canExecute(ICustomContext context) {
-		return !getSelectedWFNodes(context).isEmpty();		
+		return getSelectedWFNodes(context).size() == 1;
 
 	}
 	

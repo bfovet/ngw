@@ -11,6 +11,7 @@ package gov.sandia.dart.workflow.phase3.embedded;
 
 import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
 import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.NodeCategories;
 import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
 import gov.sandia.dart.chart.xyplot.expression.FunctionBuilder;
 import gov.sandia.dart.chart.xyplot.ui.view.NebulaXYPlotView;
@@ -113,7 +114,7 @@ public class XYPlotNode extends SAWCustomNode {
 	
 	@Override
 	public String getCategory() {
-		return "Engineering";
+		return NodeCategories.UI;
 	}
 
 }

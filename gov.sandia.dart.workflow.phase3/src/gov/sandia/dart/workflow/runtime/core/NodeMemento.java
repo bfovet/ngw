@@ -15,56 +15,44 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
-import java.util.zip.Adler32;
-
-import org.apache.commons.io.FileUtils;
 
 public class NodeMemento {
-	enum Channel {PROPERTY, INPUT, OUTPUT };
+	public enum Channel {PROPERTY, INPUT, OUTPUT };
 	private static final String FILENAME = "_memento";
 	private final String version = "1";
 	private Map<String, String> properties = new HashMap<>(); 
 	private Map<String, String> inputs = new HashMap<>(); 
 	private Map<String, String> outputs = new HashMap<>();
+	private String name;
 	
-	public NodeMemento() {
+	public NodeMemento(String name) {
+		this.name = name;
 	}
 
-	public void addObject(Channel channel, String label, Object data) {
+	public NodeMemento addObject(Channel channel, String label, Object data) {
 		switch (channel) {
 		case INPUT: {
-			Adler32 algo = new Adler32();
-			algo.update(getBytes(data));
-			inputs.put(label, String.valueOf(algo.getValue()));
+			inputs.put(label, String.valueOf(data));
+
 			break;
 		}
 		case OUTPUT: {
-			outputs.put(label, String.valueOf(data));
+			Datum d = new Datum("default", data, data.getClass());
+			outputs.put(label, (String) d.getAs(String.class));
 			break;
 		}
 		case PROPERTY: {
-			Adler32 algo = new Adler32();
-			algo.update(getBytes(data));
-			properties.put(label, String.valueOf(algo.getValue()));
+			properties.put(label, String.valueOf(data));
 			break;
 		}
 		}
+		return this;
 	}
 
 	private byte[] getBytes(Object data) {
 		return String.valueOf(data).getBytes();
-	}
-
-	// TODO Handle spread files, will throw exception if file doesn't exist
-	public void addFile(Channel channel, String label, File file) throws IOException {
-		Adler32 algo = new Adler32();
-		FileUtils.checksum(file, algo);
-		switch (channel) {
-		case INPUT: inputs.put(label, String.valueOf(algo.getValue())); break;
-		case OUTPUT: outputs.put(label, String.valueOf(algo.getValue())); break;
-		case PROPERTY: properties.put(label, String.valueOf(algo.getValue())); break;
-		}
 	}
 	
 	public void save(File workdir) throws IOException {
@@ -73,7 +61,7 @@ public class NodeMemento {
 		addMap(p, properties, Channel.PROPERTY);
 		addMap(p, inputs, Channel.INPUT);
 		addMap(p, outputs, Channel.OUTPUT);
-		try (FileWriter writer = new FileWriter(new File(workdir, FILENAME))) {
+		try (FileWriter writer = new FileWriter(new File(workdir, filename(name)))) {
 			p.store(writer, "Workflow state memento -- do not edit or delete");
 		}
 	}
@@ -84,13 +72,17 @@ public class NodeMemento {
 		}		
 	}
 	
-	public static boolean hasMemento(File workdir) throws IOException {
-		return new File(workdir, FILENAME).exists();
+	public static boolean hasMemento(String name, File workdir) throws IOException {
+		return new File(workdir, filename(name)).exists();
 	}
 
-	public static NodeMemento load(File workdir) throws IOException {
-		try (FileReader reader = new FileReader(new File(workdir, FILENAME))) {
-			NodeMemento memento = new NodeMemento();
+	private static String filename(String name) {
+		return name + FILENAME;
+	}
+
+	public static NodeMemento load(String nodeName, File workdir) throws IOException {
+		try (FileReader reader = new FileReader(new File(workdir, filename(nodeName)))) {
+			NodeMemento memento = new NodeMemento(nodeName);
 			Properties p = new Properties();
 			p.load(reader);
 			for (String name: p.stringPropertyNames()) {
@@ -109,17 +101,33 @@ public class NodeMemento {
 		}
 	}
 	
-	public boolean compareInputs(NodeMemento other) {
-		return inputs.equals(other.inputs) && properties.equals(other.properties);
+	public static void delete(String nodeName, File workdir) {
+		new File(workdir, filename(nodeName)).delete();
+	}
+	
+	public String comparePropertiesAndInputs(NodeMemento other) {
+		String result = compareMap(inputs, other.inputs);
+		if (result != null)
+			return "input " + result;
+		
+		result = compareMap(properties, other.properties);
+		if (result != null)
+			return "property " + result;
+		return null;
 	}
 
-	public boolean isValid() {
-		// TODO Actually implement this!
-		return true;
+	private String compareMap(Map<String, String> map1, Map<String, String> map2) {
+		if (!map1.keySet().equals(map2.keySet()))
+			return "keyset";
+		for (String key: map1.keySet()) {
+			if (!Objects.equals(map1.get(key), map2.get(key)))
+				return key + ", was " + map1.get(key) + ", is " + map2.get(key);
+		}
+		return null;
 	}
 
 	public void remove(File workdir) {
-		new File(workdir, FILENAME).delete();
+		new File(workdir, filename(name)).delete();
 	}
 
 	public void getOutputs(Map<String, Object> results) {
@@ -127,6 +135,4 @@ public class NodeMemento {
 			results.put(entry.getKey(), entry.getValue());
 		}
 	}
-	
-	
 }

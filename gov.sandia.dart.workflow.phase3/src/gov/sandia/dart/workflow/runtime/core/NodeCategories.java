@@ -10,12 +10,15 @@ package gov.sandia.dart.workflow.runtime.core;
 public class NodeCategories {
 	public static final String
 		CONTROL = "Control",
-		EXTERNAL_PROCESSES = "External Processes",
-		GUI = "GUI",
-		INPUT_OUTPUT = "I/O",
-		MESHING = "Mesh Assembly",
+		DATA_FORMATS = "Data Formats",
+		DATA_SOURCES = "Data Sources",
+		EXTERNAL_PROCESSES = "Applications",
+		FILES = "File Operations",
+		UI = "User Interface",
+		MESHING = "Meshing",
 		REMOTE = "Remote/Network Ops",
 		SCALAR_OPS   = "Scalar Operations",
+		SCRIPTING = "Scripting",
 		SEQ_DATA = "Sequential Data",
 		TEXT_DATA = "Text Data",
 		WORKFLOW = "Workflow Organization";

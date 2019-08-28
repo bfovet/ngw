@@ -9,7 +9,9 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.runtime.parser;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -41,7 +43,16 @@ public class CustomXMLParser {
 			String name = param.getAttribute("name");
 			String node = param.getAttribute("node");
 			String port = param.getAttribute("port");
-			def.addResponse(name, node, port);
+			Map<String, String> props = new HashMap<>();
+			NodeList properties = param.getElementsByTagName("property");
+			for (int m = 0; m < properties.getLength(); ++m) {
+				Element propE = (Element) properties.item(m);
+				String pname = getChildText(propE, "name");
+				String pvalue = getChildText(propE, "value");
+				props.put(pname, pvalue);
+			}
+
+			def.addResponse(name, node, port, props);
 		}
 	}
 
@@ -136,12 +147,14 @@ public class CustomXMLParser {
 					Element propE = (Element) properties.item(j);
 					String name = getChildText(propE, "name");
 					String type = getChildText(propE, "type");
-					String value = getChildText(propE, "value");
+					String value;
+					if ("multitext".equals(type))
+						value = getChildText(propE, "value", false);
+					else
+						value = getChildText(propE, "value", true);
 					node.properties.put(name, new Property(name, type, value));
 				}
 			}
-			
-
 
 			def.addNode(nodeName, node);
 		}
@@ -180,12 +193,15 @@ public class CustomXMLParser {
 		return null;
 	}
 
-	private static String getChildText(Element node, String name) {
+	private static String getChildText(Element node, String name, boolean trim) {
 		NodeList list = node.getElementsByTagName(name);
 		if (list.getLength() == 0)
 			return null;
 		else
-			return list.item(0).getTextContent().trim();
+			return trim == true ? list.item(0).getTextContent().trim() : list.item(0).getTextContent();
 	}
 
+	private static String getChildText(Element node, String name) {
+		return getChildText(node, name, true);
+	}
 }

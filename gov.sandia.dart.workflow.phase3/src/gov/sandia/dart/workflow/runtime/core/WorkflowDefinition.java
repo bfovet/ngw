@@ -16,9 +16,8 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
-
-import org.apache.commons.lang3.tuple.Pair;
 
 public final class WorkflowDefinition {
 
@@ -111,17 +110,43 @@ public final class WorkflowDefinition {
 		public final List<Conductor> conductors = new ArrayList<>();
 	}
 	
-	public static class Response {
-		public final String name;
-		public Set<Pair<String, String>> inputs = new HashSet<>();
+	public static class RInput {
+		public final String node;
+		public final String port;
+		public final Map<String, String> props;
 		
-		Response(String name, String nodeName, String portName) {
-			this.name = name;
-			inputs.add(Pair.of(nodeName, portName));
+		public RInput(String node, String port, Map<String, String> props) {
+			this.node = node;
+			this.port = port;
+			this.props = props;
 		}
 		
-		public void addInput(String nodeName, String portName) {		
-			inputs.add(Pair.of(nodeName, portName));
+		@Override
+		public int hashCode() {
+			return Objects.hash(node, port);
+		}
+		
+		@Override
+		public boolean equals(Object o) {
+			if (o instanceof RInput) {
+				RInput r = (RInput) o;
+				return r.node.equals(node) && r.port.equals(port);
+			}
+			return false;
+		}
+	}
+	
+	public static class Response {
+		public final String name;
+		public Set<RInput> inputs = new HashSet<>();
+		
+		Response(String name, String nodeName, String portName, Map<String, String> props) {
+			this.name = name;
+			inputs.add(new RInput(nodeName, portName, props));
+		}
+		
+		public void addInput(String nodeName, String portName, Map<String, String> props) {		
+			inputs.add(new RInput(nodeName, portName, props));
 		}
 
 		@Override
@@ -157,7 +182,7 @@ public final class WorkflowDefinition {
 		return nodes.get(name);
 	}
 
-	public void addResponse(String name, String nodeName, String portName) {
+	public void addResponse(String name, String nodeName, String portName, Map<String, String> props) {
 		Node node = getNode(nodeName);
 		if (node == null) {
 			throw new SAWWorkflowException(String.format("Bad node name %s in response %s", node, name));
@@ -165,14 +190,14 @@ public final class WorkflowDefinition {
 		
 		Response response = responses.get(name);
 		if (response == null) {
-			response = new Response(name, nodeName, portName);
+			response = new Response(name, nodeName, portName, props);
 			node.responses.put(name, response);
 			responses.put(name, response);
 		} else {
 			if (node.responses.get(name) == null) {
 				node.responses.put(name, response);
 			}
-			response.addInput(nodeName, portName);
+			response.addInput(nodeName, portName, props);
 		}
 	}
 	
@@ -182,5 +207,10 @@ public final class WorkflowDefinition {
 	
 	public Map<String, Parameter> getParameters() {
 		return parameters;
+	}
+	
+	public boolean isLocalParameter(String name) {
+		Parameter p = parameters.get(name);
+		return p != null && !p.global;
 	}
 }

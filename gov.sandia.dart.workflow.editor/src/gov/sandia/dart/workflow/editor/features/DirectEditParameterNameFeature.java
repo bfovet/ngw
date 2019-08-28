@@ -100,7 +100,8 @@ public class DirectEditParameterNameFeature extends AbstractDirectEditingFeature
 
 	@Override
 	public void relocate(CellEditor cellEditor, IFigure figure) {
-		Rectangle bounds = figure.getBounds();
+		Rectangle bounds = figure.getBounds().getCopy();
+		DirectEditNoteFeature.zoomBounds(bounds);
 		Control control = cellEditor.getControl();
 		control.setLocation(bounds.x + 8, bounds.y + 8);
 		control.setSize(bounds.width - 10, bounds.height - 6);	

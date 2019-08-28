@@ -34,7 +34,9 @@ public class WorkflowImageProvider extends AbstractImageProvider {
 	private static WorkflowImageProvider INSTANCE = null;
 	
 	public WorkflowImageProvider() {
-		INSTANCE = this;
+		if(INSTANCE == null) {
+			INSTANCE = this;
+		}
 	}
  
     @Override
@@ -68,7 +70,12 @@ public class WorkflowImageProvider extends AbstractImageProvider {
         addImageFilePath(PREFIX + "cubit", "icons/cubit.gif");
         addImageFilePath(PREFIX + "bashScript", "icons/shell.png");
         addImageFilePath(PREFIX + "pythonScript", "icons/python.png");
+        addImageFilePath(PREFIX + "tclScript", "icons/tclScript.png");
         addImageFilePath(PREFIX + "openFile", "icons/file.png");
+        addImageFilePath(PREFIX + "prompt", "icons/ask.png");       
+        addImageFilePath(PREFIX + "ask_yes_no", "icons/ask.png");
+        addImageFilePath(PREFIX + "sierra", "icons/sierra.gif");
+
         addImageFilePath(PREFIX + "parameterFile", "icons/properties.png");
         addImageFilePath(PREFIX + "or", "icons/or.png");
 
@@ -84,6 +91,9 @@ public class WorkflowImageProvider extends AbstractImageProvider {
     }
 
 	public static WorkflowImageProvider get() {
+		if(INSTANCE == null) {
+			new WorkflowImageProvider();
+		}
 		return INSTANCE;
 	}	
 }

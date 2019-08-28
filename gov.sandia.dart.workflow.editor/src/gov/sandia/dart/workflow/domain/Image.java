@@ -1,18 +1,7 @@
-/*******************************************************************************
- * Sandia Analysis Workbench Integration Framework (SAW)
- * Copyright 2018 National Technology & Engineering Solutions of Sandia, LLC (NTESS).
- * Under the terms of Contract DE-NA0003525 with NTESS, the U.S. Government retains
- * certain rights in this software.
- * 
- * This software is distributed under the Eclipse Public License.  For more
- * information see the files copyright.txt and license.txt included with the software.
- ******************************************************************************/
-/**
- */
 package gov.sandia.dart.workflow.domain;
 
+
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.graphiti.util.IColorConstant;
 
 /**
  * <!-- begin-user-doc -->
@@ -24,7 +13,8 @@ import org.eclipse.graphiti.util.IColorConstant;
  * </p>
  * <ul>
  *   <li>{@link gov.sandia.dart.workflow.domain.Image#getText <em>Text</em>}</li>
- *   <li>{@link gov.sandia.dart.workflow.domain.Image#getColor <em>Color</em>}</li>
+ *   <li>{@link gov.sandia.dart.workflow.domain.Image#isZoomToFit <em>Zoom To Fit</em>}</li>
+ *   <li>{@link gov.sandia.dart.workflow.domain.Image#isDrawBorder <em>Draw Border</em>}</li>
  * </ul>
  *
  * @see gov.sandia.dart.workflow.domain.DomainPackage#getImage()
@@ -48,7 +38,7 @@ public interface Image extends EObject {
 	 * @generated
 	 */
 	String getText();
-	
+
 	/**
 	 * Sets the value of the '{@link gov.sandia.dart.workflow.domain.Image#getText <em>Text</em>}' attribute.
 	 * <!-- begin-user-doc -->
@@ -59,71 +49,58 @@ public interface Image extends EObject {
 	 */
 	void setText(String value);
 
-	
 	/**
-	 * Returns the value of the '<em><b>Color</b></em>' attribute.
+	 * Returns the value of the '<em><b>Zoom To Fit</b></em>' attribute.
+	 * The default value is <code>"false"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
-	 * If the meaning of the '<em>Color</em>' attribute isn't clear,
+	 * If the meaning of the '<em>Zoom To Fit</em>' attribute isn't clear,
 	 * there really should be more of a description here...
 	 * </p>
 	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Color</em>' attribute.
-	 * @see #setColor(String)
-	 * @see gov.sandia.dart.workflow.domain.DomainPackage#getImage_Color()
-	 * @model
+	 * @return the value of the '<em>Zoom To Fit</em>' attribute.
+	 * @see #setZoomToFit(boolean)
+	 * @see gov.sandia.dart.workflow.domain.DomainPackage#getImage_ZoomToFit()
+	 * @model default="false"
 	 * @generated
 	 */
-	String getColor();
+	boolean isZoomToFit();
 
 	/**
-	 * Sets the value of the '{@link gov.sandia.dart.workflow.domain.Image#getColor <em>Color</em>}' attribute.
+	 * Sets the value of the '{@link gov.sandia.dart.workflow.domain.Image#isZoomToFit <em>Zoom To Fit</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Color</em>' attribute.
-	 * @see #getColor()
+	 * @param value the new value of the '<em>Zoom To Fit</em>' attribute.
+	 * @see #isZoomToFit()
 	 * @generated
 	 */
-	void setColor(String value);
+	void setZoomToFit(boolean value);
 
 	/**
-	 * Returns the current background color
-	 * @return
+	 * Returns the value of the '<em><b>Draw Border</b></em>' attribute.
+	 * The default value is <code>"true"</code>.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Draw Border</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Draw Border</em>' attribute.
+	 * @see #setDrawBorder(boolean)
+	 * @see gov.sandia.dart.workflow.domain.DomainPackage#getImage_DrawBorder()
+	 * @model default="true"
+	 * @generated
 	 */
-	IColorConstant getBackgroundColor();
-	
-	
-	/**
-	 * true if a color has been set, false if the default color is being used
-	 * @return
-	 */
-	boolean hasCustomBackground();
-	
-	/**
-	 * Sets the current background color.  Set to null to use the default color.
-	 */
-	void setBackgroundColor(IColorConstant color);
+	boolean isDrawBorder();
 
-	
 	/**
-	 * Returns the current foreground color
-	 * @return
+	 * Sets the value of the '{@link gov.sandia.dart.workflow.domain.Image#isDrawBorder <em>Draw Border</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Draw Border</em>' attribute.
+	 * @see #isDrawBorder()
+	 * @generated
 	 */
-	IColorConstant getForegroundColor();	
-	
-	/**
-	 * true if a color has been set, false if the default color is being used
-	 * @return
-	 */
-	boolean hasCustomForeground();
-	
-	/**
-	 * Sets the current foreground color.  Set to null to use the default color.
-	 */
-	void setForegroundColor(IColorConstant color);
-	
-	boolean isBold();
-	
-	boolean isItalic();
+	void setDrawBorder(boolean value);
 
 } // Image

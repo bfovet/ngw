@@ -33,6 +33,7 @@ public class PluginLoader {
 		}
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private static void loadOne(File file, SAWWorkflowLogger log) throws IOException {
 		String urlText = FilenameUtils.isExtension(file.getName(), "jar") ?
 				"jar:file:" + file.getCanonicalPath()+"!/" :

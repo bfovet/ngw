@@ -24,6 +24,7 @@ import org.eclipse.graphiti.mm.pictograms.Anchor;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 
+import gov.sandia.dart.workflow.domain.Arc;
 import gov.sandia.dart.workflow.domain.Image;
 import gov.sandia.dart.workflow.domain.InputPort;
 import gov.sandia.dart.workflow.domain.Note;
@@ -172,12 +173,7 @@ public class RebuildGraphicsFeature extends AbstractCustomFeature {
 					InputPort ip = arc.getTarget();
 					Anchor opa = (Anchor) getFeatureProvider().getPictogramElementForBusinessObject(op);
 					Anchor ipa = (Anchor) getFeatureProvider().getPictogramElementForBusinessObject(ip);
-					AddConnectionContext acc = new AddConnectionContext(opa, ipa);
-					acc.setNewObject(arc);
-					acc.setTargetContainer(diagram);
-					getFeatureProvider().addIfPossible(acc);
-					
-					WFArcSettingsEditor.updateConnectionAppearance(diagram, getFeatureProvider(), arc);
+					createConnection(diagram, arc, opa, ipa);
 				}
 			}
 		}
@@ -188,13 +184,19 @@ public class RebuildGraphicsFeature extends AbstractCustomFeature {
 					Response ip = arc.getTarget();
 					Anchor opa = (Anchor) getFeatureProvider().getPictogramElementForBusinessObject(op);
 					Anchor ipa = getResponseAnchor(ip);
-					AddConnectionContext acc = new AddConnectionContext(opa, ipa);
-					acc.setNewObject(arc);
-					acc.setTargetContainer(diagram);
-					getFeatureProvider().addIfPossible(acc);
+					createConnection(diagram, arc, opa, ipa);
 				}
 			}
 		}
+	}
+
+	private void createConnection(Diagram diagram, Arc arc, Anchor opa, Anchor ipa) {
+		AddConnectionContext acc = new AddConnectionContext(opa, ipa);
+		acc.setNewObject(arc);
+		acc.setTargetContainer(diagram);
+		getFeatureProvider().addIfPossible(acc);
+		
+		WFArcSettingsEditor.updateConnectionAppearance(diagram, getFeatureProvider(), arc);
 	}
 
 	protected Anchor getResponseAnchor(Response ip) {

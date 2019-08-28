@@ -41,7 +41,6 @@ public class NOWPSettingsEditorUtils {
 
 	public static WorkflowDiagramEditor getDiagramEditor(EObject bo) {
 		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-		// String providerId = GraphitiUi.getExtensionManager().getDiagramTypeProviderId("gov.sandia.dart.workflow.editor.WorkflowDiagramTypeProvider");
 		String providerId = GraphitiUi.getExtensionManager().getDiagramTypeProviderId("dartWorkflow");		
 		DiagramEditorInput input = new DiagramEditorInput(bo.eResource().getURI(), providerId);
 		IEditorPart part = page.findEditor(input);
@@ -49,7 +48,13 @@ public class NOWPSettingsEditorUtils {
 	}
 
 	public static IFeatureProvider getFeatureProvider(EObject bo) {
-		return getDiagramEditor(bo).getDiagramTypeProvider().getFeatureProvider();
+		WorkflowDiagramEditor editor = getDiagramEditor(bo);
+		
+		if(editor == null) {
+			return null;
+		}
+		
+		return editor.getDiagramTypeProvider().getFeatureProvider();
 	}
 
 	static Map<String, Button> addButtons(FormToolkit toolkit, Composite comp, Object bo,

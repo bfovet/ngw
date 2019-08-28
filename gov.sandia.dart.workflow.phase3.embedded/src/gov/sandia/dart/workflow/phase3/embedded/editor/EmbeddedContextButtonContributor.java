@@ -12,9 +12,6 @@ package gov.sandia.dart.workflow.phase3.embedded.editor;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.impl.CustomContext;
@@ -35,8 +32,6 @@ public class EmbeddedContextButtonContributor implements IContextButtonContribut
 			String pathString = uri.toPlatformString(true);
 			if(pathString != null)
 			{
-				IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(pathString));		
-
 				ContextButtonEntry button3 = new ContextButtonEntry(new RunStartNodeFeature(featureProvider), customContext);
 				button3.setText("Run workflow starting from here");
 				button3.setIconId(EmbeddedImageProvider.RUN);	

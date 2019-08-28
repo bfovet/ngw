@@ -29,18 +29,19 @@ public class ArrayElementNode extends SAWCustomNode {
 			throw new SAWWorkflowException("Input array missing in node " + getName());
 
 		}
-		if (array.getClass().isArray()) {
-			int length = Array.getLength(array);
-			if (index == -1) {
-				index = length - 1;
-			}
-			
-			if (index < 0 || index >= length)
-				throw new SAWWorkflowException("Array index out of bounds at node " + getName() + ": " + index);
-				
-			return Collections.singletonMap(ELEMENT, Array.get(array, index));
+		
+		if (!array.getClass().isArray()) 
+			array = runtime.getInput(getName(), ARRAY, String[].class);
+
+		int length = Array.getLength(array);
+		if (index == -1) {
+			index = length - 1;
 		}
-		throw new SAWWorkflowException("Input not an array in node " + getName() + ": " + array.getClass().getName());
+
+		if (index < 0 || index >= length)
+			throw new SAWWorkflowException("Array index out of bounds at node " + getName() + ": " + index);
+
+		return Collections.singletonMap(ELEMENT, Array.get(array, index));
 	}
 
 	@Override

@@ -58,11 +58,26 @@ public class WorkflowEditorPreferencePage extends DefaultFieldEditorPreferencePa
 		 addField(new BooleanFieldEditor(IWorkflowEditorPreferences.PORT_LABELS,
                  "Display port names",
                  getFieldEditorParent())); 	
+		 addField(new BooleanFieldEditor(IWorkflowEditorPreferences.SKIP_SINGLETON_PORT_LABELS,
+                 "Skip display of singleton port names",
+                 getFieldEditorParent())); 	
+		 addField(new BooleanFieldEditor(IWorkflowEditorPreferences.REQUIRE_CTRL_FOR_POPUP,
+		         "Don't show 'Add New' popup on new connection unless Ctrl or Shift key is down",
+                 getFieldEditorParent())); 	
+
+
 		 addField(new BooleanFieldEditor(IWorkflowEditorPreferences.CONNECTIONS_BEHIND,
                  "Draw connections behind nodes (after close/reopen diagram)",
                  getFieldEditorParent())); 		
 		 addField(new BooleanFieldEditor(IWorkflowEditorPreferences.TRANSLUCENT_COMPONENTS,
                  "Draw translucent nodes",
+                 getFieldEditorParent())); 		
+		BooleanFieldEditor renderNested;
+		addField(renderNested = new BooleanFieldEditor(IWorkflowEditorPreferences.RENDER_NESTED,
+                 "Draw content in nested workflow nodes",
+                 getFieldEditorParent())); 				
+		addField(new BooleanFieldEditor(IWorkflowEditorPreferences.RENDER_NESTED_INDENTED,
+                 "Avoid nested content overlap with port labels",
                  getFieldEditorParent())); 		
 
 	}

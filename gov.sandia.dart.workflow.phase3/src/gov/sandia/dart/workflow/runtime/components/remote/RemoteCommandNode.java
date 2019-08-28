@@ -48,14 +48,16 @@ public class RemoteCommandNode extends SAWCustomNode {
 			if (!StringUtils.isEmpty(path))
 				exec.setPath(path);
 			//try {
-				exec.connect();
+				exec.connect(runtime.log());
 				runtime.log().debug(getName() + ": executing command '" + render(command) + "'");
-				ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				String result = exec.execute(command, baos, runtime);
-				String errors = baos.toString();
+				ByteArrayOutputStream errStream = new ByteArrayOutputStream();
+				ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+
+				int exitCode = exec.execute(command, outStream, errStream, runtime);
 				Map<String, Object> outputs = new HashMap<>();
-				outputs.put("output", result);
-				outputs.put("error", errors);
+				outputs.put("output", outStream.toString());
+				outputs.put("error", errStream.toString());
+				outputs.put("exitCode", exitCode);
 				return outputs;
 
 			//} finally {
@@ -72,7 +74,7 @@ public class RemoteCommandNode extends SAWCustomNode {
 	public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo(HOSTNAME), new PropertyInfo("command"), new PropertyInfo(REMOTE_PATH));	}
 	
 	@Override
-	public List<OutputPortInfo> getDefaultOutputs() { return Arrays.asList(new OutputPortInfo("output", "default"), new OutputPortInfo("error", "default")); }
+	public List<OutputPortInfo> getDefaultOutputs() { return Arrays.asList(new OutputPortInfo("output", "default"), new OutputPortInfo("error", "default"), new OutputPortInfo("exitCode", "int")); }
 	
 	@Override
 	public List<InputPortInfo> getDefaultInputs() { return Collections.singletonList(new InputPortInfo("trigger", "default")); }

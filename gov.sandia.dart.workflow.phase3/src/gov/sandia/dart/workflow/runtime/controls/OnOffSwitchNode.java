@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.NodeCategories;
 import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
 import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
@@ -49,8 +50,5 @@ public class OnOffSwitchNode extends SAWCustomNode {
 		return Arrays.asList(new OutputPortInfo(OUTPUT));
 	}
 	
-	@Override
-	public String getCategory() {
-		return "Control";
-	}
+	@Override public List<String> getCategories() { return Arrays.asList(NodeCategories.CONTROL, NodeCategories.UI); }
 }

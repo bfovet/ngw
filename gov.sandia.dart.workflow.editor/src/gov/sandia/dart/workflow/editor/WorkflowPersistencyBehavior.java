@@ -47,7 +47,8 @@ class WorkflowPersistencyBehavior extends DefaultPersistencyBehavior {
 				EList<Connection> connections = diagram.getConnections();
 				for (Connection c: connections) {
 					c.getGraphicsAlgorithm().setTransparency(0.0);
-				}				
+				}			
+				
 			}
 		});
 

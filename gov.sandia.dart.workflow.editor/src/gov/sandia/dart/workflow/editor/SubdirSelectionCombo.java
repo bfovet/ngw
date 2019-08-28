@@ -1,8 +1,10 @@
 package gov.sandia.dart.workflow.editor;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -42,18 +44,23 @@ public class SubdirSelectionCombo extends ComboViewer {
 		if(input instanceof IFile) {
 			IFile workflowFile = (IFile) input;
 			IPath rootPath = new Path(workflowFile.getParent().getLocation().toFile().getAbsolutePath());
-			List<DatedPath> datedPaths;		
+			List<DatedPath> datedPaths = null;
 			try {
 				datedPaths = WorkflowUtils.getRunLocationMarkers(workflowFile);
 			} catch (CoreException e) {
-				datedPaths = Collections.emptyList();
+				// Fall through
 			}
+			
+			if(datedPaths == null || datedPaths.size() == 0) {
+				File parent = workflowFile.getParent().getLocation().toFile(); 
+				File dflt = new File(parent, FilenameUtils.getBaseName(workflowFile.getName()));
+				datedPaths = Collections.singletonList(new DatedPath(dflt.getAbsolutePath(), System.currentTimeMillis()));
+			}
+
 			mRootPath = rootPath;
 			mLabelProvider.setRootPath(rootPath);
 			super.setInput(datedPaths);
-			if(datedPaths.size() > 0) {
-				getCCombo().select(0);
-			}
+			getCCombo().select(0);
 		}		
 	}
 	

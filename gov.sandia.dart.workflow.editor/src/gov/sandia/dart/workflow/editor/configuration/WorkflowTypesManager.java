@@ -187,10 +187,13 @@ public class WorkflowTypesManager {
 				NodeList values = propertyE.getElementsByTagName("value");
 				if (values.getLength() > 0) {
 					value = values.item(0).getTextContent().trim();
+				} else {
+					value = propertyE.getAttribute("value");
 				}
-				final Prop prop = new Prop(propertyE.getAttribute("name"), propertyE.getAttribute("type"), value);
+				boolean advanced = "true".equals(propertyE.getAttribute("advanced"));
+				final Prop prop = new Prop(propertyE.getAttribute("name"), propertyE.getAttribute("type"), value, advanced);
 				propertys.add(prop);
-				
+								
 			}
 			nodeType.setProperties(propertys);
 		}

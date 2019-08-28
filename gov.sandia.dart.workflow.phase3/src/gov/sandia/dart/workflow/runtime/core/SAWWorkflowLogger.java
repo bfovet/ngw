@@ -40,19 +40,30 @@ public class SAWWorkflowLogger implements AutoCloseable {
 	}
 
 	private void emitLine(String level, String format, Object... args) {
-		StringBuilder builder = new StringBuilder(level).append(" (");		
-		builder.append(DateFormatUtils.format(new Date(), "HH:mm:ss,SSS")).append(") - ");
-		builder.append(MessageFormat.format(format, args));
-		log.println(builder.toString());
+		try {
+			StringBuilder builder = new StringBuilder(level).append(" ");
+			builder.append(DateFormatUtils.format(new Date(), "MM/dd/yy HH:mm:ss,SSS")).append(" ");
+			builder.append(MessageFormat.format(format, args));
+			log.println(builder.toString());
+		} catch (RuntimeException e) {
+			error("Logging error", e);
+		}
 	}
 	
 	
 	public void error(String message, Throwable t) {
-		StringBuilder builder = new StringBuilder("ERROR").append(" (");		
-		builder.append(DateFormatUtils.format(new Date(), "HH:mm:ss,SSS")).append(") - ");
+		StringBuilder builder = new StringBuilder("ERROR").append(" ");		
+		builder.append(DateFormatUtils.format(new Date(), "MM/dd/yy HH:mm:ss,SSS")).append(" ");
 		builder.append(message);
 		log.println(builder.toString());
 		t.printStackTrace(log);
+	}
+	
+	public void rawDebug(String message) {
+		StringBuilder builder = new StringBuilder("DEBUG").append(" ");		
+		builder.append(DateFormatUtils.format(new Date(), "MM/dd/yy HH:mm:ss,SSS")).append(" ");
+		builder.append(message);
+		log.println(builder.toString());
 	}
 	
 	public void debug(String format, Object... args) {
@@ -64,8 +75,7 @@ public class SAWWorkflowLogger implements AutoCloseable {
 	}
 
 	public void trace(String format) {
-		emitLine("TRACE", format);		
-		
+		emitLine("TRACE", format);				
 	}
 
 	public void warn(String format, Object... args) {

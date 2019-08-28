@@ -15,6 +15,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.eclipse.emf.transaction.RecordingCommand;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.emf.transaction.util.TransactionUtil;
+import org.eclipse.graphiti.features.IFeatureProvider;
+import org.eclipse.graphiti.mm.pictograms.Diagram;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -40,7 +42,7 @@ public class ResponseArcSettingsEditor extends AbstractSettingsEditor<ResponseAr
 
 	private final AtomicReference<ResponseArc> arc = new AtomicReference<>();
 	private Image image;
-	private Button expandWildcards, readInFile;
+	private Button expandWildcards, readInFile, trimData;
 	private Label description;
 
 	@Override
@@ -83,6 +85,18 @@ public class ResponseArcSettingsEditor extends AbstractSettingsEditor<ResponseAr
 		readInFile = toolkit.createButton(form.getBody(), "", SWT.CHECK);
 		readInFile.addSelectionListener(new CheckboxListener(PropertyUtils.READ_IN_FILE));
 
+		
+		label = toolkit.createLabel(form.getBody(), "Trim whitespace");
+		label.setToolTipText("This connection transmits text data. The workflow engine should remove any whitespace " +
+		"(including newlines) at the beginning or end of the data.");
+		data = new GridData();
+		data.grabExcessHorizontalSpace=false;
+		data.horizontalSpan=3;
+		label.setLayoutData(data);
+		
+		trimData = toolkit.createButton(form.getBody(), "", SWT.CHECK);
+		trimData.addSelectionListener(new CheckboxListener(PropertyUtils.TRIM_WHITESPACE));
+
 	}
 	
 	protected void setEditorTitle() {
@@ -95,6 +109,7 @@ public class ResponseArcSettingsEditor extends AbstractSettingsEditor<ResponseAr
 		description.setText(getDescription(node));
 		expandWildcards.setSelection(Boolean.valueOf(PropertyUtils.getProperty(node, PropertyUtils.EXPAND_WILDCARDS)));
 		readInFile.setSelection(Boolean.valueOf(PropertyUtils.getProperty(node, PropertyUtils.READ_IN_FILE)));
+		trimData.setSelection(Boolean.valueOf(PropertyUtils.getProperty(node, PropertyUtils.TRIM_WHITESPACE)));
 
 		setEditorTitle();
 	}
@@ -149,6 +164,9 @@ public class ResponseArcSettingsEditor extends AbstractSettingsEditor<ResponseAr
 					@Override
 					public void doExecute() {
 						PropertyUtils.setProperty(getNode(), propertyName, String.valueOf(value));	
+						Diagram diagram = NOWPSettingsEditorUtils.getDiagramEditor(getNode()).getDiagramTypeProvider().getDiagram();
+						IFeatureProvider fp = NOWPSettingsEditorUtils.getFeatureProvider(getNode());
+						WFArcSettingsEditor.updateConnectionAppearance(diagram, fp, getNode());
 					}
 				});
 

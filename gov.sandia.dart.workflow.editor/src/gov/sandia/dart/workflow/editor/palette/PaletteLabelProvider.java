@@ -21,6 +21,9 @@ public class PaletteLabelProvider extends LabelProvider {
 
 	@Override
 	public String getText(Object element) {
-		return ((PaletteEntryEditPart) element).getText();
+		if (element instanceof PaletteEntryEditPart)
+			return ((PaletteEntryEditPart) element).getText();
+		else
+			return String.valueOf(element);
 	}
 }

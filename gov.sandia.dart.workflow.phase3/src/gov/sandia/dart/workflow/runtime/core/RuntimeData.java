@@ -47,7 +47,6 @@ public class RuntimeData {
 	private SAWWorkflowLogger log;
 	Map<String, Marker> markers = new ConcurrentHashMap<>();
 	private Map<String, String> envVars = new ConcurrentHashMap<>();
-	private Map<String, Object> parameters = new ConcurrentHashMap<>();
 	
 	// TODO Need to decide best pool strategy
 	private ExecutorService executor = Executors.newCachedThreadPool();
@@ -55,7 +54,6 @@ public class RuntimeData {
 	private Set<ICancelationListener> listeners = ConcurrentHashMap.newKeySet();
 	private Set<String> ranOK = ConcurrentHashMap.newKeySet();
 	private Set<String> aborted = ConcurrentHashMap.newKeySet();
-	private Set<String> globals = ConcurrentHashMap.newKeySet();
 
 	// Constructor is package-protected: only WorkflowProcess should create these.
 	RuntimeData(List<IWorkflowMonitor> monitors, File homeDir, File workDir, Object engine, SAWWorkflowLogger log) {
@@ -74,17 +72,22 @@ public class RuntimeData {
 	}
 	
 	public synchronized Object getInput(String node, String port, Class<?> type) {
-		Map<String, Datum> datums = data.get(node);
-		if (datums == null)
-			return null;
-		
-		Datum datum = datums.get(port);				
+		Datum datum = getRawInput(node, port);
 		if (datum == null)
 			return null;
 				
 		Object value = datum.getAs(type);		
 		return value;
 	}
+	
+	public synchronized Datum getRawInput(String node, String port) {
+		Map<String, Datum> datums = data.get(node);
+		if (datums == null)
+			return null;
+		
+		return datums.get(port);				
+	}
+
 
 	// This is kind of hacky right now. "Purge" will only be true when putInput is called from an "or" node.
 	synchronized void putInput(boolean purge, String node, String port, String outputType, Object value) {
@@ -98,6 +101,19 @@ public class RuntimeData {
 			
 		datums.put(port, new Datum(outputType, value, classOf(value)));		
 	}
+	
+	/**
+	 * Public, but for internal use only
+	 */
+	public synchronized void putRawInput(String node, String port, Datum value) {
+		
+		Map<String, Datum> datums =  data.get(node);
+		if (datums == null)
+			data.put(node, datums = new HashMap<>());	
+			
+		datums.put(port, value);		
+	}
+			
 			
 	public Map<String, Object> getResponses() {
 		return Collections.unmodifiableMap(responses);
@@ -223,7 +239,7 @@ public class RuntimeData {
 	public void loadState() throws IOException {
 		Persistor p = new Persistor(getWorkDirectory());
 		p.loadState();
-		parameters.putAll(p.getParameters());
+		facade.parameters.putAll(p.getParameters());
 		responses.putAll(p.getResponses());
 		for (String name: p.getNodeNames()) {
 			Map<String, Datum> nodeInputs = p.getInputs(name);
@@ -238,7 +254,7 @@ public class RuntimeData {
 	
 	public void saveState() throws IOException {
 		Persistor p = new Persistor(getWorkDirectory());
-		p.getParameters().putAll(getParameters());
+		p.getParameters().putAll(facade.parameters);
 		p.getResponses().putAll(getResponses());
 		for (String name: data.keySet()) {
 			Map<String, Datum> datums = data.get(name);
@@ -288,27 +304,39 @@ public class RuntimeData {
 		}
 		return path;
 	}
-	
-	public void setParameter(String name, Object value, boolean global) {
-		parameters.put(name, value);
-		if (global)
-			globals.add(name);
+	 
+	// Parameters are immutable!
+	public void setParameter(RuntimeParameter p) {
+		if (facade.getParameter(p.getName()) == null)
+			facade.setParameter(p.getName(), new RuntimeParameter(p));
 	}
 	
-	public Object getParameter(String name) {
-		return parameters.get(name);
+	// Parameters are immutable!
+	public boolean setParameter(String name, Object value, boolean global) {
+		RuntimeParameter p = facade.getParameter(name);
+		if (p == null) {
+			facade.setParameter(name, new RuntimeParameter(name, value, "default", global, false));
+			return true;
+		} else
+			return false;
+	}
+	
+	public RuntimeParameter getParameter(String name) {
+		return facade.getParameter(name);
 	}
 	
 	public boolean isGlobal(String name) {
-		return globals.contains(name);
+		RuntimeParameter p = getParameter(name);
+		return p != null && p.isGlobal();
+		
 	}
 	
 	public static boolean isBuiltIn(String name) {
 		return WorkflowProcess.builtIns.contains(name);
 	}
 	
-	public Map<String, Object> getParameters() {
-		return parameters;
+	public Collection<String> getParameterNames() {
+		return facade.getParameterNames();
 	}
 
 	public void enterNode(SAWCustomNode node) {

@@ -9,11 +9,11 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.editor.settings;
 
-import gov.sandia.dart.workflow.domain.Property;
-
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.swt.graphics.Image;
+
+import gov.sandia.dart.workflow.domain.Property;
 
 class PropertiesLabelProvider implements ITableLabelProvider {
 
@@ -50,6 +50,10 @@ class PropertiesLabelProvider implements ITableLabelProvider {
 				return ((Property)element).getName();
 			case 1:
 				return ((Property)element).getType();
+			case 2:
+				return ((Property)element).getValue();
+			case 3:
+				return String.valueOf(((Property)element).isAdvanced());
 			}
 		}
 		

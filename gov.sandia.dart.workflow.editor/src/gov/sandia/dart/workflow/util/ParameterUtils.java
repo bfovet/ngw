@@ -11,12 +11,17 @@ package gov.sandia.dart.workflow.util;
 
 import gov.sandia.dart.workflow.domain.OutputPort;
 import gov.sandia.dart.workflow.domain.WFNode;
+import gov.sandia.dart.workflow.editor.configuration.NodeType;
 
 public class ParameterUtils {
 	public static boolean isParameter(WFNode node) {
 		return "parameter".equals(node.getType());
 	}
-	
+
+	public static boolean isParameterType(NodeType type) {
+		return "parameter".equals(type.getName());
+	}
+
 	public static String getName(WFNode node) {
 		return node.getName();
 	}

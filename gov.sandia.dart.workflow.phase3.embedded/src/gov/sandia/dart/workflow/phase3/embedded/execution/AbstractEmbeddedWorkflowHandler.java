@@ -32,11 +32,22 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+import gov.sandia.dart.process.ProcessDestroyer;
 import gov.sandia.dart.workflow.editor.DecoratorManager;
 import gov.sandia.dart.workflow.editor.WorkflowDiagramEditor;
+import gov.sandia.dart.workflow.runtime.util.ProcessUtils;
+import gov.sandia.dart.workflow.runtime.util.ProcessUtils.Destroyer;
 
 public abstract class AbstractEmbeddedWorkflowHandler extends AbstractHandler implements IActionDelegate {
 
+	static {
+		ProcessUtils.setDestroyer(new Destroyer() {
+			@Override
+			public void destroy(Process p) {				
+				ProcessDestroyer.get().destroy(p);
+			}		
+		});
+	}
 	protected IFile file;
 
 	public AbstractEmbeddedWorkflowHandler() {

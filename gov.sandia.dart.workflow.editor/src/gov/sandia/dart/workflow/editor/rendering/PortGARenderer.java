@@ -70,42 +70,50 @@ public class PortGARenderer extends AbstractGARenderer implements IGraphicsAlgor
 			OutputPort port = (OutputPort) bo;
 			if (port.getArcs().size() > 0) {
 				WorkflowDiagramEditor editor = NOWPSettingsEditorUtils.getDiagramEditor(port);
-				PictogramElement[] elements = editor.getSelectedPictogramElements();
-				for (WFArc arc: port.getArcs()) {
-					PictogramElement element = fp.getPictogramElementForBusinessObject(arc);
-					if (Arrays.asList(elements).contains(element))
-						return true;
-				}				
+				if (editor != null) {
+					PictogramElement[] elements = editor.getSelectedPictogramElements();				
+					for (WFArc arc: port.getArcs()) {
+						PictogramElement element = fp.getPictogramElementForBusinessObject(arc);
+						if (Arrays.asList(elements).contains(element))
+							return true;
+					}
+				}
 			}	
 			if (port.getResponseArcs().size() > 0) {
 				WorkflowDiagramEditor editor = NOWPSettingsEditorUtils.getDiagramEditor(port);
-				PictogramElement[] elements = editor.getSelectedPictogramElements();
-				for (ResponseArc arc: port.getResponseArcs()) {
-					PictogramElement element = fp.getPictogramElementForBusinessObject(arc);
-					if (Arrays.asList(elements).contains(element))
-						return true;
-				}				
+				if (editor != null) {
+
+					PictogramElement[] elements = editor.getSelectedPictogramElements();
+					for (ResponseArc arc: port.getResponseArcs()) {
+						PictogramElement element = fp.getPictogramElementForBusinessObject(arc);
+						if (Arrays.asList(elements).contains(element))
+							return true;
+					}				
+				}
 			}	
 		} else if (bo instanceof InputPort) {
 			InputPort port = (InputPort) bo;
-			if (port.getArcs().size() > 0) {
-				WFArc arc = port.getArcs().get(0);
-				PictogramElement element = fp.getPictogramElementForBusinessObject(arc);
+			if (port.getArcs().size() > 0) {	
 				WorkflowDiagramEditor editor = NOWPSettingsEditorUtils.getDiagramEditor(port);
-				PictogramElement[] elements = editor.getSelectedPictogramElements();
-				return Arrays.asList(elements).contains(element);
-				
+				if (editor != null) {			
+					WFArc arc = port.getArcs().get(0);
+					PictogramElement element = fp.getPictogramElementForBusinessObject(arc);
+					PictogramElement[] elements = editor.getSelectedPictogramElements();
+					return Arrays.asList(elements).contains(element);
+				}
 			}
 		}  else if (bo instanceof Response) {
 			Response response = (Response) bo;
 			if (response.getSource().size() > 0) {
 				WorkflowDiagramEditor editor = NOWPSettingsEditorUtils.getDiagramEditor(response);
-				PictogramElement[] elements = editor.getSelectedPictogramElements();
-				for (ResponseArc arc: response.getSource()) {
-					PictogramElement element = fp.getPictogramElementForBusinessObject(arc);
-					if (Arrays.asList(elements).contains(element))
-						return true;
-				}				
+				if (editor != null) {
+					PictogramElement[] elements = editor.getSelectedPictogramElements();
+					for (ResponseArc arc: response.getSource()) {
+						PictogramElement element = fp.getPictogramElementForBusinessObject(arc);
+						if (Arrays.asList(elements).contains(element))
+							return true;
+					}		
+				}
 			}
 		}
 		return false;
@@ -115,7 +123,7 @@ public class PortGARenderer extends AbstractGARenderer implements IGraphicsAlgor
 	protected void outlineShape(Graphics g) {	
 		Rectangle r = getInnerBounds();
 		// TODO Better way to do this?
-		g.setClip(new Rectangle(r.x-100, r.y-100,  1000, 1000)); 
+		g.setClip(new Rectangle(r.x-200, r.y-200,  1000, 1000)); 
 		g.setForegroundColor(ColorConstants.black);
 
 		PictogramElement pe = rc.getPlatformGraphicsAlgorithm().getPictogramElement();
@@ -127,11 +135,17 @@ public class PortGARenderer extends AbstractGARenderer implements IGraphicsAlgor
 		}
 
 		if (bo instanceof Port && showPortLabels(bo)) {
-
 			if (bo instanceof Port) {
 				Port p = (Port) bo;
-				WFNode node = getNode(p);
+				WFNode node = getNode(p);				
 				if (!ParameterUtils.isParameter(node)) {
+					if (skipSingletonPortLabels()) {
+						if (bo instanceof InputPort && node.getInputPorts().size() == 1) {
+							return;
+						} else if (bo instanceof OutputPort && node.getOutputPorts().size() == 1) {
+							return;
+						}
+					}
 					Font f = WorkflowEditorPlugin.getDefault().getDiagramFont();
 					g.setFont(f);
 					String text = ((Port)bo).getName();			
@@ -154,6 +168,10 @@ public class PortGARenderer extends AbstractGARenderer implements IGraphicsAlgor
 		}
 	}
 
+	private boolean skipSingletonPortLabels() {
+		return WorkflowEditorPlugin.getDefault().getPreferenceStore().getBoolean(IWorkflowEditorPreferences.SKIP_SINGLETON_PORT_LABELS);
+	}
+	
 	private boolean showPortLabels(Object bo) {
 		Port p = (Port) bo;
 		WFNode node = getNode(p);

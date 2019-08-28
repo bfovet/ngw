@@ -21,6 +21,7 @@ import gov.sandia.dart.workflow.runtime.components.Squirter;
 import gov.sandia.dart.workflow.runtime.core.ICancelationListener;
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
 import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
+import gov.sandia.dart.workflow.runtime.util.ProcessUtils;
 
 class CubitClaroxWorkflowJob {
 
@@ -43,12 +44,11 @@ class CubitClaroxWorkflowJob {
 	}
 
 	protected void canceling() {
-		if (process != null)
-			process.destroy();
+		ProcessUtils.destroyProcess(process);
 		if (t1 != null)
-			t1.stop();
+			t1.interrupt();
 		if (t2 != null)
-			t2.stop();
+			t2.interrupt();
 	}	
 	
 	protected boolean run(RuntimeData runtime) {
@@ -66,7 +66,7 @@ class CubitClaroxWorkflowJob {
 			environment.remove("DYLD_FORCE_FLAT_NAMESPACE");
 			environment.putAll(envVars);
 			process = builder.start();
-			listener = () -> process.destroy();
+			listener = () -> ProcessUtils.destroyProcess(process);
 			runtime.addCancelationListener(listener);
 			
 			(t1  = new Thread(new Squirter(process.getInputStream(), log), "CUBIT stdout")).start();

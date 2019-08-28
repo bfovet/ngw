@@ -10,12 +10,15 @@
 package gov.sandia.dart.workflow.runtime.core;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,6 +42,7 @@ import com.googlecode.sarasvati.mem.MemNode;
 import com.googlecode.sarasvati.xml.XmlProcessDefinition;
 
 import gov.sandia.dart.workflow.runtime.Main;
+import gov.sandia.dart.workflow.runtime.components.PFile;
 import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition.Node;
 import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition.Parameter;
 import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition.Property;
@@ -54,12 +58,14 @@ public class WorkflowProcess {
 	private static final String WORKFLOW_WORKDIR_NAME = "workflow.workdir.name";
 	private static final String WORKFLOW_WORKDIR = "workflow.workdir";
 	private static final String WORKFLOW_HOMEDIR = "workflow.homedir";
+	private static final String WORKFLOW_FILEDIR = "workflow.filedir";
+
 	private static final String USER_HOME = "user.home";
 	private static final String SAMPLE_ID = "sample.id";
 	private static final String USER_NAME = "user.name";
 	final static Set<String> builtIns = new HashSet<>();
 	static {
-		builtIns.addAll(Arrays.asList(JAVA_VERSION, WORKFLOW_FILENAME, WORKFLOW_HOMEDIR, WORKFLOW_WORKDIR,
+		builtIns.addAll(Arrays.asList(JAVA_VERSION, WORKFLOW_FILENAME, WORKFLOW_FILEDIR, WORKFLOW_HOMEDIR, WORKFLOW_WORKDIR,
 				WORKFLOW_WORKDIR_NAME, USER_HOME, USER_NAME, SAMPLE_ID));
 	}
 	
@@ -78,11 +84,13 @@ public class WorkflowProcess {
 	private volatile boolean cancelled;
 	private RuntimeData runtime;
 	private String startNode;
-	private Map<String, Object> parameters = new HashMap<>();
 	private IResponseWriter responseWriter = null;
 	private UUID uuid = UUID.randomUUID();
 	private String sampleId = null;
-	
+	Map<String, RuntimeParameter> parameters = new ConcurrentHashMap<>();
+	private Map<String, RuntimeParameter> parametersFromParent = null;
+	private File globalParameterFile;
+
 	public WorkflowProcess() {}
 	
 	public WorkflowProcess addMonitor(IWorkflowMonitor monitor) {
@@ -131,21 +139,17 @@ public class WorkflowProcess {
 	}
 	
 	public void run(List<IWFObject> objects) throws SAWWorkflowException {
-		runWorkflow(monitors, "INTERNAL", objects, homeDir, workDir, out, err == null ? out : err, customNodes, envVars, true);
+		File file = getWorkflowFile();
+		String fileName = (file != null) ? file.getName() : "INTERNAL";
+			
+		runWorkflow(monitors, fileName, objects, homeDir, workDir, out, err == null ? out : err, customNodes, envVars);
 	}
 
 	public void run() throws SAWWorkflowException {
 		IWFParser parser = new IWFParser();
 		List<IWFObject> objects = parser.parse(workflowFile);
-		runWorkflow(monitors, workflowFile.getName(), objects, homeDir, workDir, out, err == null ? out : err, customNodes, envVars, true);
+		runWorkflow(monitors, workflowFile.getName(), objects, homeDir, workDir, out, err == null ? out : err, customNodes, envVars);
 	}
-	
-	public void dryRun() throws SAWWorkflowException {
-		IWFParser parser = new IWFParser();
-		List<IWFObject> objects = parser.parse(workflowFile);
-		runWorkflow(monitors, workflowFile.getName(), objects, homeDir, workDir, out, err == null ? out : err, customNodes, envVars, false);
-	}
-
 	
 	/**
 	 * Test probe
@@ -166,8 +170,9 @@ public class WorkflowProcess {
 	static Pattern envVarPattern = Pattern.compile("(\\$\\w+)\\W?");
 	private Graph graph;
 	private WorkflowDefinition workflowDefinition;
-	private SAWWorkflowLogger log;
+	private volatile SAWWorkflowLogger log;
 	private boolean validateUndefined = false;
+
 	/**
 	 * Substitutes any system environment vars into value before adding name -> value to the environment var
 	 * mapping for this WorkflowProcess.
@@ -204,6 +209,13 @@ public class WorkflowProcess {
 		runtime.notifyCancelled();
 	}
 	
+	private void setParameter(String name, Object value, boolean isGlobal, String source) {
+		if (runtime.setParameter(name, value, isGlobal))
+			runtime.log().info("assigned {0} workflow parameter {1} from {2}", isGlobal ? "global" : "local", name, source);
+		else
+			runtime.log().debug("ignoring value from {0} for previously assigned workflow parameter {1}", source, name);
+	}
+	
 	private void runWorkflow(List<IWorkflowMonitor> monitors,
 			String workflowFileName,
 			List<IWFObject> objects,
@@ -212,13 +224,13 @@ public class WorkflowProcess {
 			PrintWriter output,
 			PrintWriter error,
 			Map<String, Class<? extends SAWCustomNode>> customNodeTypes,
-			Map<String, String> envVars, 
-			boolean execute) throws SAWWorkflowException {
+			Map<String, String> envVars) throws SAWWorkflowException {
 		
 		processes.clear();
+		boolean closeResponseWriter = false;
+		boolean closeLog = (log == null);
 		// TODO Log for nested runtimes
 		getLogger();
-		boolean closeResponseWriter = false, closeLog = (log == null);
 		engine = createEngine(customNodeTypes, log);
 		workflowDefinition = new WorkflowDefinition();	
 		runtime = new RuntimeData(monitors, homeDir, workingDir, engine, log);
@@ -231,9 +243,11 @@ public class WorkflowProcess {
 		for (Map.Entry<String, String> entry: envVars.entrySet()) {
 			runtime.setenv(entry.getKey(), entry.getValue());
 		}
+		
 		try {
 			runtime.log().info("Workflow \"{0}\" running at {1} on {2}, pid={3}", workflowFileName, new Date(), ProcessUtils.gethost(), ProcessUtils.getpid());
 			runtime.log().info("Workflow engine version: {0}", getWorkflowVersion());
+			runtime.log().info("Workflow engine install location: {0}", getWorkflowInstallLocation());
 			runtime.log().debug("Workflow node definitions loaded");
 			try {
 				runtime.log().debug("Translating process definition from {0}", workflowFileName);
@@ -268,75 +282,96 @@ public class WorkflowProcess {
 						}	
 					}
 				}
-				if (execute) {
-					long startTime = System.currentTimeMillis();
-					for (Map.Entry<String, Parameter> entry: workflowDefinition.getParameters().entrySet()) {
-						Parameter p = entry.getValue();
-						runtime.setParameter(entry.getKey(), p.value, p.global);	
-					}
+				long startTime = System.currentTimeMillis();
 
-					for (Map.Entry<String, Object> entry: parameters.entrySet()) {
-						// Only global if overriding global value?
-						runtime.setParameter(entry.getKey(), entry.getValue(), runtime.isGlobal(entry.getKey()));	
-					}
-					
-					// Note: although it may look like there's a "ParameterFileNode" which loads the parameters, it actually happens here, 
-					// before the workflow even starts. The parameterFile node just double-checks that the parameters file is valid.
-					for (String name: workflowDefinition.getNodeNames()) {
-						Node node = workflowDefinition.getNode(name);
-						if ("parameterFile".equals(node.type)) {
-							try {
-								Property property = node.properties.get("fileName");
-								File f = new File(property.value);
-								if (!f.isAbsolute()) {
-									f = new File(runtime.getHomeDir(), property.value);
-								}
-								Properties p = new Properties();
-								try (FileInputStream fis = new FileInputStream(f)) {
-									p.load(fis);
-								}							
-								p.entrySet().forEach(e -> runtime.setParameter(String.valueOf(e.getKey()), String.valueOf(e.getValue()), true));
+				// Some standard parameters. Can't be overridden by workflow
+				runtime.setParameter(USER_NAME,             System.getProperty(USER_NAME), true);
+				runtime.setParameter(SAMPLE_ID,             runtime.getSampleId(), true);
+				runtime.setParameter(USER_HOME,             System.getProperty(USER_HOME), true);
+				runtime.setParameter(WORKFLOW_HOMEDIR,      runtime.getHomeDir().getAbsolutePath(), true);
+				runtime.setParameter(WORKFLOW_WORKDIR,      runtime.getWorkDirectory().getAbsolutePath(), true);
+				runtime.setParameter(WORKFLOW_WORKDIR_NAME, runtime.getWorkDirectory().getName(), true);
+				runtime.setParameter(WORKFLOW_FILENAME,     runtime.getWorkflowFile().getName(), true);
+				runtime.setParameter(WORKFLOW_FILEDIR,      runtime.getWorkflowFile().getAbsoluteFile().getParent(), true);
 
-							} catch (Exception e) {
-								runtime.log().error("PropertyFile node " + name + " failed precheck", e);
+				runtime.setParameter(JAVA_VERSION,          System.getProperty(JAVA_VERSION), true);
+
+				// Parameter values from global parameter file override values defined in workflow,
+				// but any definition in workflow determines whether parameter is global or local
+				if (globalParameterFile != null) {
+					if (!globalParameterFile.exists()) {
+						throw new SAWWorkflowException("Global parameters file does not exist: " + globalParameterFile.getAbsolutePath());
+					}
+					try (FileReader gpr = new FileReader(globalParameterFile)){
+						runtime.log().info("Loading parameter values from file {0}", globalParameterFile.getName());
+						Properties gp = new Properties();
+						gp.load(gpr);
+						gp.forEach((k, v) -> setParameter(String.valueOf(k), String.valueOf(v), !workflowDefinition.isLocalParameter(String.valueOf(k)),
+								"global parameter file")); 
+					}						
+				}
+
+				// Values from inherited parameters also override values defined in workflow
+				if (parametersFromParent != null) {
+					runtime.log().info("Loading parameter values from parent workflow");
+					parametersFromParent.forEach((k, v) -> setParameter(k, v.getValue(), !workflowDefinition.isLocalParameter(k), "parent workflow")); 			
+				}
+
+				// Note: although it may look like there's a "ParameterFileNode" which loads the parameters, it actually happens here, 
+				// before the workflow even starts. The parameterFile node just double-checks that the parameters file is valid. These
+				// override declared parameters in the workflow itself.
+				for (String name: workflowDefinition.getNodeNames()) {
+					Node node = workflowDefinition.getNode(name);
+					if ("parameterFile".equals(node.type)) {
+						try {							
+							Property property = node.properties.get("fileName");
+							String value = property.value;
+							// TODO Quick hack. We need to refactor things a little so this can be properly resolved before use
+							if (value.indexOf("${user.name}") > -1)
+								value = value.replace("${user.name}", System.getProperty("user.name"));
+							File f = new File(value);
+							if (!f.isAbsolute()) {
+								f = new File(runtime.getHomeDir(), value);
 							}
+							PFile p = new PFile(new FileReader(f));											
+							p.map().entrySet().forEach(e -> setParameter(String.valueOf(e.getKey()), String.valueOf(e.getValue()),
+									!workflowDefinition.isLocalParameter(String.valueOf(e.getKey())), "parameterFile node " + name));
+
+						} catch (Exception e) {
+							runtime.log().error("PropertyFile node " + name + " failed precheck", e);
 						}
 					}
-
-					// Some standard parameters
-					runtime.setParameter(USER_NAME,             System.getProperty(USER_NAME), true);
-					runtime.setParameter(SAMPLE_ID,             runtime.getSampleId(), true);
-					runtime.setParameter(USER_HOME,             System.getProperty(USER_HOME), true);
-					runtime.setParameter(WORKFLOW_HOMEDIR,      runtime.getHomeDir().getAbsolutePath(), true);
-					runtime.setParameter(WORKFLOW_WORKDIR,      runtime.getWorkDirectory().getAbsolutePath(), true);
-					runtime.setParameter(WORKFLOW_WORKDIR_NAME, runtime.getWorkDirectory().getName(), true);
-					runtime.setParameter(WORKFLOW_FILENAME,     runtime.getWorkflowFile().getName(), true);
-					runtime.setParameter(JAVA_VERSION,          System.getProperty(JAVA_VERSION), true);
-
-					
-					// If parameters are defined in terms of one another, attempt to resolve these
-					resolveParameters(runtime.getParameters(), runtime);
-					runtime.getParameters().forEach((k, v) -> runtime.log().info("Workflow parameter {0} set to {1}",k, v));
-					
-					if (responseWriter == null && workflowDefinition.getResponses().size() > 0) {
-						closeResponseWriter = true;
-						responseWriter = runtime.openResponseWriter(workflowDefinition);
-					}
-					runWorkflow(workflowDefinition, runtime, responseWriter);
-					
-					waitForProcesses();
-					runtime.awaitTermination();
-					runtime.log().debug(SUCCESS);
-					Map<String, Object> responses = runtime.getResponses();
-					if (responses.size() > 0)
-						runtime.log().debug("Responses:");
-					
-					for (String name: responses.keySet()) {
-						runtime.log().debug("  {0} = {1}", name, ResponsesOutWriter.format(responses.get(name)));
-					}
-
-					runtime.log().info("Execution time {0} sec", (System.currentTimeMillis() - startTime) / 1000.);
 				}
+
+				// Lastly load definitions from workflow itself
+				for (Map.Entry<String, Parameter> entry: workflowDefinition.getParameters().entrySet()) {
+					Parameter p = entry.getValue();
+					setParameter(entry.getKey(), String.valueOf(p.value), p.global, "workflow parameter node");
+				}
+
+				// If parameters are defined in terms of one another, attempt to resolve these
+				resolveParameters(runtime);
+				runtime.getParameterNames().forEach((k) -> runtime.log().info("workflow parameter {0} resolved to \"{1}\"", k, runtime.getParameter(k).getValue()));
+
+				if (responseWriter == null && workflowDefinition.getResponses().size() > 0) {
+					closeResponseWriter = true;
+					responseWriter = runtime.openResponseWriter(workflowDefinition);
+				}
+				runWorkflow(workflowDefinition, runtime, responseWriter);
+
+				waitForProcesses();
+				runtime.awaitTermination();
+				runtime.log().debug(SUCCESS);
+				Map<String, Object> responses = runtime.getResponses();
+				if (responses.size() > 0)
+					runtime.log().debug("Responses:");
+
+				for (String name: responses.keySet()) {
+					runtime.log().debug("  {0} = {1}", name, ResponsesOutWriter.format(responses.get(name)));
+				}
+
+				runtime.log().info("Execution time {0} sec", (System.currentTimeMillis() - startTime) / 1000.);
+
 
 			} catch (SAWWorkflowException e) {
 				// TODO Shutdown stuff here				
@@ -347,7 +382,7 @@ public class WorkflowProcess {
 				runtime.log().error(FAILURE, e);
 				throw new SAWWorkflowException(FAILURE, e);
 			} finally {
-				try {if (execute) runtime.saveState();} catch (Exception ex) {}
+				try {runtime.saveState();} catch (Exception ex) {}
 				// This is a bit dodgy, sorry. But if we created the log in this method, then we should close it.
 				// If someone else created it earlier, then its their job.
 				try {if (closeLog) log.close(); } catch (Exception ex) {}
@@ -379,20 +414,37 @@ public class WorkflowProcess {
 		return workflowVersion;
 	}
 	
+	private static volatile String workflowInstallPath = null;
+	public static String getWorkflowInstallLocation() {
+		if (workflowInstallPath == null) {
+			try {
+				URL resourceUrl = WorkflowProcess.class.getResource("/ngw.version");
+				if (resourceUrl != null)
+					workflowInstallPath = resourceUrl.getPath();
+			} catch (Exception e) {
+				// Fall through
+			}
+			if (workflowInstallPath == null)
+				workflowInstallPath = "Unknown";
+		}
+		return workflowInstallPath;
+	}
+
+	
 	public static void setWorkflowVersion(String version) {
 		workflowVersion = version;
 	}
 	
 	private static final int PASSES=12;
 	// Public for testing
-	public static int resolveParameters(Map<String, Object> parameters, RuntimeData runtime) {
+	public static int resolveParameters(RuntimeData runtime) {
 		Pattern var = Pattern.compile("\\$\\{([^}]+)\\}");
 		int pass = 0;
 		Map<String, String> systemProperties = getSystemProperties(runtime);
 		for (pass=0; pass < PASSES; ++pass) {
 			boolean found = false;
-			for (String name: parameters.keySet()) {
-				String value = String.valueOf(parameters.get(name));
+			for (String name: runtime.getParameterNames()) {
+				String value = String.valueOf(runtime.getParameter(name).getValue());
 				if (value.indexOf("$") == -1) {
 					continue;					
 				}
@@ -400,14 +452,14 @@ public class WorkflowProcess {
 				boolean matched = matcher.find();
 				if (matched) {
 					String otherName = matcher.group(1);
-					if (parameters.containsKey(otherName)) {
+					if (runtime.getParameterNames().contains(otherName)) {
 						found = true;
-						String otherValue = String.valueOf(parameters.get(otherName));
+						String otherValue = String.valueOf(runtime.getParameter(otherName).getValue());
 						value = value.replace("${" + otherName + "}", otherValue);
-						parameters.put(name, value);
+						runtime.getParameter(name).setValue(value);
 					} else if (systemProperties.containsKey(otherName)) {
 						value = value.replace("${" + otherName + "}", systemProperties.get(otherName));
-						parameters.put(name, value);
+						runtime.getParameter(name).setValue(value);
 					}
 				}				
 			}
@@ -426,7 +478,10 @@ public class WorkflowProcess {
 			if (runtime != null) {
 				sysProps.put(WORKFLOW_HOMEDIR, Matcher.quoteReplacement(runtime.getHomeDir().getAbsolutePath()));		
 				sysProps.put(WORKFLOW_WORKDIR, Matcher.quoteReplacement(runtime.getWorkDirectory().getAbsolutePath()));
+				sysProps.put(WORKFLOW_WORKDIR_NAME, Matcher.quoteReplacement(runtime.getWorkDirectory().getName()));
 				sysProps.put(WORKFLOW_FILENAME, Matcher.quoteReplacement(runtime.getWorkflowFile().getName()));
+				sysProps.put(WORKFLOW_FILEDIR, Matcher.quoteReplacement(runtime.getWorkflowFile().getAbsoluteFile().getParent()));
+
 			}
 		}
 		return sysProps;
@@ -448,14 +503,13 @@ public class WorkflowProcess {
 
 	private void waitForProcesses() {
 		outer:
-		while (!cancelled && !processes.isEmpty()) {			
+		while (!cancelled && !processes.isEmpty()) {	
 			for (GraphProcess process: processes) {
 				//System.out.println("Active tokens: " + process.hasActiveTokens());
 				//System.out.println("Complete: " + process.isComplete());
 				//System.out.println("Active arc tokens:" + process.getActiveArcTokens());
 				//System.out.println("Active node tokens:" + process.getActiveNodeTokens());
-				
-				if (!process.isComplete() && !process.isCanceled()) {
+				if (!process.isComplete() && !process.isCanceled() && !process.getActiveNodeTokens().isEmpty()) {
 					try {
 						Thread.sleep(500);
 					} catch (InterruptedException e) {
@@ -483,7 +537,6 @@ public class WorkflowProcess {
 			}
 		}
 		engine.addExecutionListener(WorkflowListener.class);
-		
 		return engine;
 	}
 
@@ -505,16 +558,28 @@ public class WorkflowProcess {
 		return this;
 	}
 
-	public WorkflowProcess setParameter(String parameter, Object value) {
+	public WorkflowProcess setParameter(String parameter, RuntimeParameter value) {
 		parameters.put(parameter, value);
 		return this;
 	}
 	
-	public WorkflowProcess setParameters(Map<String, Object> values) {
+	public WorkflowProcess setParameters(Map<String, RuntimeParameter> values) {
 		parameters.putAll(values);
 		return this;
 	}
+	
+	public RuntimeParameter getParameter(String name) {
+		return parameters.get(name);
+	}
 
+	public void setParameter(String name, String value) {
+		RuntimeParameter p = parameters.get(name);
+		if (p != null)
+			p.setValue(value);
+		else
+			parameters.put(name, new RuntimeParameter(name, value, "default", true, false));
+
+	}
 
 	public WorkflowProcess setResponseWriter(IResponseWriter responseWriter) {
 		this.responseWriter = responseWriter;
@@ -522,12 +587,14 @@ public class WorkflowProcess {
 	}
 	
 	public WorkflowProcess setSampleId(String sampleId) {
+		if (runtime != null)
+			runtime.setSampleId(sampleId);		
 		this.sampleId = sampleId;
 		return this;
 	}
 	
 	public String getSampleId() {
-		return sampleId;
+		return runtime != null ? runtime.getSampleId() : sampleId;
 	}
 
 
@@ -550,7 +617,7 @@ public class WorkflowProcess {
 			responseWriter.writeRow(runtime);
 	}
 	
-	public SAWWorkflowLogger getLogger() {
+	public synchronized SAWWorkflowLogger getLogger() {
 		try {
 			if (log != null)
 				return log;
@@ -564,6 +631,14 @@ public class WorkflowProcess {
 		throw new SAWWorkflowException("Can't get logger before workdir is set");
 	}
 
+	public synchronized void closeLogger() {
+		if (log == null)
+			return;
+		log.close();
+		log = null;
+	}
+	
+	
 	public WorkflowProcess addMonitors(List<IWorkflowMonitor> monitors) {
 		monitors.addAll(monitors);
 		return this;
@@ -572,5 +647,19 @@ public class WorkflowProcess {
 	public WorkflowProcess setValidateUndefined(boolean validateUndefined) {
 		this.validateUndefined = validateUndefined;
 		return this;
+	}
+
+	public Collection<String> getParameterNames() {
+		return Collections.unmodifiableSet(parameters.keySet());
+	}
+
+	public WorkflowProcess setGlobalParameterFile(File globals) {
+		this.globalParameterFile = globals;
+		return this;		
+	}
+
+	public WorkflowProcess setParametersFromParent(Map<String, RuntimeParameter> parametersFromParent) {
+		this.parametersFromParent = parametersFromParent;
+		return this;		
 	}
 }

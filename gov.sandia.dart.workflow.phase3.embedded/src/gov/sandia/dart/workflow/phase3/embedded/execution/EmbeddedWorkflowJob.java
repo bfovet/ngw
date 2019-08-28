@@ -73,6 +73,7 @@ public class EmbeddedWorkflowJob extends Job {
 	private IFile file;
 	private WorkflowProcess workflow;
 	private String startNode = null;
+	private File globalParametersFile = null;
 
 	private IPath directory;
 	
@@ -80,6 +81,11 @@ public class EmbeddedWorkflowJob extends Job {
 		super(name);
 		this.file = file;
 		this.directory = directory;
+	}
+	
+	public EmbeddedWorkflowJob(String name, IFile file, IPath directory, File globalParametersFile) {
+		this(name, file, directory);
+		this.globalParametersFile = globalParametersFile;
 	}
 	
 	public EmbeddedWorkflowJob(String name, IFile file, IPath directory, String startNode) {
@@ -96,6 +102,9 @@ public class EmbeddedWorkflowJob extends Job {
 			File workDir = directory.toFile();
 
 			MessageConsole myConsole = findConsole(CONSOLE_NAME);
+			if (EmbeddedWorkflowPlugin.getDefault().getPreferenceStore().getBoolean(IEmbeddedExecutionPreferenceConstants.CLEAR_CONSOLE))
+				myConsole.clearConsole();
+			
 			OutputStream out = myConsole.newMessageStream();		    
 		     
 			File log = new File(workDir, FilenameUtils.getBaseName(iwfFile.getName()) + ".log");
@@ -116,7 +125,8 @@ public class EmbeddedWorkflowJob extends Job {
 				.setWorkDir(workDir)
 				.setOut(writer)
 				.setErr(err)
-				.setStartNode(startNode);
+				.setStartNode(startNode)
+				.setGlobalParameterFile(globalParametersFile);
 				
 				final IPreferenceStore preferenceStore = EmbeddedWorkflowPlugin.getDefault().getPreferenceStore();
 				boolean validate = preferenceStore.getBoolean(IEmbeddedExecutionPreferenceConstants.VALIDATE_UNDEFINED);
@@ -218,7 +228,8 @@ public class EmbeddedWorkflowJob extends Job {
 	
 	private Map<String, Class<? extends SAWCustomNode>> getCustomNodes() {
 		Map<String, Class<? extends SAWCustomNode>> results = new HashMap<>();
-		List<IConfigurationElement> elements = ExtensionPointUtils.getConfigurationElements("gov.sandia.dart.workflow.phase3.embedded", "nodeDefinitionContributor");
+		List<IConfigurationElement> elements =
+				ExtensionPointUtils.getConfigurationElements("gov.sandia.dart.workflow.phase3.embedded", "nodeDefinitionContributor", "nodeDefinition");
 		for (IConfigurationElement element: elements) {
 			String name = element.getAttribute("name");
 			String clazz = element.getAttribute("nodeClass");

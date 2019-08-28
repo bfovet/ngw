@@ -208,16 +208,11 @@ public class DomainPackageImpl extends EPackageImpl implements DomainPackage {
 
 		isInited = true;
 
-		// Obtain or create and register interdependencies
-		DomainPackageImpl theDomainPackage_1 = (DomainPackageImpl)(EPackage.Registry.INSTANCE.getEPackage(DomainPackage.eNS_URI) instanceof DomainPackageImpl ? EPackage.Registry.INSTANCE.getEPackage(DomainPackage.eNS_URI) : DomainPackage.eINSTANCE);
-
 		// Create package meta-data objects
 		theDomainPackage.createPackageContents();
-		theDomainPackage_1.createPackageContents();
 
 		// Initialize created meta-data
 		theDomainPackage.initializePackageContents();
-		theDomainPackage_1.initializePackageContents();
 
 		// Mark meta-data to indicate it can't be changed
 		theDomainPackage.freeze();
@@ -379,6 +374,15 @@ public class DomainPackageImpl extends EPackageImpl implements DomainPackage {
 	 */
 	public EReference getProperty_Node() {
 		return (EReference)propertyEClass.getEStructuralFeatures().get(2);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getProperty_Advanced() {
+		return (EAttribute)propertyEClass.getEStructuralFeatures().get(3);
 	}
 
 	/**
@@ -548,35 +552,8 @@ public class DomainPackageImpl extends EPackageImpl implements DomainPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getNote_Font() {
+	public EAttribute getNote_DrawBorderAndBackground() {
 		return (EAttribute)noteEClass.getEStructuralFeatures().get(2);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EAttribute getNote_FontHeight() {
-		return (EAttribute)noteEClass.getEStructuralFeatures().get(3);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EAttribute getNote_FontColor() {
-		return (EAttribute)noteEClass.getEStructuralFeatures().get(4);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EAttribute getNote_FontStyle() {
-		return (EAttribute)noteEClass.getEStructuralFeatures().get(5);
 	}
 
 	/**
@@ -719,8 +696,17 @@ public class DomainPackageImpl extends EPackageImpl implements DomainPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getImage_Color() {
+	public EAttribute getImage_ZoomToFit() {
 		return (EAttribute)imageEClass.getEStructuralFeatures().get(1);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getImage_DrawBorder() {
+		return (EAttribute)imageEClass.getEStructuralFeatures().get(2);
 	}
 
 	/**
@@ -771,6 +757,7 @@ public class DomainPackageImpl extends EPackageImpl implements DomainPackage {
 		createEAttribute(propertyEClass, PROPERTY__TYPE);
 		createEAttribute(propertyEClass, PROPERTY__VALUE);
 		createEReference(propertyEClass, PROPERTY__NODE);
+		createEAttribute(propertyEClass, PROPERTY__ADVANCED);
 
 		portEClass = createEClass(PORT);
 		createEAttribute(portEClass, PORT__TYPE);
@@ -795,10 +782,7 @@ public class DomainPackageImpl extends EPackageImpl implements DomainPackage {
 		noteEClass = createEClass(NOTE);
 		createEAttribute(noteEClass, NOTE__TEXT);
 		createEAttribute(noteEClass, NOTE__COLOR);
-		createEAttribute(noteEClass, NOTE__FONT);
-		createEAttribute(noteEClass, NOTE__FONT_HEIGHT);
-		createEAttribute(noteEClass, NOTE__FONT_COLOR);
-		createEAttribute(noteEClass, NOTE__FONT_STYLE);
+		createEAttribute(noteEClass, NOTE__DRAW_BORDER_AND_BACKGROUND);
 
 		namedObjectWithPropertiesEClass = createEClass(NAMED_OBJECT_WITH_PROPERTIES);
 		createEReference(namedObjectWithPropertiesEClass, NAMED_OBJECT_WITH_PROPERTIES__PROPERTIES);
@@ -821,7 +805,8 @@ public class DomainPackageImpl extends EPackageImpl implements DomainPackage {
 
 		imageEClass = createEClass(IMAGE);
 		createEAttribute(imageEClass, IMAGE__TEXT);
-		createEAttribute(imageEClass, IMAGE__COLOR);
+		createEAttribute(imageEClass, IMAGE__ZOOM_TO_FIT);
+		createEAttribute(imageEClass, IMAGE__DRAW_BORDER);
 	}
 
 	/**
@@ -847,63 +832,61 @@ public class DomainPackageImpl extends EPackageImpl implements DomainPackage {
 		setNsPrefix(eNS_PREFIX);
 		setNsURI(eNS_URI);
 
-		// Obtain other dependent packages
-		DomainPackage theDomainPackage_1 = (DomainPackage)EPackage.Registry.INSTANCE.getEPackage(DomainPackage.eNS_URI);
-
 		// Create type parameters
 
 		// Set bounds for type parameters
 
 		// Add supertypes to classes
-		responseEClass.getESuperTypes().add(theDomainPackage_1.getNamedObject());
-		wfNodeEClass.getESuperTypes().add(theDomainPackage_1.getNamedObjectWithProperties());
-		wfArcEClass.getESuperTypes().add(theDomainPackage_1.getArc());
-		propertyEClass.getESuperTypes().add(theDomainPackage_1.getNamedObject());
-		portEClass.getESuperTypes().add(theDomainPackage_1.getNamedObjectWithProperties());
-		inputPortEClass.getESuperTypes().add(theDomainPackage_1.getPort());
-		outputPortEClass.getESuperTypes().add(theDomainPackage_1.getPort());
-		sawNodeEClass.getESuperTypes().add(theDomainPackage_1.getWFNode());
-		namedObjectWithPropertiesEClass.getESuperTypes().add(theDomainPackage_1.getNamedObject());
-		responseArcEClass.getESuperTypes().add(theDomainPackage_1.getArc());
-		conductorEClass.getESuperTypes().add(theDomainPackage_1.getNamedObjectWithProperties());
-		parameterEClass.getESuperTypes().add(theDomainPackage_1.getNamedObject());
-		runnerEClass.getESuperTypes().add(theDomainPackage_1.getNamedObjectWithProperties());
-		arcEClass.getESuperTypes().add(theDomainPackage_1.getNamedObjectWithProperties());
+		responseEClass.getESuperTypes().add(this.getNamedObject());
+		wfNodeEClass.getESuperTypes().add(this.getNamedObjectWithProperties());
+		wfArcEClass.getESuperTypes().add(this.getArc());
+		propertyEClass.getESuperTypes().add(this.getNamedObject());
+		portEClass.getESuperTypes().add(this.getNamedObjectWithProperties());
+		inputPortEClass.getESuperTypes().add(this.getPort());
+		outputPortEClass.getESuperTypes().add(this.getPort());
+		sawNodeEClass.getESuperTypes().add(this.getWFNode());
+		namedObjectWithPropertiesEClass.getESuperTypes().add(this.getNamedObject());
+		responseArcEClass.getESuperTypes().add(this.getArc());
+		conductorEClass.getESuperTypes().add(this.getNamedObjectWithProperties());
+		parameterEClass.getESuperTypes().add(this.getNamedObject());
+		runnerEClass.getESuperTypes().add(this.getNamedObjectWithProperties());
+		arcEClass.getESuperTypes().add(this.getNamedObjectWithProperties());
 
 		// Initialize classes, features, and operations; add parameters
 		initEClass(responseEClass, Response.class, "Response", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getResponse_Type(), ecorePackage.getEString(), "type", null, 0, 1, Response.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getResponse_Source(), theDomainPackage_1.getResponseArc(), theDomainPackage_1.getResponseArc_Target(), "source", null, 0, -1, Response.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getResponse_Source(), this.getResponseArc(), this.getResponseArc_Target(), "source", null, 0, -1, Response.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(wfNodeEClass, WFNode.class, "WFNode", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEReference(getWFNode_InputPorts(), theDomainPackage_1.getInputPort(), theDomainPackage_1.getInputPort_Node(), "inputPorts", null, 0, -1, WFNode.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getWFNode_OutputPorts(), theDomainPackage_1.getOutputPort(), theDomainPackage_1.getOutputPort_Node(), "outputPorts", null, 0, -1, WFNode.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getWFNode_InputPorts(), this.getInputPort(), this.getInputPort_Node(), "inputPorts", null, 0, -1, WFNode.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getWFNode_OutputPorts(), this.getOutputPort(), this.getOutputPort_Node(), "outputPorts", null, 0, -1, WFNode.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getWFNode_Start(), ecorePackage.getEBoolean(), "start", "false", 0, 1, WFNode.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getWFNode_Type(), ecorePackage.getEString(), "type", null, 0, 1, WFNode.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getWFNode_Label(), ecorePackage.getEString(), "label", "", 0, 1, WFNode.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getWFNode_Conductors(), theDomainPackage_1.getConductor(), theDomainPackage_1.getConductor_Node(), "conductors", null, 0, -1, WFNode.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getWFNode_Conductors(), this.getConductor(), this.getConductor_Node(), "conductors", null, 0, -1, WFNode.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(wfArcEClass, WFArc.class, "WFArc", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEReference(getWFArc_Source(), theDomainPackage_1.getOutputPort(), theDomainPackage_1.getOutputPort_Arcs(), "source", null, 0, 1, WFArc.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getWFArc_Target(), theDomainPackage_1.getInputPort(), theDomainPackage_1.getInputPort_Arcs(), "target", null, 0, 1, WFArc.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getWFArc_Source(), this.getOutputPort(), this.getOutputPort_Arcs(), "source", null, 0, 1, WFArc.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getWFArc_Target(), this.getInputPort(), this.getInputPort_Arcs(), "target", null, 0, 1, WFArc.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(propertyEClass, Property.class, "Property", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getProperty_Type(), ecorePackage.getEString(), "type", "", 0, 1, Property.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getProperty_Value(), ecorePackage.getEString(), "value", null, 0, 1, Property.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getProperty_Node(), theDomainPackage_1.getNamedObjectWithProperties(), theDomainPackage_1.getNamedObjectWithProperties_Properties(), "node", null, 0, 1, Property.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getProperty_Node(), this.getNamedObjectWithProperties(), this.getNamedObjectWithProperties_Properties(), "node", null, 0, 1, Property.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getProperty_Advanced(), ecorePackage.getEBoolean(), "advanced", "false", 0, 1, Property.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(portEClass, Port.class, "Port", IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getPort_Type(), ecorePackage.getEString(), "type", null, 0, 1, Port.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(inputPortEClass, InputPort.class, "InputPort", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEReference(getInputPort_Node(), theDomainPackage_1.getWFNode(), theDomainPackage_1.getWFNode_InputPorts(), "node", null, 0, 1, InputPort.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getInputPort_Arcs(), theDomainPackage_1.getWFArc(), theDomainPackage_1.getWFArc_Target(), "arcs", null, 0, -1, InputPort.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getInputPort_Node(), this.getWFNode(), this.getWFNode_InputPorts(), "node", null, 0, 1, InputPort.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getInputPort_Arcs(), this.getWFArc(), this.getWFArc_Target(), "arcs", null, 0, -1, InputPort.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getInputPort_TriggerOnly(), ecorePackage.getEBoolean(), "triggerOnly", "false", 0, 1, InputPort.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(outputPortEClass, OutputPort.class, "OutputPort", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEReference(getOutputPort_Node(), theDomainPackage_1.getWFNode(), theDomainPackage_1.getWFNode_OutputPorts(), "node", null, 0, 1, OutputPort.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getOutputPort_Arcs(), theDomainPackage_1.getWFArc(), theDomainPackage_1.getWFArc_Source(), "arcs", null, 0, -1, OutputPort.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getOutputPort_ResponseArcs(), theDomainPackage_1.getResponseArc(), theDomainPackage_1.getResponseArc_Source(), "responseArcs", null, 0, -1, OutputPort.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getOutputPort_Node(), this.getWFNode(), this.getWFNode_OutputPorts(), "node", null, 0, 1, OutputPort.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getOutputPort_Arcs(), this.getWFArc(), this.getWFArc_Source(), "arcs", null, 0, -1, OutputPort.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getOutputPort_ResponseArcs(), this.getResponseArc(), this.getResponseArc_Source(), "responseArcs", null, 0, -1, OutputPort.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(namedObjectEClass, NamedObject.class, "NamedObject", IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getNamedObject_Name(), ecorePackage.getEString(), "name", null, 0, 1, NamedObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -915,20 +898,17 @@ public class DomainPackageImpl extends EPackageImpl implements DomainPackage {
 		initEClass(noteEClass, Note.class, "Note", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getNote_Text(), ecorePackage.getEString(), "text", "", 0, 1, Note.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getNote_Color(), ecorePackage.getEString(), "color", null, 0, 1, Note.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getNote_Font(), ecorePackage.getEString(), "font", null, 0, 1, Note.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getNote_FontHeight(), ecorePackage.getEInt(), "fontHeight", null, 0, 1, Note.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getNote_FontColor(), ecorePackage.getEString(), "fontColor", "", 0, 1, Note.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getNote_FontStyle(), ecorePackage.getEInt(), "fontStyle", null, 0, 1, Note.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getNote_DrawBorderAndBackground(), ecorePackage.getEBoolean(), "drawBorderAndBackground", "true", 0, 1, Note.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(namedObjectWithPropertiesEClass, NamedObjectWithProperties.class, "NamedObjectWithProperties", IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEReference(getNamedObjectWithProperties_Properties(), theDomainPackage_1.getProperty(), theDomainPackage_1.getProperty_Node(), "properties", null, 0, -1, NamedObjectWithProperties.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getNamedObjectWithProperties_Properties(), this.getProperty(), this.getProperty_Node(), "properties", null, 0, -1, NamedObjectWithProperties.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(responseArcEClass, ResponseArc.class, "ResponseArc", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEReference(getResponseArc_Source(), theDomainPackage_1.getOutputPort(), theDomainPackage_1.getOutputPort_ResponseArcs(), "source", null, 0, 1, ResponseArc.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getResponseArc_Target(), theDomainPackage_1.getResponse(), theDomainPackage_1.getResponse_Source(), "target", null, 0, 1, ResponseArc.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getResponseArc_Source(), this.getOutputPort(), this.getOutputPort_ResponseArcs(), "source", null, 0, 1, ResponseArc.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getResponseArc_Target(), this.getResponse(), this.getResponse_Source(), "target", null, 0, 1, ResponseArc.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(conductorEClass, Conductor.class, "Conductor", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEReference(getConductor_Node(), theDomainPackage_1.getWFNode(), theDomainPackage_1.getWFNode_Conductors(), "node", null, 0, 1, Conductor.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getConductor_Node(), this.getWFNode(), this.getWFNode_Conductors(), "node", null, 0, 1, Conductor.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(parameterEClass, Parameter.class, "Parameter", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getParameter_Type(), ecorePackage.getEString(), "type", null, 0, 1, Parameter.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -941,7 +921,11 @@ public class DomainPackageImpl extends EPackageImpl implements DomainPackage {
 
 		initEClass(imageEClass, Image.class, "Image", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getImage_Text(), ecorePackage.getEString(), "text", "", 0, 1, Image.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getImage_Color(), ecorePackage.getEString(), "color", null, 0, 1, Image.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getImage_ZoomToFit(), ecorePackage.getEBoolean(), "zoomToFit", "false", 0, 1, Image.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getImage_DrawBorder(), ecorePackage.getEBoolean(), "drawBorder", "true", 0, 1, Image.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+
+		// Create resource
+		createResource(eNS_URI);
 	}
 
 } //DomainPackageImpl

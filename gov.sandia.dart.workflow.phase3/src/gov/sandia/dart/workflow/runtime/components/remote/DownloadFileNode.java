@@ -9,10 +9,6 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.runtime.components.remote;
 
-import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
-import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
-import gov.sandia.dart.workflow.runtime.core.NodeCategories;
-import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
@@ -21,6 +17,10 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.NodeCategories;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
 import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
 import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
@@ -49,7 +49,7 @@ public class DownloadFileNode extends SAWCustomNode {
 			if (path != null)
 				exec.setPath(path);
 			//try {
-				exec.connect();
+				exec.connect(runtime.log());
 				exec.download(targetFile, remoteFile, runtime);
 			//} finally {
 			//	exec.disconnect();

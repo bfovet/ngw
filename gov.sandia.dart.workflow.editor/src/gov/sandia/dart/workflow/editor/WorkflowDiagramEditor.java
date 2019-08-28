@@ -44,11 +44,14 @@ import org.eclipse.emf.common.ui.URIEditorInput;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.transaction.RecordingCommand;
+import org.eclipse.emf.transaction.ResourceSetChangeEvent;
+import org.eclipse.emf.transaction.ResourceSetListenerImpl;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.emf.transaction.util.TransactionUtil;
 import org.eclipse.gef.DefaultEditDomain;
 import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.gef.LayerConstants;
+import org.eclipse.gef.dnd.TemplateTransfer;
 import org.eclipse.gef.editparts.FreeformGraphicalRootEditPart;
 import org.eclipse.gef.editparts.ZoomManager;
 import org.eclipse.gef.palette.PaletteRoot;
@@ -66,26 +69,42 @@ import org.eclipse.graphiti.ui.editor.DiagramEditor;
 import org.eclipse.graphiti.ui.editor.DiagramEditorInput;
 import org.eclipse.graphiti.ui.editor.IDiagramContainerUI;
 import org.eclipse.graphiti.ui.services.GraphitiUi;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.jface.viewers.DecoratingLabelProvider;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StackLayout;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSourceAdapter;
+import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IWorkbenchPage;
@@ -94,6 +113,7 @@ import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.ide.FileStoreEditorInput;
 
 import com.strikewire.snl.apc.GUIs.CompositeUtils;
@@ -104,10 +124,17 @@ import com.strikewire.snl.apc.selection.MultiControlSelectionProvider;
 import com.strikewire.snl.apc.temp.TempFileManager;
 import com.strikewire.snl.apc.util.ResourceUtils;
 
-import gov.sandia.dart.workflow.domain.WFArc;
+import gov.sandia.dart.workflow.domain.Arc;
 import gov.sandia.dart.workflow.domain.WFNode;
 import gov.sandia.dart.workflow.editor.preferences.IWorkflowEditorPreferences;
 import gov.sandia.dart.workflow.editor.settings.WFArcSettingsEditor;
+import gov.sandia.dart.workflow.editor.tree.WorkflowFileContentProvider;
+import gov.sandia.dart.workflow.editor.tree.WorkflowFileLabelProvider;
+import gov.sandia.dart.workflow.editor.tree.WorkflowTreeDecorator;
+import gov.sandia.dart.workflow.editor.tree.WorkflowTreePreferences;
+import gov.sandia.dart.workflow.editor.tree.WorkflowTreePreferences.Mode;
+import gov.sandia.dart.workflow.editor.tree.data.DiagramWFTreeRoot;
+import gov.sandia.dart.workflow.editor.tree.data.WFTreeRoot;
 import gov.sandia.dart.workflow.util.PropertyUtils;
 import gov.sandia.dart.workflow.util.WorkflowUtils;
 
@@ -122,6 +149,15 @@ public class WorkflowDiagramEditor extends DiagramEditor implements IPropertyCha
 	private StackLayout _mainStack;
 	private Composite _rootComposite;
 	private DefaultEditDomain _rootEditDomain;
+	private KeyboardStateListener listener;
+
+	WorkflowTreePreferences treePreferences_;
+
+	private Button treeButton_;
+	private TreeViewer tree_;
+	
+	private WFTreeRoot root_;
+
 	
 	private Stack<NestedChild> _nestedChildrenStack = new Stack<>();
 	
@@ -142,6 +178,18 @@ public class WorkflowDiagramEditor extends DiagramEditor implements IPropertyCha
 	@Override
 	public void createPartControl(Composite parent)
 	{
+		treePreferences_ = new WorkflowTreePreferences();
+		treePreferences_.setMode(Mode.HIERARCHICAL);
+		treePreferences_.setShowTreeInDiagramEditor(false);
+
+		
+		Display d = parent.getDisplay();
+		if (listener == null) {
+			listener = new KeyboardStateListener(d);
+			d.addFilter(SWT.KeyDown, listener);		
+			d.addFilter(SWT.KeyUp, listener);		
+		}
+		
 		GridLayout parentLayout = new GridLayout(1, false);
 		parentLayout.marginHeight = 0;
 		parentLayout.marginWidth = 0;
@@ -159,24 +207,138 @@ public class WorkflowDiagramEditor extends DiagramEditor implements IPropertyCha
 		contentsLayout.verticalSpacing = 0;
 		contents.setLayout(contentsLayout);
 
-		Composite runLocationLine = new Composite(contents, SWT.NONE);
-		runLocationLine.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		runLocationLine.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
+		Composite toolbarLine = new Composite(contents, SWT.NONE);
+		toolbarLine.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		toolbarLine.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
 
-		GridLayout runLocationLayout = new GridLayout(2, false);
-		runLocationLayout.verticalSpacing = 0;
-		runLocationLine.setLayout(runLocationLayout);		
+		GridLayout toolbarLayout = new GridLayout(3, false);
+		toolbarLayout.verticalSpacing = 0;
+		toolbarLine.setLayout(toolbarLayout);		
 		
-		Label runLabel = new Label(runLocationLine, SWT.NONE);
+		Label runLabel = new Label(toolbarLine, SWT.NONE);
 		runLabel.setText("Run in:");
 		runLabel.setLayoutData(new GridData(SWT.END, SWT.FILL, false, false));
 
-		CCombo combo = new CCombo(runLocationLine, SWT.BORDER);
+		CCombo combo = new CCombo(toolbarLine, SWT.BORDER);
 		runLocationCombo = new SubdirSelectionCombo(combo);
 		combo.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));			
 		runLocationCombo.getCCombo().addModifyListener(e -> updateHasRunData());
 		
-		_pathComposite = new Composite(contents, SWT.NONE);
+		if(treePreferences_.getShowTreeInDiagramEditor()) {
+			treeButton_ = new Button(toolbarLine, SWT.PUSH);
+			treeButton_.setText("Show/Hide Tree");
+			treeButton_.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
+		}		
+		
+		SashForm sashForm = new SashForm(contents, SWT.NONE);
+		sashForm.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		sashForm.setLayout(new FillLayout());
+		
+		Composite left = new Composite(sashForm, SWT.NONE);
+		left.setLayout(new FillLayout());
+		
+		tree_ = new TreeViewer(left);
+
+		WorkflowFileContentProvider provider = new WorkflowFileContentProvider();
+		provider.setPreferences(treePreferences_);
+		tree_.setContentProvider(provider);
+		tree_.setLabelProvider(new DecoratingLabelProvider(new WorkflowFileLabelProvider(), new WorkflowTreeDecorator()));
+		
+		Transfer[] dragTransferTypes = {
+				LocalSelectionTransfer.getTransfer(),
+		};
+
+		Transfer[] dropTransferTypes = {
+				LocalSelectionTransfer.getTransfer(),
+				TemplateTransfer.getInstance(),				
+		};
+		
+		tree_.addDragSupport(DND.DROP_MOVE | DND.DROP_COPY, dragTransferTypes, new DragSourceAdapter() {
+			
+			IStructuredSelection selection_;
+			
+			@Override
+			public void dragStart(DragSourceEvent event) {
+				selection_ = tree_.getStructuredSelection();
+				event.doit = !selection_.isEmpty();
+			}
+			
+			
+			@Override
+			public void dragSetData(DragSourceEvent event) {
+				LocalSelectionTransfer.getTransfer().setSelection(selection_);
+				event.data = selection_;
+			}
+		});
+		
+		tree_.addDropSupport(DND.DROP_COPY | DND.DROP_MOVE, dropTransferTypes, new WorkflowTreeDropTargetListener(tree_,getDiagramTypeProvider()));
+		
+		if(root_ != null)
+		{
+			tree_.setInput(root_);
+		}
+		
+		
+		MenuManager menuMgr = new MenuManager();
+
+        Menu menu = menuMgr.createContextMenu(tree_.getControl());
+        menuMgr.addMenuListener(new WorkflowDiagramEditorMenuListener(tree_, getDiagramTypeProvider()));
+        menuMgr.setRemoveAllWhenShown(true);
+        tree_.getControl().setMenu(menu);
+        
+        tree_.addSelectionChangedListener(new SelectionChangedListener(this));
+		
+		
+		
+		getEditingDomain().addResourceSetListener(new ResourceSetListenerImpl() {
+			@Override
+			public void resourceSetChanged(ResourceSetChangeEvent event) {				
+			      PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+			          
+			          @Override
+			          public void run()
+			          {
+							tree_.refresh();
+			          }
+		        });
+			}
+		});
+				
+		Composite right = new Composite(sashForm, SWT.BORDER);
+		GridLayout rightLayout = new GridLayout(1, false);
+		rightLayout.marginHeight = 0;
+		rightLayout.marginWidth = 0;
+		rightLayout.horizontalSpacing = 0;
+		rightLayout.verticalSpacing = 0;
+		right.setLayout(rightLayout);
+
+		sashForm.setWeights(new int[] {30,70});
+
+		
+		sashForm.setMaximizedControl(right);
+		
+		if(treeButton_ != null)
+		{
+			treeButton_.addSelectionListener(new SelectionListener() {
+				
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					if(sashForm.getMaximizedControl() != null) {
+						sashForm.setMaximizedControl(null);
+					}else {
+						sashForm.setMaximizedControl(right);
+					}
+				}
+				
+				@Override
+				public void widgetDefaultSelected(SelectionEvent e) {
+					widgetSelected(e);
+				}
+			});
+		}		
+		
+		
+		_pathComposite = new Composite(right, SWT.NONE);
 		_pathComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		_pathComposite.setBackground(getSite().getShell().getDisplay().getSystemColor(SWT.COLOR_WHITE));
 		
@@ -188,7 +350,7 @@ public class WorkflowDiagramEditor extends DiagramEditor implements IPropertyCha
 		_pathComposite.setLayout(pathLayout);
 		_pathComposite.setVisible(false);
 		
-		_mainComposite = new Composite(contents, SWT.NONE);
+		_mainComposite = new Composite(right, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(_mainComposite);
 		_mainStack = new StackLayout();
 		_mainComposite.setLayout(_mainStack);
@@ -200,6 +362,7 @@ public class WorkflowDiagramEditor extends DiagramEditor implements IPropertyCha
 		
 		super.createPartControl(_rootComposite);
 		
+		
 		IFile file = getWorkflowFile();
 		if (file != null) {
 			updateRunLocationLabelFromMarker(file);	
@@ -207,6 +370,20 @@ public class WorkflowDiagramEditor extends DiagramEditor implements IPropertyCha
 		messageLabel = new Label(contents, SWT.NONE);
 		messageLabel.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
 		messageLabel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+	}
+	
+	private class SelectionChangedListener implements ISelectionChangedListener{			
+
+    	private WorkflowDiagramEditor part_;
+    	
+    	public SelectionChangedListener(WorkflowDiagramEditor part) {
+    		part_ = part;
+    	}
+    	
+		@Override
+		public void selectionChanged(SelectionChangedEvent event) {
+			part_.selectionChanged(part_, event.getSelection());
+		}
 	}
 			
 	/**
@@ -256,6 +433,16 @@ public class WorkflowDiagramEditor extends DiagramEditor implements IPropertyCha
 	protected void setInput(IEditorInput input) {
 		super.setInput(input);
 		openPaletteView();
+		
+		if (input instanceof DiagramEditorInput) {
+			DiagramEditorInput diagramInput = (DiagramEditorInput) input;
+			
+			root_ = new DiagramWFTreeRoot(getDiagramTypeProvider().getDiagram(), null);						
+			
+			if(tree_ != null) {
+				tree_.setInput(root_);
+			}
+		}
 
 		IFile file = getWorkflowFile();
 		if (file != null && file.exists() && runLocationCombo != null) {
@@ -271,8 +458,8 @@ public class WorkflowDiagramEditor extends DiagramEditor implements IPropertyCha
 			protected void doExecute() {
 				for (Connection c: getDiagramTypeProvider().getDiagram().getConnections()) {
 					Object bo = getDiagramTypeProvider().getFeatureProvider().getBusinessObjectForPictogramElement(c);
-					if (bo instanceof WFArc) {
-						WFArcSettingsEditor.updateConnectionAppearance(d, fp, (WFArc) bo);
+					if (bo instanceof Arc) {
+						WFArcSettingsEditor.updateConnectionAppearance(d, fp, (Arc) bo);
 					}
 				}
 			}
@@ -422,7 +609,14 @@ public class WorkflowDiagramEditor extends DiagramEditor implements IPropertyCha
 	@Override
 	public void dispose() {
 		super.dispose();
+		if (listener != null) {
+			listener.display.removeFilter(SWT.KeyDown, listener);
+			listener.display.removeFilter(SWT.KeyUp, listener);
+
+			listener = null;
+		}
 		WorkflowEditorPlugin.getDefault().getPreferenceStore().removePropertyChangeListener(this);
+		
 	}
 
 	@Override
@@ -797,6 +991,7 @@ public class WorkflowDiagramEditor extends DiagramEditor implements IPropertyCha
 				}
 				
 				TransactionalEditingDomain domain = TransactionUtil.getEditingDomain(_parentNode);
+				
 				domain.getCommandStack().execute(new RecordingCommand(domain) {
 					@Override
 					public void doExecute() {
@@ -925,5 +1120,13 @@ public class WorkflowDiagramEditor extends DiagramEditor implements IPropertyCha
 		pane.remove(connections);
 		pane.addLayerAfter(connections, LayerConstants.CONNECTION_LAYER, primary);
 	}
-
+	
+	@Override
+	protected void createActions() {
+		super.createActions();
+		// Print action enablement testing causes issues on GTK. Weirdly, although this ticet says it's fixed, it's not:
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449384
+		IAction printAction = getActionRegistry().getAction(ActionFactory.PRINT.getId());
+		getActionRegistry().removeAction(printAction);
+	}
 }

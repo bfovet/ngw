@@ -55,7 +55,8 @@ public class NoteGARenderer extends AbstractGARenderer implements IGraphicsAlgor
 		if (WorkflowEditorPlugin.getDefault().getPreferenceStore().getBoolean(IWorkflowEditorPreferences.CONNECTIONS_BEHIND)) {
 			g.setAlpha(100);
 		}
-		g.fillPolygon(poly);
+		if (note.isDrawBorderAndBackground())
+			g.fillPolygon(poly);
 		g.setAlpha(255);
 
 		TextLayout tl = new TextLayout(Display.getCurrent());
@@ -106,6 +107,10 @@ public class NoteGARenderer extends AbstractGARenderer implements IGraphicsAlgor
 		g.setForegroundColor(ColorConstants.black);
 		g.setLineStyle(Graphics.LINE_SOLID);
 		g.setLineWidth(1);
-		g.drawPolygon(poly);
+		
+		PictogramElement pe = rc.getPlatformGraphicsAlgorithm().getPictogramElement();
+		Note note = (Note) fp.getBusinessObjectForPictogramElement(pe);
+		if (note.isDrawBorderAndBackground())
+			g.drawPolygon(poly);
 	}
 }

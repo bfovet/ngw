@@ -63,7 +63,15 @@ public class DefaultRunEmbeddedWorkflowHandler extends AbstractEmbeddedWorkflowH
 			// TODO This isn't necessarily right -- the editor might be for some other workflow file.
 			editor.setRunLocation(runLocation);
 		}
-		Job job = new EmbeddedWorkflowJob("Workflow " + workflowFile.getName(), workflowFile, new Path(runLocation.getAbsolutePath()));
+		
+		Job job;
+		File embeddedParamsFile = new File(runLocation, RunEmbeddedWorkflowWizard.EMBEDDED_PARAMS_FILE);
+		if (embeddedParamsFile.exists())
+			job = new EmbeddedWorkflowJob("Workflow " + workflowFile.getName(), workflowFile,
+					new Path(runLocation.getAbsolutePath()), embeddedParamsFile);
+		else
+			job = new EmbeddedWorkflowJob("Workflow " + workflowFile.getName(), workflowFile,
+					new Path(runLocation.getAbsolutePath()));
 		job.schedule();
 		
 	}

@@ -81,6 +81,6 @@ public class AskYesNoNode extends SAWCustomNode {
 	@Override public List<OutputPortInfo> getDefaultOutputs() { return Arrays.asList(new OutputPortInfo("yes"), new OutputPortInfo("no")); }
 	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo("question")); }
 //	@Override public List<String> getDefaultProperties() { return Arrays.asList("question"); }
-	@Override public List<String> getCategories() { return Arrays.asList(NodeCategories.CONTROL, NodeCategories.GUI); }
+	@Override public List<String> getCategories() { return Arrays.asList(NodeCategories.CONTROL, NodeCategories.UI); }
 	
 }

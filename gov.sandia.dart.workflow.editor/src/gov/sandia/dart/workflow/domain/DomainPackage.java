@@ -242,438 +242,6 @@ public interface DomainPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int RESPONSE__NAME = DomainPackage.NAMED_OBJECT__NAME;
-
-	/**
-	 * The feature id for the '<em><b>Type</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int RESPONSE__TYPE = DomainPackage.NAMED_OBJECT_FEATURE_COUNT + 0;
-
-	/**
-	 * The feature id for the '<em><b>Source</b></em>' reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int RESPONSE__SOURCE = DomainPackage.NAMED_OBJECT_FEATURE_COUNT + 1;
-
-	/**
-	 * The number of structural features of the '<em>Response</em>' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int RESPONSE_FEATURE_COUNT = DomainPackage.NAMED_OBJECT_FEATURE_COUNT + 2;
-
-	/**
-	 * The number of operations of the '<em>Response</em>' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int RESPONSE_OPERATION_COUNT = DomainPackage.NAMED_OBJECT_OPERATION_COUNT + 0;
-
-	/**
-	 * The feature id for the '<em><b>Name</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int WF_NODE__NAME = DomainPackage.NAMED_OBJECT_WITH_PROPERTIES__NAME;
-
-	/**
-	 * The feature id for the '<em><b>Properties</b></em>' reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int WF_NODE__PROPERTIES = DomainPackage.NAMED_OBJECT_WITH_PROPERTIES__PROPERTIES;
-
-	/**
-	 * The feature id for the '<em><b>Input Ports</b></em>' reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int WF_NODE__INPUT_PORTS = DomainPackage.NAMED_OBJECT_WITH_PROPERTIES_FEATURE_COUNT + 0;
-
-	/**
-	 * The feature id for the '<em><b>Output Ports</b></em>' reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int WF_NODE__OUTPUT_PORTS = DomainPackage.NAMED_OBJECT_WITH_PROPERTIES_FEATURE_COUNT + 1;
-
-	/**
-	 * The feature id for the '<em><b>Start</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int WF_NODE__START = DomainPackage.NAMED_OBJECT_WITH_PROPERTIES_FEATURE_COUNT + 2;
-
-	/**
-	 * The feature id for the '<em><b>Type</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int WF_NODE__TYPE = DomainPackage.NAMED_OBJECT_WITH_PROPERTIES_FEATURE_COUNT + 3;
-
-	/**
-	 * The feature id for the '<em><b>Label</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int WF_NODE__LABEL = DomainPackage.NAMED_OBJECT_WITH_PROPERTIES_FEATURE_COUNT + 4;
-
-	/**
-	 * The feature id for the '<em><b>Conductors</b></em>' reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int WF_NODE__CONDUCTORS = DomainPackage.NAMED_OBJECT_WITH_PROPERTIES_FEATURE_COUNT + 5;
-
-	/**
-	 * The number of structural features of the '<em>WF Node</em>' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int WF_NODE_FEATURE_COUNT = DomainPackage.NAMED_OBJECT_WITH_PROPERTIES_FEATURE_COUNT + 6;
-
-	/**
-	 * The number of operations of the '<em>WF Node</em>' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int WF_NODE_OPERATION_COUNT = DomainPackage.NAMED_OBJECT_WITH_PROPERTIES_OPERATION_COUNT + 0;
-
-	/**
-	 * The feature id for the '<em><b>Name</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int WF_ARC__NAME = DomainPackage.ARC__NAME;
-
-	/**
-	 * The feature id for the '<em><b>Properties</b></em>' reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int WF_ARC__PROPERTIES = DomainPackage.ARC__PROPERTIES;
-
-	/**
-	 * The feature id for the '<em><b>Source</b></em>' reference.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int WF_ARC__SOURCE = DomainPackage.ARC_FEATURE_COUNT + 0;
-
-	/**
-	 * The feature id for the '<em><b>Target</b></em>' reference.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int WF_ARC__TARGET = DomainPackage.ARC_FEATURE_COUNT + 1;
-
-	/**
-	 * The number of structural features of the '<em>WF Arc</em>' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int WF_ARC_FEATURE_COUNT = DomainPackage.ARC_FEATURE_COUNT + 2;
-
-	/**
-	 * The number of operations of the '<em>WF Arc</em>' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int WF_ARC_OPERATION_COUNT = DomainPackage.ARC_OPERATION_COUNT + 0;
-
-	/**
-	 * The feature id for the '<em><b>Name</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int PROPERTY__NAME = DomainPackage.NAMED_OBJECT__NAME;
-
-	/**
-	 * The feature id for the '<em><b>Type</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int PROPERTY__TYPE = DomainPackage.NAMED_OBJECT_FEATURE_COUNT + 0;
-
-	/**
-	 * The feature id for the '<em><b>Value</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int PROPERTY__VALUE = DomainPackage.NAMED_OBJECT_FEATURE_COUNT + 1;
-
-	/**
-	 * The feature id for the '<em><b>Node</b></em>' reference.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int PROPERTY__NODE = DomainPackage.NAMED_OBJECT_FEATURE_COUNT + 2;
-
-	/**
-	 * The number of structural features of the '<em>Property</em>' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int PROPERTY_FEATURE_COUNT = DomainPackage.NAMED_OBJECT_FEATURE_COUNT + 3;
-
-	/**
-	 * The number of operations of the '<em>Property</em>' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int PROPERTY_OPERATION_COUNT = DomainPackage.NAMED_OBJECT_OPERATION_COUNT + 0;
-
-	/**
-	 * The feature id for the '<em><b>Name</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int PORT__NAME = DomainPackage.NAMED_OBJECT_WITH_PROPERTIES__NAME;
-
-	/**
-	 * The feature id for the '<em><b>Properties</b></em>' reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int PORT__PROPERTIES = DomainPackage.NAMED_OBJECT_WITH_PROPERTIES__PROPERTIES;
-
-	/**
-	 * The feature id for the '<em><b>Type</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int PORT__TYPE = DomainPackage.NAMED_OBJECT_WITH_PROPERTIES_FEATURE_COUNT + 0;
-
-	/**
-	 * The number of structural features of the '<em>Port</em>' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int PORT_FEATURE_COUNT = DomainPackage.NAMED_OBJECT_WITH_PROPERTIES_FEATURE_COUNT + 1;
-
-	/**
-	 * The number of operations of the '<em>Port</em>' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int PORT_OPERATION_COUNT = DomainPackage.NAMED_OBJECT_WITH_PROPERTIES_OPERATION_COUNT + 0;
-
-	/**
-	 * The feature id for the '<em><b>Name</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int INPUT_PORT__NAME = DomainPackage.PORT__NAME;
-
-	/**
-	 * The feature id for the '<em><b>Properties</b></em>' reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int INPUT_PORT__PROPERTIES = DomainPackage.PORT__PROPERTIES;
-
-	/**
-	 * The feature id for the '<em><b>Type</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int INPUT_PORT__TYPE = DomainPackage.PORT__TYPE;
-
-	/**
-	 * The feature id for the '<em><b>Node</b></em>' reference.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int INPUT_PORT__NODE = DomainPackage.PORT_FEATURE_COUNT + 0;
-
-	/**
-	 * The feature id for the '<em><b>Arcs</b></em>' reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int INPUT_PORT__ARCS = DomainPackage.PORT_FEATURE_COUNT + 1;
-
-	/**
-	 * The feature id for the '<em><b>Trigger Only</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int INPUT_PORT__TRIGGER_ONLY = DomainPackage.PORT_FEATURE_COUNT + 2;
-
-	/**
-	 * The number of structural features of the '<em>Input Port</em>' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int INPUT_PORT_FEATURE_COUNT = DomainPackage.PORT_FEATURE_COUNT + 3;
-
-	/**
-	 * The number of operations of the '<em>Input Port</em>' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int INPUT_PORT_OPERATION_COUNT = DomainPackage.PORT_OPERATION_COUNT + 0;
-
-	/**
-	 * The feature id for the '<em><b>Name</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int OUTPUT_PORT__NAME = DomainPackage.PORT__NAME;
-
-	/**
-	 * The feature id for the '<em><b>Properties</b></em>' reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int OUTPUT_PORT__PROPERTIES = DomainPackage.PORT__PROPERTIES;
-
-	/**
-	 * The feature id for the '<em><b>Type</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int OUTPUT_PORT__TYPE = DomainPackage.PORT__TYPE;
-
-	/**
-	 * The feature id for the '<em><b>Node</b></em>' reference.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int OUTPUT_PORT__NODE = DomainPackage.PORT_FEATURE_COUNT + 0;
-
-	/**
-	 * The feature id for the '<em><b>Arcs</b></em>' reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int OUTPUT_PORT__ARCS = DomainPackage.PORT_FEATURE_COUNT + 1;
-
-	/**
-	 * The feature id for the '<em><b>Response Arcs</b></em>' reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int OUTPUT_PORT__RESPONSE_ARCS = DomainPackage.PORT_FEATURE_COUNT + 2;
-
-	/**
-	 * The number of structural features of the '<em>Output Port</em>' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int OUTPUT_PORT_FEATURE_COUNT = DomainPackage.PORT_FEATURE_COUNT + 3;
-
-	/**
-	 * The number of operations of the '<em>Output Port</em>' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int OUTPUT_PORT_OPERATION_COUNT = DomainPackage.PORT_OPERATION_COUNT + 0;
-
-	/**
-	 * The feature id for the '<em><b>Name</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
 	int NAMED_OBJECT__NAME = 0;
 
 	/**
@@ -701,43 +269,7 @@ public interface DomainPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAW_NODE__NAME = DomainPackage.WF_NODE__NAME;
-
-	/**
-	 * The feature id for the '<em><b>Properties</b></em>' reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAW_NODE__PROPERTIES = DomainPackage.WF_NODE__PROPERTIES;
-
-	/**
-	 * The feature id for the '<em><b>Input Ports</b></em>' reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAW_NODE__INPUT_PORTS = DomainPackage.WF_NODE__INPUT_PORTS;
-
-	/**
-	 * The feature id for the '<em><b>Output Ports</b></em>' reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAW_NODE__OUTPUT_PORTS = DomainPackage.WF_NODE__OUTPUT_PORTS;
-
-	/**
-	 * The feature id for the '<em><b>Start</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAW_NODE__START = DomainPackage.WF_NODE__START;
+	int RESPONSE__NAME = NAMED_OBJECT__NAME;
 
 	/**
 	 * The feature id for the '<em><b>Type</b></em>' attribute.
@@ -746,7 +278,124 @@ public interface DomainPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAW_NODE__TYPE = DomainPackage.WF_NODE__TYPE;
+	int RESPONSE__TYPE = NAMED_OBJECT_FEATURE_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Source</b></em>' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int RESPONSE__SOURCE = NAMED_OBJECT_FEATURE_COUNT + 1;
+
+	/**
+	 * The number of structural features of the '<em>Response</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int RESPONSE_FEATURE_COUNT = NAMED_OBJECT_FEATURE_COUNT + 2;
+
+	/**
+	 * The number of operations of the '<em>Response</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int RESPONSE_OPERATION_COUNT = NAMED_OBJECT_OPERATION_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int NAMED_OBJECT_WITH_PROPERTIES__NAME = NAMED_OBJECT__NAME;
+
+	/**
+	 * The feature id for the '<em><b>Properties</b></em>' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int NAMED_OBJECT_WITH_PROPERTIES__PROPERTIES = NAMED_OBJECT_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of structural features of the '<em>Named Object With Properties</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int NAMED_OBJECT_WITH_PROPERTIES_FEATURE_COUNT = NAMED_OBJECT_FEATURE_COUNT + 1;
+
+	/**
+	 * The number of operations of the '<em>Named Object With Properties</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int NAMED_OBJECT_WITH_PROPERTIES_OPERATION_COUNT = NAMED_OBJECT_OPERATION_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int WF_NODE__NAME = NAMED_OBJECT_WITH_PROPERTIES__NAME;
+
+	/**
+	 * The feature id for the '<em><b>Properties</b></em>' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int WF_NODE__PROPERTIES = NAMED_OBJECT_WITH_PROPERTIES__PROPERTIES;
+
+	/**
+	 * The feature id for the '<em><b>Input Ports</b></em>' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int WF_NODE__INPUT_PORTS = NAMED_OBJECT_WITH_PROPERTIES_FEATURE_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Output Ports</b></em>' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int WF_NODE__OUTPUT_PORTS = NAMED_OBJECT_WITH_PROPERTIES_FEATURE_COUNT + 1;
+
+	/**
+	 * The feature id for the '<em><b>Start</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int WF_NODE__START = NAMED_OBJECT_WITH_PROPERTIES_FEATURE_COUNT + 2;
+
+	/**
+	 * The feature id for the '<em><b>Type</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int WF_NODE__TYPE = NAMED_OBJECT_WITH_PROPERTIES_FEATURE_COUNT + 3;
 
 	/**
 	 * The feature id for the '<em><b>Label</b></em>' attribute.
@@ -755,7 +404,7 @@ public interface DomainPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAW_NODE__LABEL = DomainPackage.WF_NODE__LABEL;
+	int WF_NODE__LABEL = NAMED_OBJECT_WITH_PROPERTIES_FEATURE_COUNT + 4;
 
 	/**
 	 * The feature id for the '<em><b>Conductors</b></em>' reference list.
@@ -764,7 +413,439 @@ public interface DomainPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAW_NODE__CONDUCTORS = DomainPackage.WF_NODE__CONDUCTORS;
+	int WF_NODE__CONDUCTORS = NAMED_OBJECT_WITH_PROPERTIES_FEATURE_COUNT + 5;
+
+	/**
+	 * The number of structural features of the '<em>WF Node</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int WF_NODE_FEATURE_COUNT = NAMED_OBJECT_WITH_PROPERTIES_FEATURE_COUNT + 6;
+
+	/**
+	 * The number of operations of the '<em>WF Node</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int WF_NODE_OPERATION_COUNT = NAMED_OBJECT_WITH_PROPERTIES_OPERATION_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ARC__NAME = NAMED_OBJECT_WITH_PROPERTIES__NAME;
+
+	/**
+	 * The feature id for the '<em><b>Properties</b></em>' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ARC__PROPERTIES = NAMED_OBJECT_WITH_PROPERTIES__PROPERTIES;
+
+	/**
+	 * The number of structural features of the '<em>Arc</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ARC_FEATURE_COUNT = NAMED_OBJECT_WITH_PROPERTIES_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of operations of the '<em>Arc</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ARC_OPERATION_COUNT = NAMED_OBJECT_WITH_PROPERTIES_OPERATION_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int WF_ARC__NAME = ARC__NAME;
+
+	/**
+	 * The feature id for the '<em><b>Properties</b></em>' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int WF_ARC__PROPERTIES = ARC__PROPERTIES;
+
+	/**
+	 * The feature id for the '<em><b>Source</b></em>' reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int WF_ARC__SOURCE = ARC_FEATURE_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Target</b></em>' reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int WF_ARC__TARGET = ARC_FEATURE_COUNT + 1;
+
+	/**
+	 * The number of structural features of the '<em>WF Arc</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int WF_ARC_FEATURE_COUNT = ARC_FEATURE_COUNT + 2;
+
+	/**
+	 * The number of operations of the '<em>WF Arc</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int WF_ARC_OPERATION_COUNT = ARC_OPERATION_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int PROPERTY__NAME = NAMED_OBJECT__NAME;
+
+	/**
+	 * The feature id for the '<em><b>Type</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int PROPERTY__TYPE = NAMED_OBJECT_FEATURE_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Value</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int PROPERTY__VALUE = NAMED_OBJECT_FEATURE_COUNT + 1;
+
+	/**
+	 * The feature id for the '<em><b>Node</b></em>' reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int PROPERTY__NODE = NAMED_OBJECT_FEATURE_COUNT + 2;
+
+	/**
+	 * The feature id for the '<em><b>Advanced</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int PROPERTY__ADVANCED = NAMED_OBJECT_FEATURE_COUNT + 3;
+
+	/**
+	 * The number of structural features of the '<em>Property</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int PROPERTY_FEATURE_COUNT = NAMED_OBJECT_FEATURE_COUNT + 4;
+
+	/**
+	 * The number of operations of the '<em>Property</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int PROPERTY_OPERATION_COUNT = NAMED_OBJECT_OPERATION_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int PORT__NAME = NAMED_OBJECT_WITH_PROPERTIES__NAME;
+
+	/**
+	 * The feature id for the '<em><b>Properties</b></em>' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int PORT__PROPERTIES = NAMED_OBJECT_WITH_PROPERTIES__PROPERTIES;
+
+	/**
+	 * The feature id for the '<em><b>Type</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int PORT__TYPE = NAMED_OBJECT_WITH_PROPERTIES_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of structural features of the '<em>Port</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int PORT_FEATURE_COUNT = NAMED_OBJECT_WITH_PROPERTIES_FEATURE_COUNT + 1;
+
+	/**
+	 * The number of operations of the '<em>Port</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int PORT_OPERATION_COUNT = NAMED_OBJECT_WITH_PROPERTIES_OPERATION_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int INPUT_PORT__NAME = PORT__NAME;
+
+	/**
+	 * The feature id for the '<em><b>Properties</b></em>' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int INPUT_PORT__PROPERTIES = PORT__PROPERTIES;
+
+	/**
+	 * The feature id for the '<em><b>Type</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int INPUT_PORT__TYPE = PORT__TYPE;
+
+	/**
+	 * The feature id for the '<em><b>Node</b></em>' reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int INPUT_PORT__NODE = PORT_FEATURE_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Arcs</b></em>' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int INPUT_PORT__ARCS = PORT_FEATURE_COUNT + 1;
+
+	/**
+	 * The feature id for the '<em><b>Trigger Only</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int INPUT_PORT__TRIGGER_ONLY = PORT_FEATURE_COUNT + 2;
+
+	/**
+	 * The number of structural features of the '<em>Input Port</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int INPUT_PORT_FEATURE_COUNT = PORT_FEATURE_COUNT + 3;
+
+	/**
+	 * The number of operations of the '<em>Input Port</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int INPUT_PORT_OPERATION_COUNT = PORT_OPERATION_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int OUTPUT_PORT__NAME = PORT__NAME;
+
+	/**
+	 * The feature id for the '<em><b>Properties</b></em>' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int OUTPUT_PORT__PROPERTIES = PORT__PROPERTIES;
+
+	/**
+	 * The feature id for the '<em><b>Type</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int OUTPUT_PORT__TYPE = PORT__TYPE;
+
+	/**
+	 * The feature id for the '<em><b>Node</b></em>' reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int OUTPUT_PORT__NODE = PORT_FEATURE_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Arcs</b></em>' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int OUTPUT_PORT__ARCS = PORT_FEATURE_COUNT + 1;
+
+	/**
+	 * The feature id for the '<em><b>Response Arcs</b></em>' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int OUTPUT_PORT__RESPONSE_ARCS = PORT_FEATURE_COUNT + 2;
+
+	/**
+	 * The number of structural features of the '<em>Output Port</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int OUTPUT_PORT_FEATURE_COUNT = PORT_FEATURE_COUNT + 3;
+
+	/**
+	 * The number of operations of the '<em>Output Port</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int OUTPUT_PORT_OPERATION_COUNT = PORT_OPERATION_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SAW_NODE__NAME = WF_NODE__NAME;
+
+	/**
+	 * The feature id for the '<em><b>Properties</b></em>' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SAW_NODE__PROPERTIES = WF_NODE__PROPERTIES;
+
+	/**
+	 * The feature id for the '<em><b>Input Ports</b></em>' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SAW_NODE__INPUT_PORTS = WF_NODE__INPUT_PORTS;
+
+	/**
+	 * The feature id for the '<em><b>Output Ports</b></em>' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SAW_NODE__OUTPUT_PORTS = WF_NODE__OUTPUT_PORTS;
+
+	/**
+	 * The feature id for the '<em><b>Start</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SAW_NODE__START = WF_NODE__START;
+
+	/**
+	 * The feature id for the '<em><b>Type</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SAW_NODE__TYPE = WF_NODE__TYPE;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SAW_NODE__LABEL = WF_NODE__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Conductors</b></em>' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SAW_NODE__CONDUCTORS = WF_NODE__CONDUCTORS;
 
 	/**
 	 * The feature id for the '<em><b>Model</b></em>' attribute.
@@ -773,7 +854,7 @@ public interface DomainPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAW_NODE__MODEL = DomainPackage.WF_NODE_FEATURE_COUNT + 0;
+	int SAW_NODE__MODEL = WF_NODE_FEATURE_COUNT + 0;
 
 	/**
 	 * The feature id for the '<em><b>Component</b></em>' attribute.
@@ -782,7 +863,7 @@ public interface DomainPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAW_NODE__COMPONENT = DomainPackage.WF_NODE_FEATURE_COUNT + 1;
+	int SAW_NODE__COMPONENT = WF_NODE_FEATURE_COUNT + 1;
 
 	/**
 	 * The number of structural features of the '<em>SAW Node</em>' class.
@@ -791,7 +872,7 @@ public interface DomainPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAW_NODE_FEATURE_COUNT = DomainPackage.WF_NODE_FEATURE_COUNT + 2;
+	int SAW_NODE_FEATURE_COUNT = WF_NODE_FEATURE_COUNT + 2;
 
 	/**
 	 * The number of operations of the '<em>SAW Node</em>' class.
@@ -800,7 +881,7 @@ public interface DomainPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAW_NODE_OPERATION_COUNT = DomainPackage.WF_NODE_OPERATION_COUNT + 0;
+	int SAW_NODE_OPERATION_COUNT = WF_NODE_OPERATION_COUNT + 0;
 
 	/**
 	 * The feature id for the '<em><b>Text</b></em>' attribute.
@@ -821,40 +902,13 @@ public interface DomainPackage extends EPackage {
 	int NOTE__COLOR = 1;
 
 	/**
-	 * The feature id for the '<em><b>Font</b></em>' attribute.
+	 * The feature id for the '<em><b>Draw Border And Background</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int NOTE__FONT = 2;
-
-	/**
-	 * The feature id for the '<em><b>Font Height</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int NOTE__FONT_HEIGHT = 3;
-
-	/**
-	 * The feature id for the '<em><b>Font Color</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int NOTE__FONT_COLOR = 4;
-
-	/**
-	 * The feature id for the '<em><b>Font Style</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int NOTE__FONT_STYLE = 5;
+	int NOTE__DRAW_BORDER_AND_BACKGROUND = 2;
 
 	/**
 	 * The number of structural features of the '<em>Note</em>' class.
@@ -863,7 +917,7 @@ public interface DomainPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int NOTE_FEATURE_COUNT = 6;
+	int NOTE_FEATURE_COUNT = 3;
 
 	/**
 	 * The number of operations of the '<em>Note</em>' class.
@@ -881,7 +935,7 @@ public interface DomainPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int NAMED_OBJECT_WITH_PROPERTIES__NAME = DomainPackage.NAMED_OBJECT__NAME;
+	int RESPONSE_ARC__NAME = ARC__NAME;
 
 	/**
 	 * The feature id for the '<em><b>Properties</b></em>' reference list.
@@ -890,43 +944,7 @@ public interface DomainPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int NAMED_OBJECT_WITH_PROPERTIES__PROPERTIES = DomainPackage.NAMED_OBJECT_FEATURE_COUNT + 0;
-
-	/**
-	 * The number of structural features of the '<em>Named Object With Properties</em>' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int NAMED_OBJECT_WITH_PROPERTIES_FEATURE_COUNT = DomainPackage.NAMED_OBJECT_FEATURE_COUNT + 1;
-
-	/**
-	 * The number of operations of the '<em>Named Object With Properties</em>' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int NAMED_OBJECT_WITH_PROPERTIES_OPERATION_COUNT = DomainPackage.NAMED_OBJECT_OPERATION_COUNT + 0;
-
-	/**
-	 * The feature id for the '<em><b>Name</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int RESPONSE_ARC__NAME = DomainPackage.ARC__NAME;
-
-	/**
-	 * The feature id for the '<em><b>Properties</b></em>' reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int RESPONSE_ARC__PROPERTIES = DomainPackage.ARC__PROPERTIES;
+	int RESPONSE_ARC__PROPERTIES = ARC__PROPERTIES;
 
 	/**
 	 * The feature id for the '<em><b>Source</b></em>' reference.
@@ -935,7 +953,7 @@ public interface DomainPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int RESPONSE_ARC__SOURCE = DomainPackage.ARC_FEATURE_COUNT + 0;
+	int RESPONSE_ARC__SOURCE = ARC_FEATURE_COUNT + 0;
 
 	/**
 	 * The feature id for the '<em><b>Target</b></em>' reference.
@@ -944,7 +962,7 @@ public interface DomainPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int RESPONSE_ARC__TARGET = DomainPackage.ARC_FEATURE_COUNT + 1;
+	int RESPONSE_ARC__TARGET = ARC_FEATURE_COUNT + 1;
 
 	/**
 	 * The number of structural features of the '<em>Response Arc</em>' class.
@@ -953,7 +971,7 @@ public interface DomainPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int RESPONSE_ARC_FEATURE_COUNT = DomainPackage.ARC_FEATURE_COUNT + 2;
+	int RESPONSE_ARC_FEATURE_COUNT = ARC_FEATURE_COUNT + 2;
 
 	/**
 	 * The number of operations of the '<em>Response Arc</em>' class.
@@ -962,7 +980,7 @@ public interface DomainPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int RESPONSE_ARC_OPERATION_COUNT = DomainPackage.ARC_OPERATION_COUNT + 0;
+	int RESPONSE_ARC_OPERATION_COUNT = ARC_OPERATION_COUNT + 0;
 
 	/**
 	 * The feature id for the '<em><b>Name</b></em>' attribute.
@@ -971,7 +989,7 @@ public interface DomainPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int CONDUCTOR__NAME = DomainPackage.NAMED_OBJECT_WITH_PROPERTIES__NAME;
+	int CONDUCTOR__NAME = NAMED_OBJECT_WITH_PROPERTIES__NAME;
 
 	/**
 	 * The feature id for the '<em><b>Properties</b></em>' reference list.
@@ -980,7 +998,7 @@ public interface DomainPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int CONDUCTOR__PROPERTIES = DomainPackage.NAMED_OBJECT_WITH_PROPERTIES__PROPERTIES;
+	int CONDUCTOR__PROPERTIES = NAMED_OBJECT_WITH_PROPERTIES__PROPERTIES;
 
 	/**
 	 * The feature id for the '<em><b>Node</b></em>' reference.
@@ -989,7 +1007,7 @@ public interface DomainPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int CONDUCTOR__NODE = DomainPackage.NAMED_OBJECT_WITH_PROPERTIES_FEATURE_COUNT + 0;
+	int CONDUCTOR__NODE = NAMED_OBJECT_WITH_PROPERTIES_FEATURE_COUNT + 0;
 
 	/**
 	 * The number of structural features of the '<em>Conductor</em>' class.
@@ -998,7 +1016,7 @@ public interface DomainPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int CONDUCTOR_FEATURE_COUNT = DomainPackage.NAMED_OBJECT_WITH_PROPERTIES_FEATURE_COUNT + 1;
+	int CONDUCTOR_FEATURE_COUNT = NAMED_OBJECT_WITH_PROPERTIES_FEATURE_COUNT + 1;
 
 	/**
 	 * The number of operations of the '<em>Conductor</em>' class.
@@ -1007,7 +1025,7 @@ public interface DomainPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int CONDUCTOR_OPERATION_COUNT = DomainPackage.NAMED_OBJECT_WITH_PROPERTIES_OPERATION_COUNT + 0;
+	int CONDUCTOR_OPERATION_COUNT = NAMED_OBJECT_WITH_PROPERTIES_OPERATION_COUNT + 0;
 
 	/**
 	 * The feature id for the '<em><b>Name</b></em>' attribute.
@@ -1016,7 +1034,7 @@ public interface DomainPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int PARAMETER__NAME = DomainPackage.NAMED_OBJECT__NAME;
+	int PARAMETER__NAME = NAMED_OBJECT__NAME;
 
 	/**
 	 * The feature id for the '<em><b>Type</b></em>' attribute.
@@ -1025,7 +1043,7 @@ public interface DomainPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int PARAMETER__TYPE = DomainPackage.NAMED_OBJECT_FEATURE_COUNT + 0;
+	int PARAMETER__TYPE = NAMED_OBJECT_FEATURE_COUNT + 0;
 
 	/**
 	 * The feature id for the '<em><b>Value</b></em>' attribute.
@@ -1034,7 +1052,7 @@ public interface DomainPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int PARAMETER__VALUE = DomainPackage.NAMED_OBJECT_FEATURE_COUNT + 1;
+	int PARAMETER__VALUE = NAMED_OBJECT_FEATURE_COUNT + 1;
 
 	/**
 	 * The number of structural features of the '<em>Parameter</em>' class.
@@ -1043,7 +1061,7 @@ public interface DomainPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int PARAMETER_FEATURE_COUNT = DomainPackage.NAMED_OBJECT_FEATURE_COUNT + 2;
+	int PARAMETER_FEATURE_COUNT = NAMED_OBJECT_FEATURE_COUNT + 2;
 
 	/**
 	 * The number of operations of the '<em>Parameter</em>' class.
@@ -1052,7 +1070,7 @@ public interface DomainPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int PARAMETER_OPERATION_COUNT = DomainPackage.NAMED_OBJECT_OPERATION_COUNT + 0;
+	int PARAMETER_OPERATION_COUNT = NAMED_OBJECT_OPERATION_COUNT + 0;
 
 	/**
 	 * The feature id for the '<em><b>Name</b></em>' attribute.
@@ -1061,7 +1079,7 @@ public interface DomainPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int RUNNER__NAME = DomainPackage.NAMED_OBJECT_WITH_PROPERTIES__NAME;
+	int RUNNER__NAME = NAMED_OBJECT_WITH_PROPERTIES__NAME;
 
 	/**
 	 * The feature id for the '<em><b>Properties</b></em>' reference list.
@@ -1070,7 +1088,7 @@ public interface DomainPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int RUNNER__PROPERTIES = DomainPackage.NAMED_OBJECT_WITH_PROPERTIES__PROPERTIES;
+	int RUNNER__PROPERTIES = NAMED_OBJECT_WITH_PROPERTIES__PROPERTIES;
 
 	/**
 	 * The feature id for the '<em><b>Type</b></em>' attribute.
@@ -1079,7 +1097,7 @@ public interface DomainPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int RUNNER__TYPE = DomainPackage.NAMED_OBJECT_WITH_PROPERTIES_FEATURE_COUNT + 0;
+	int RUNNER__TYPE = NAMED_OBJECT_WITH_PROPERTIES_FEATURE_COUNT + 0;
 
 	/**
 	 * The number of structural features of the '<em>Runner</em>' class.
@@ -1088,7 +1106,7 @@ public interface DomainPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int RUNNER_FEATURE_COUNT = DomainPackage.NAMED_OBJECT_WITH_PROPERTIES_FEATURE_COUNT + 1;
+	int RUNNER_FEATURE_COUNT = NAMED_OBJECT_WITH_PROPERTIES_FEATURE_COUNT + 1;
 
 	/**
 	 * The number of operations of the '<em>Runner</em>' class.
@@ -1097,43 +1115,7 @@ public interface DomainPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int RUNNER_OPERATION_COUNT = DomainPackage.NAMED_OBJECT_WITH_PROPERTIES_OPERATION_COUNT + 0;
-
-	/**
-	 * The feature id for the '<em><b>Name</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int ARC__NAME = DomainPackage.NAMED_OBJECT_WITH_PROPERTIES__NAME;
-
-	/**
-	 * The feature id for the '<em><b>Properties</b></em>' reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int ARC__PROPERTIES = DomainPackage.NAMED_OBJECT_WITH_PROPERTIES__PROPERTIES;
-
-	/**
-	 * The number of structural features of the '<em>Arc</em>' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int ARC_FEATURE_COUNT = DomainPackage.NAMED_OBJECT_WITH_PROPERTIES_FEATURE_COUNT + 0;
-
-	/**
-	 * The number of operations of the '<em>Arc</em>' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int ARC_OPERATION_COUNT = DomainPackage.NAMED_OBJECT_WITH_PROPERTIES_OPERATION_COUNT + 0;
+	int RUNNER_OPERATION_COUNT = NAMED_OBJECT_WITH_PROPERTIES_OPERATION_COUNT + 0;
 
 	/**
 	 * The feature id for the '<em><b>Text</b></em>' attribute.
@@ -1145,13 +1127,22 @@ public interface DomainPackage extends EPackage {
 	int IMAGE__TEXT = 0;
 
 	/**
-	 * The feature id for the '<em><b>Color</b></em>' attribute.
+	 * The feature id for the '<em><b>Zoom To Fit</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int IMAGE__COLOR = 1;
+	int IMAGE__ZOOM_TO_FIT = 1;
+
+	/**
+	 * The feature id for the '<em><b>Draw Border</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int IMAGE__DRAW_BORDER = 2;
 
 	/**
 	 * The number of structural features of the '<em>Image</em>' class.
@@ -1160,7 +1151,7 @@ public interface DomainPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int IMAGE_FEATURE_COUNT = 2;
+	int IMAGE_FEATURE_COUNT = 3;
 
 	/**
 	 * The number of operations of the '<em>Image</em>' class.
@@ -1356,6 +1347,17 @@ public interface DomainPackage extends EPackage {
 	EReference getProperty_Node();
 
 	/**
+	 * Returns the meta object for the attribute '{@link gov.sandia.dart.workflow.domain.Property#isAdvanced <em>Advanced</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Advanced</em>'.
+	 * @see gov.sandia.dart.workflow.domain.Property#isAdvanced()
+	 * @see #getProperty()
+	 * @generated
+	 */
+	EAttribute getProperty_Advanced();
+
+	/**
 	 * Returns the meta object for class '{@link gov.sandia.dart.workflow.domain.Port <em>Port</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -1548,48 +1550,15 @@ public interface DomainPackage extends EPackage {
 	EAttribute getNote_Color();
 
 	/**
-	 * Returns the meta object for the attribute '{@link gov.sandia.dart.workflow.domain.Note#getFont <em>Font</em>}'.
+	 * Returns the meta object for the attribute '{@link gov.sandia.dart.workflow.domain.Note#isDrawBorderAndBackground <em>Draw Border And Background</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Font</em>'.
-	 * @see gov.sandia.dart.workflow.domain.Note#getFont()
+	 * @return the meta object for the attribute '<em>Draw Border And Background</em>'.
+	 * @see gov.sandia.dart.workflow.domain.Note#isDrawBorderAndBackground()
 	 * @see #getNote()
 	 * @generated
 	 */
-	EAttribute getNote_Font();
-
-	/**
-	 * Returns the meta object for the attribute '{@link gov.sandia.dart.workflow.domain.Note#getFontHeight <em>Font Height</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Font Height</em>'.
-	 * @see gov.sandia.dart.workflow.domain.Note#getFontHeight()
-	 * @see #getNote()
-	 * @generated
-	 */
-	EAttribute getNote_FontHeight();
-
-	/**
-	 * Returns the meta object for the attribute '{@link gov.sandia.dart.workflow.domain.Note#getFontColor <em>Font Color</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Font Color</em>'.
-	 * @see gov.sandia.dart.workflow.domain.Note#getFontColor()
-	 * @see #getNote()
-	 * @generated
-	 */
-	EAttribute getNote_FontColor();
-
-	/**
-	 * Returns the meta object for the attribute '{@link gov.sandia.dart.workflow.domain.Note#getFontStyle <em>Font Style</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Font Style</em>'.
-	 * @see gov.sandia.dart.workflow.domain.Note#getFontStyle()
-	 * @see #getNote()
-	 * @generated
-	 */
-	EAttribute getNote_FontStyle();
+	EAttribute getNote_DrawBorderAndBackground();
 
 	/**
 	 * Returns the meta object for class '{@link gov.sandia.dart.workflow.domain.NamedObjectWithProperties <em>Named Object With Properties</em>}'.
@@ -1750,15 +1719,26 @@ public interface DomainPackage extends EPackage {
 	EAttribute getImage_Text();
 
 	/**
-	 * Returns the meta object for the attribute '{@link gov.sandia.dart.workflow.domain.Image#getColor <em>Color</em>}'.
+	 * Returns the meta object for the attribute '{@link gov.sandia.dart.workflow.domain.Image#isZoomToFit <em>Zoom To Fit</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Color</em>'.
-	 * @see gov.sandia.dart.workflow.domain.Image#getColor()
+	 * @return the meta object for the attribute '<em>Zoom To Fit</em>'.
+	 * @see gov.sandia.dart.workflow.domain.Image#isZoomToFit()
 	 * @see #getImage()
 	 * @generated
 	 */
-	EAttribute getImage_Color();
+	EAttribute getImage_ZoomToFit();
+
+	/**
+	 * Returns the meta object for the attribute '{@link gov.sandia.dart.workflow.domain.Image#isDrawBorder <em>Draw Border</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Draw Border</em>'.
+	 * @see gov.sandia.dart.workflow.domain.Image#isDrawBorder()
+	 * @see #getImage()
+	 * @generated
+	 */
+	EAttribute getImage_DrawBorder();
 
 	/**
 	 * Returns the factory that creates the instances of the model.
@@ -1928,6 +1908,14 @@ public interface DomainPackage extends EPackage {
 		EReference PROPERTY__NODE = eINSTANCE.getProperty_Node();
 
 		/**
+		 * The meta object literal for the '<em><b>Advanced</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute PROPERTY__ADVANCED = eINSTANCE.getProperty_Advanced();
+
+		/**
 		 * The meta object literal for the '{@link gov.sandia.dart.workflow.domain.impl.PortImpl <em>Port</em>}' class.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
@@ -2084,36 +2072,12 @@ public interface DomainPackage extends EPackage {
 		EAttribute NOTE__COLOR = eINSTANCE.getNote_Color();
 
 		/**
-		 * The meta object literal for the '<em><b>Font</b></em>' attribute feature.
+		 * The meta object literal for the '<em><b>Draw Border And Background</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EAttribute NOTE__FONT = eINSTANCE.getNote_Font();
-
-		/**
-		 * The meta object literal for the '<em><b>Font Height</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute NOTE__FONT_HEIGHT = eINSTANCE.getNote_FontHeight();
-
-		/**
-		 * The meta object literal for the '<em><b>Font Color</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute NOTE__FONT_COLOR = eINSTANCE.getNote_FontColor();
-
-		/**
-		 * The meta object literal for the '<em><b>Font Style</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute NOTE__FONT_STYLE = eINSTANCE.getNote_FontStyle();
+		EAttribute NOTE__DRAW_BORDER_AND_BACKGROUND = eINSTANCE.getNote_DrawBorderAndBackground();
 
 		/**
 		 * The meta object literal for the '{@link gov.sandia.dart.workflow.domain.impl.NamedObjectWithPropertiesImpl <em>Named Object With Properties</em>}' class.
@@ -2250,12 +2214,20 @@ public interface DomainPackage extends EPackage {
 		EAttribute IMAGE__TEXT = eINSTANCE.getImage_Text();
 
 		/**
-		 * The meta object literal for the '<em><b>Color</b></em>' attribute feature.
+		 * The meta object literal for the '<em><b>Zoom To Fit</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EAttribute IMAGE__COLOR = eINSTANCE.getImage_Color();
+		EAttribute IMAGE__ZOOM_TO_FIT = eINSTANCE.getImage_ZoomToFit();
+
+		/**
+		 * The meta object literal for the '<em><b>Draw Border</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute IMAGE__DRAW_BORDER = eINSTANCE.getImage_DrawBorder();
 
 	}
 

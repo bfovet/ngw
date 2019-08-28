@@ -53,6 +53,7 @@ public abstract class AbstractCreateNodeFeature extends AbstractCreateFeature {
 			p.setName(property.getName());
 			p.setType(property.getTypeName());
 			p.setValue(property.getValue());
+			p.setAdvanced(property.isAdvanced());
 			newNode.getProperties().add(p);
 		}
 	}

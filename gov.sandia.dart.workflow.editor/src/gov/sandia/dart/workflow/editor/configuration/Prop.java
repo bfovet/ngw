@@ -44,23 +44,33 @@ public class Prop {
 	
 	private final String name, value;
 	private final TYPE type;		
+	private boolean advanced;
 
 	public Prop(Property p){
-		this(p.getName(), p.getType(), p.getValue());
+		this(p.getName(), p.getType(), p.getValue(), p.isAdvanced());
 	}
 	
 	// Set this property to a Standard Type
 	Prop(String name, TYPE type) {
-		this (name, type, "");
+		this (name, type, "", false);
 	}
 	
 	public Prop(String name, TYPE type, String value) {
+		this(name, type, value, false);
+	}
+	
+	public Prop(String name, TYPE type, String value, boolean advanced) {
 		this.name = name;
 		this.type =  type == null ? TYPE.DEFAULT : type;
 		this.value = value;		
+		this.advanced = advanced;
 	}
 	
 	public Prop(String name, String typeName, String value) {
+		this(name, typeName, value, false);
+	}
+	
+	public Prop(String name, String typeName, String value, boolean advanced) {
 		this.name = name;	
 		TYPE typeValue = null;
 		try {	
@@ -73,10 +83,11 @@ public class Prop {
 		this.type =  typeValue == null ? TYPE.DEFAULT : typeValue;
 
 		this.value = value;
+		this.advanced = advanced;
 	}
 
 	public Prop(String name, String type) {
-		this(name, type, "");
+		this(name, type, "", false);
 	}
 
 	public TYPE getType() {
@@ -94,6 +105,10 @@ public class Prop {
 	
 	public String getValue() {
 		return value;
+	}
+	
+	public boolean isAdvanced() {
+		return advanced;
 	}
 
 	public static String[] availableTypes() {

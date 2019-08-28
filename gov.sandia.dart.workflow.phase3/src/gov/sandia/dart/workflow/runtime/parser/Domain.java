@@ -112,6 +112,7 @@ public class Domain {
 		public IWFResponse() {}
 		public String type;
 		public List<IWFResponseArc> sources = new ArrayList<>();
+
 	}
 	public static class IWFResponseArc extends IWFObject {
 		public IWFResponseArc() {}
@@ -123,5 +124,6 @@ public class Domain {
 		public String type;
 		public IWFOutputPort source;
 		public IWFResponse target;
+		public List<IWFProperty> properties = new ArrayList<>();
 	}
 }

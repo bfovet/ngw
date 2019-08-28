@@ -15,16 +15,6 @@ public class ABSwitchGARenderer extends AbstractGARenderer implements IGraphicsA
 
 	@Override
 	protected void fillShape(Graphics g) {		
-		/*Rectangle bounds = getInnerBounds();
-		g.setAntialias(SWT.ON);
-		g.setForegroundColor(ColorConstants.black);
-		g.setLineStyle(Graphics.LINE_SOLID);
-		g.setLineWidth(1);	
-		g.setBackgroundColor(ColorConstants.white);
-		Rectangle switchBounds = new Rectangle(bounds.getTopLeft(), bounds.getBottomRight());		
-		g.fillRoundRectangle(switchBounds, 1, 1);
-		g.drawRoundRectangle(switchBounds, 1, 1);*/
-
 	}
 
 	@Override

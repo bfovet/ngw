@@ -76,7 +76,7 @@ public class DisplayNode extends SAWCustomNode {
 	@Override public List<OutputPortInfo> getDefaultOutputs() { return Collections.singletonList(new OutputPortInfo("f")); }
 	@Override public List<InputPortInfo> getDefaultInputs() { return Collections.singletonList(new InputPortInfo("x")); }
 	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo("formatString")); }
-	@Override public List<String> getCategories() { return Arrays.asList(NodeCategories.GUI); }
+	@Override public List<String> getCategories() { return Arrays.asList(NodeCategories.UI); }
 
 
 

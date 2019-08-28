@@ -9,10 +9,6 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.runtime.components;
 
-import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
-import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
-import gov.sandia.dart.workflow.runtime.core.NodeCategories;
-import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
 import java.io.File;
 import java.security.MessageDigest;
 import java.util.Arrays;
@@ -22,24 +18,33 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 
+import gov.sandia.dart.workflow.runtime.core.InputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.NodeCategories;
+import gov.sandia.dart.workflow.runtime.core.OutputPortInfo;
+import gov.sandia.dart.workflow.runtime.core.PropertyInfo;
 import gov.sandia.dart.workflow.runtime.core.RuntimeData;
 import gov.sandia.dart.workflow.runtime.core.SAWCustomNode;
 import gov.sandia.dart.workflow.runtime.core.SAWWorkflowException;
 import gov.sandia.dart.workflow.runtime.core.WorkflowDefinition;
 
 //
-// Experimental "unified file node"
+// Unified file node
 //
 // Requires a fileName property or input port
 //
-// Writes any data found on the "dataIn" port to the specified file (data is appended
-// if the "append" property is true).
+// If data is found on the "dataIn" port,
+//   + relative pathnames are resolved relative to the component work directory,
+//   + data is written (or appended according to append property) to the specified file.
+// Otherwise,
+//   + relative pathnames are resolved relative to the workflow home directory.
 //
-// Sends file data to "dataOut" port, if present.
+// Sends file data to "dataOut" port, if connected.
 //
-// Sends file name to "fileReference" port, if present.
+// Sends file name to "fileReference" port, if connected.
 //
 public class FileNode extends SAWCustomNode {
+	private static final String APPEND = "append";
+	private static final String CHECK_EXISTS = "checkExists";
 	public static String DATA_IN_PORT = "dataIn",
 						DATA_OUT_PORT = "dataOut",
 						FILE_OUT_PORT = "fileReference",
@@ -47,14 +52,27 @@ public class FileNode extends SAWCustomNode {
 	
 	@Override
 	public Map<String, Object> doExecute(Map<String, String> properties, WorkflowDefinition workflow, RuntimeData runtime) {
-		File targetFile = getFileFromPortOrProperty(runtime, properties, FILE_NAME, false, false);
-		Map<String, Object> results = new HashMap<>();
+		byte[] inBytes = (byte[]) runtime.getInput(getName(), DATA_IN_PORT, byte[].class);
+
+		String targetFileName = getStringFromPortOrProperty(runtime, properties, FILE_NAME);
+		File targetFile = new File(targetFileName);
+		if (!targetFile.isAbsolute()) {
+			if (inBytes != null) {
+				targetFile = new File(getComponentWorkDir(runtime, properties), targetFileName);
+			} else {
+				targetFile = new File(runtime.getHomeDir(), targetFileName);
+			}
+		}
 
 		boolean appendFlag = getAppendFlag(properties);
+		boolean checkExists = getCheckExistsFlag(properties);
+		
+		if (checkExists && !targetFile.exists()) {
+			throw new SAWWorkflowException(String.format("Node %s: file '%s' does not exist", getName(), targetFile.getAbsolutePath()));
+		}
+
 		boolean sendDataOut = isConnectedOutput(DATA_OUT_PORT, workflow);
 		boolean sendFile = isConnectedOutput(FILE_OUT_PORT, workflow);
-				
-		byte[] inBytes = (byte[]) runtime.getInput(getName(), DATA_IN_PORT, byte[].class);
 		
 		if (inBytes != null)
 		{
@@ -62,7 +80,9 @@ public class FileNode extends SAWCustomNode {
 			catch (Throwable t) { throw new SAWWorkflowException("Problem writing to file", t); }
 			runtime.log().info("File node \"{0}\" wrote {1} bytes (MD5: {2}) to {3}", getName(), inBytes.length, computeChecksum(inBytes), targetFile.getPath());
 		}
-		
+
+		Map<String, Object> results = new HashMap<>();
+
 		if (sendDataOut)
 		{
 			if (inBytes == null || appendFlag)
@@ -107,16 +127,17 @@ public class FileNode extends SAWCustomNode {
 	}
 
 	public boolean getAppendFlag(Map<String, String> properties) {
-		String flagValue = properties.get("append");
-		if (flagValue != null && flagValue.equals("true"))
-			return true;
-		else
-			return false;
+		return "true".equals(properties.get(APPEND));
 	}
+	
+	public boolean getCheckExistsFlag(Map<String, String> properties) {
+		return "true".equals(properties.get(CHECK_EXISTS));
+	}
+
 
 	@Override public List<InputPortInfo> getDefaultInputs() { return Arrays.asList(new InputPortInfo(FILE_NAME), new InputPortInfo(DATA_IN_PORT)); }
 	@Override public List<OutputPortInfo> getDefaultOutputs() { return Arrays.asList(new OutputPortInfo(FILE_OUT_PORT, "text"), new OutputPortInfo(DATA_OUT_PORT, "default")); }
-	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo(FILE_NAME, "home_file"), new PropertyInfo("append", "boolean")); }
+	@Override public List<PropertyInfo> getDefaultProperties() { return Arrays.asList(new PropertyInfo(FILE_NAME, "home_file"), new PropertyInfo(APPEND, "boolean"), new PropertyInfo(CHECK_EXISTS, "boolean")); }
 
-	@Override public String getCategory() { return NodeCategories.INPUT_OUTPUT; }
+	@Override public String getCategory() { return NodeCategories.FILES; }
 }

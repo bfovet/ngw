@@ -14,6 +14,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -22,6 +23,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -47,8 +49,11 @@ import org.eclipse.graphiti.mm.pictograms.ContainerShape;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.services.Graphiti;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.widgets.Display;
 
 import gov.sandia.dart.workflow.domain.DomainFactory;
+import gov.sandia.dart.workflow.domain.Image;
 import gov.sandia.dart.workflow.domain.InputPort;
 import gov.sandia.dart.workflow.domain.OutputPort;
 import gov.sandia.dart.workflow.domain.Property;
@@ -154,17 +159,59 @@ public class DropResourceFeature extends AbstractAddFeature implements IAddFeatu
 			JarInputStream jis = isComponentJar();
 			if (jis != null) {			
 				return doAddComponentFromJar(context, jis);
-			} else if (resource instanceof IFile && resource.getName().toLowerCase().endsWith(".iwf")){
+			} 
+			String extension = FilenameUtils.getExtension(resource.getName()).toLowerCase();
+			
+			if (resource instanceof IFile && extension.equals("iwf")){
 				return doAddNestedWorkflowComponent(context);
-			} else if (resource instanceof IFile && resource.getName().toLowerCase().endsWith(".py")){
+			} else if (resource instanceof IFile && extension.equals("py")){
 				return doAddPythonComponent(context);
+			} else if (resource instanceof IFile && isImageFile(extension)){
+			 		return doAddImageComponent(context);
 			} else {
 				return doAddFileComponent(context);
 			}
 		} else {
 			return doAddFolderComponent(context);
 		}
+	}
 
+	private PictogramElement doAddImageComponent(IAddContext context) {
+		CreateContext createContext = new CreateContext();
+		createContext.setTargetContainer(context.getTargetContainer());
+		createContext.setLocation(context.getX(), context.getY());
+		createContext.setSize(180, 180);
+
+		String filePath = getFilePath();
+		InputStream contents = null;
+
+		try {
+			contents = ((IFile) resource).getContents();
+			org.eclipse.swt.graphics.Image sample = 
+				new org.eclipse.swt.graphics.Image(Display.getCurrent(), contents);
+			Rectangle bounds = sample.getBounds();
+			createContext.setSize(bounds.width, bounds.height);
+			sample.dispose();			
+		} catch (Exception ex) {
+			// Apparently not an image? Just don't worry about it, won't render and user can fix later
+		}  finally {
+			if (contents != null)
+				try { contents.close(); } catch (IOException ioe) {}
+		}
+		
+		CreateImageFeature cf = new CreateImageFeature(getFeatureProvider());
+		
+		Image image  = (Image) cf.create(createContext)[0];	
+
+		image.setText(filePath);
+		image.setDrawBorder(false);
+		image.setZoomToFit(true);
+		return targetContainer;
+	}
+	
+	private static Set<String> IMAGES = new HashSet<>(Arrays.asList("png", "jpg", "jpeg", "bmp", "gif"));
+	private boolean isImageFile(String extension) {
+		return IMAGES.contains(extension);
 	}
 
 	private PictogramElement doAddPythonComponent(IAddContext context) {
@@ -314,7 +361,7 @@ public class DropResourceFeature extends AbstractAddFeature implements IAddFeatu
 		node.setLabel(file.getName());	
 		node.setName(name);
 		PropertyUtils.setProperty(node, FILE_NAME, filePath);			
-		return targetContainer;
+		return getFeatureProvider().getPictogramElementForBusinessObject(node);
 	}
 	
 	private PictogramElement doAddFolderComponent(IAddContext context) {
@@ -332,7 +379,7 @@ public class DropResourceFeature extends AbstractAddFeature implements IAddFeatu
 		node.setLabel(file.getName());	
 		node.setName(name);
 		PropertyUtils.setProperty(node, FOLDER_NAME, filePath);			
-		return targetContainer;
+		return getFeatureProvider().getPictogramElementForBusinessObject(node);
 	}
 
 	
@@ -358,7 +405,7 @@ public class DropResourceFeature extends AbstractAddFeature implements IAddFeatu
 			return pe;
 		}
 		
-		return targetContainer;
+		return getFeatureProvider().getPictogramElementForBusinessObject(node);
 	}
 
 	
