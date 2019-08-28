@@ -25,6 +25,6 @@ Running	the NGW	Editor Application from Source
 
 -------------
 
-**Instructions for creating and executing workflows will be available soon.**
+The file "IntroNGW.pdf"  contains some very basic tutorial info. More will follow.
  
 
