@@ -15,6 +15,7 @@ Running	the NGW	Editor Application from Source
  1. Download and install a Java 8 JDK. We recommend https://adoptopenjdk.net
  2. Download, install, and launch Eclipse Oxygen R3a for RCP/RAP developers using the Java 8 installation
    https://www.eclipse.org/downloads/packages/release/oxygen/3a/eclipse-rcp-and-rap-developers
+    a. To use a particular JVM for Eclipse, see https://wiki.eclipse.org/Eclipse.ini
  2. In the Project Explorer, choose Import | Git | Projects from Git
  3. Clone the URL https://gitlab.com/iwf/ngw.git. Choose the "master" branch. Choose "Import Existing Eclipse Projects." You should end 
  up with a workspace containing 20 projects.
