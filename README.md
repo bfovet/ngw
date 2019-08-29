@@ -12,19 +12,17 @@ Target-Platform to generate your target platform for PDE development.
 Running	the NGW	Editor Application from Source
 -----------
 
- 1. Download and install a Java 8 JDK. We recommend https://adoptopenjdk.net
- 2. Download, install, and launch Eclipse Oxygen R3a for RCP/RAP developers using the Java 8 installation from
-    https://www.eclipse.org/downloads/packages/release/oxygen/3a/eclipse-rcp-and-rap-developers . To use a
-    particular JVM for Eclipse, see https://wiki.eclipse.org/Eclipse.ini
- 2. In the Project Explorer, choose Import | Git | Projects from Git
+ 1. Download and install a Java 8 JDK. We recommend https://adoptopenjdk.net .
+ 2. Download, install, and launch Eclipse Oxygen R3a for RCP/RAP developers from
+    https://www.eclipse.org/downloads/packages/release/oxygen/3a/eclipse-rcp-and-rap-developers using
+    the Java 8 JDK you downloaded. To use a particular JVM for Eclipse, see https://wiki.eclipse.org/Eclipse.ini
+ 2. In the Project Explorer, choose Import | Git | Projects from Git .
  3. Clone the URL https://gitlab.com/iwf/ngw.git. Choose the "master" branch. Choose "Import Existing Eclipse Projects." You should end 
  up with a workspace containing 19 projects.
- 4. Open Window | Preferences | Plugin Development | Target Platform. Choose "DART Platform". Choose "Apply and Close".
+ 4. Open Window | Preferences | Plugin Development | Target Platform. Choose "DART Platform". Press "Apply and Close".
  5. Find "NGW.product" in the "gov.sandia.dart.workflow.app" project. Select it, right click and choose "Run As" | "Eclipse Application".
  6. Select an appropriate workspace directory or accept the default. 
+ 7. Continue with the tutorials in the file "IntroNGW.pdf" .
 
--------------
-
-The file "IntroNGW.pdf"  contains some very basic tutorial info. More will follow.
  
 
