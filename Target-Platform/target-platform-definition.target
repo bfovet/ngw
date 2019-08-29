@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="DART Platform" sequenceNumber="26">
+<?pde version="3.8"?><target name="DART Platform" sequenceNumber="36">
 <locations>
 <location path="${eclipse_home}" type="Profile"/>
-<location path="${git_work_tree}/Target-Platform/Target-Platform/eclipse" type="Profile"/>
+<location path="${git_dir:/Target-Platform}/../Target-Platform/Target-Platform/eclipse" type="Profile"/>
 </locations>
 <environment>
 <nl>en_US</nl>
