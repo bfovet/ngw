@@ -1,0 +1,62 @@
+<html xmlns:java="http://xml.apache.org/xslt/java" xmlns:md="http://dart.sandia.gov/sierra-meta.xsd">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <link rel="stylesheet" type="text/css" href="ngwcomps.css">
+   </head>
+   <body>
+      <title>NGW Component Documentation - file</title>
+      <h1>file</h1>
+      
+      
+      <div>
+         
+         <h2>Description</h2>
+         
+         <p>A multipurpose node for basic file operations. Can read a file's contents, write data to a file, or simply represent a path to a file. </p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Properties</h2>
+         
+         <p>fileName - the name or path of a file. If this is a filename or a relative path, it is interpreted relative to the home directory.</p>
+         
+         <p>append - if this boolean property is 'true', then if used to write to a file, this node will append data to the end of the file rather than replacing previous contents.</p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Input Ports</h2>
+         
+         <p>fileName - the name or path of a file. If this is a filename or a relative path, it is interpreted relative to the home directory.</p>
+         
+         <p>dataIn - if connected, supplies data to be written to the file.</p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Output Ports</h2>
+         
+         <p> fileReference - the absolute path to the file represented by this node.</p>
+         
+         <p> dataOut - if connected, the contents of the file will be read and sent out through this port.</p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Notes</h2>
+         
+         <p>If the filename is specified using both the property and the input port, the value from the input port takes precedence. </p>
+         
+		 <p>You'll rarely if ever use all the ports of a given file node; typically only one or two are connected.</p>
+         </div>
+   </body>
+</html>

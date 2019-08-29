@@ -1,0 +1,55 @@
+<html xmlns:java="http://xml.apache.org/xslt/java" xmlns:md="http://dart.sandia.gov/sierra-meta.xsd">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <link rel="stylesheet" type="text/css" href="ngwcomps.css">
+   </head>
+   <body>
+      <title>NGW Component Documentation - ask_yes_no</title>
+      <h1>ask_yes_no</h1>
+      
+      
+      <div>
+         
+         <h2>Description</h2>
+         
+         <p>Displays a dialog that asks a yes or no question. Depending on the answer, data from the input "x" will be sent to either the "yes" or "no" outputs.</p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Properties</h2>
+         
+         <p>question - a yes or no question </p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Input Ports</h2>
+         
+         <p>x -  input data, which will be directed to one of the outputs depending on the user's answer to the question</p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Output Ports</h2>
+         
+         <p>yes - input from x will be sent to this output if the user response to the prompt is "yes"</p>
+         
+         <p>no - input from x will be sent to this output if the user response to the prompt is "no"</p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Notes</h2>
+         <p>Obviously this node is intended for interactive workflows only, and may not be available in standalone NGW installations.</p>
+         </div>
+   </body>
+</html>

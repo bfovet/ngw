@@ -1,0 +1,12 @@
+/*
+ * You can put styles here for the NGW component doc pages to use.
+ */
+ 
+ h1, h2, h3, h4 {
+	 font-family: verdana;
+ }
+ 
+ p {
+ 	font-family: helvetica;
+ }
+ 

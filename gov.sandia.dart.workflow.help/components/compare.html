@@ -1,0 +1,65 @@
+<html xmlns:java="http://xml.apache.org/xslt/java" xmlns:md="http://dart.sandia.gov/sierra-meta.xsd">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <link rel="stylesheet" type="text/css" href="ngwcomps.css">
+   </head>
+   <body>
+      <title>NGW Component Documentation - compare</title>
+      <h1>compare</h1>
+      
+      
+      <div>
+         
+         <h2>Description</h2>
+         
+         <p>Compare two numeric values using a supplied operator, then activate <u>one</u> of two outputs
+            depending on the result.</p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Properties</h2>
+         
+         <p>operator - a standard Javascript numeric comparison operator ( &lt;, &gt;, ==, etc)</p>
+  
+         <p>x - the left input (if not provided via an input port)</p>
+         
+         <p>y - the right input (if not provided via an input port)</p>
+  
+         </div>
+      
+      
+      <div>
+         
+         <h2>Input Ports</h2>
+         
+         <p>x - the left  input</p>
+         
+         <p>y - the right input</p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Output Ports</h2>
+         
+         <p>true - if the comparison is true, the x input value is provided on this port</p>
+         
+         <p>false - if the comparison is false, the x input value is provided on this port</p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Notes</h2>
+         
+         <p>Any Javascript binary operator can be used.
+         Will attempt to convert any non-text input values to decimal string representations before computing the result.</p>
+         
+         </div>
+   </body>
+</html>

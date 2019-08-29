@@ -1,0 +1,59 @@
+<html xmlns:java="http://xml.apache.org/xslt/java" xmlns:md="http://dart.sandia.gov/sierra-meta.xsd">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <link rel="stylesheet" type="text/css" href="ngwcomps.css">
+   </head>
+   <body>
+      <title>NGW Component Documentation - endloop</title>
+      <h1>endloop</h1>
+      
+      
+      <div>
+         
+         <h2>Description</h2>
+         
+         <p>Used in conjunction with a forLoop node to create a for loop within the workflow.
+            Signifies that the end of the loop has been reached. The node will either redirect
+            to the beginning of the loop or exit the loop </p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Properties</h2>
+         
+         <p>(None)</p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Input Ports</h2>
+         
+         <p>x - any value or string that was generated within the for loop </p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Output Ports</h2>
+         
+         <p>f - the end result of the for loop. This port will only be used once the for loop
+            has completed all of its iterations</p>
+         
+         <p>_LEND_ - this port redirects to the beginning of the loop and should be connected
+            to the _LBEGIN_ port of the forLoop node </p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Notes</h2>
+         
+         </div>
+   </body>
+</html>

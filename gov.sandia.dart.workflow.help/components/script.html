@@ -1,0 +1,58 @@
+<html xmlns:java="http://xml.apache.org/xslt/java" xmlns:md="http://dart.sandia.gov/sierra-meta.xsd">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <link rel="stylesheet" type="text/css" href="ngwcomps.css">
+   </head>
+   <body>
+      <title>NGW Component Documentation - script</title>
+      <h1>script</h1>
+      
+      
+      <div>
+         
+         <h2>Description</h2>
+         
+         <p>Runs a user-supplied script in-process.</p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Properties</h2>
+         
+         <p>customCode - the script to execute.</p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Input Ports</h2>
+         
+         <p>x - the single default input. You can add more inputs if desired. The values at all
+            the inputs will be available to the script as global variables with the same names
+            as the ports.</p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Output Ports</h2>
+         
+         <p>f - the single output. Your script should set the global variable "f" to produce a
+            value at this output.</p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Notes</h2>
+         
+         <p>Currently implemeted in terms of JavaScript. Will be moved to Python at some point.</p>
+         
+         </div>
+   </body>
+</html>

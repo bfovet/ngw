@@ -1,0 +1,59 @@
+<html xmlns:java="http://xml.apache.org/xslt/java" xmlns:md="http://dart.sandia.gov/sierra-meta.xsd">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <link rel="stylesheet" type="text/css" href="ngwcomps.css">
+   </head>
+   <body>
+      <title>NGW Component Documentation - display</title>
+      <h1>display</h1>
+      
+      
+      <div>
+         
+         <h2>Description</h2>
+         
+         <p>Creates a dialog box that displays a formatted string to the user with OK and Cancel buttons.
+         	If the user presses "Cancel," the workflow is cancelled.</p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Properties</h2>
+         
+         <p>formatString - a Java format string. See https://docs.oracle.com/javase/tutorial/java/data/numberformat.html.
+            </p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Input Ports</h2>
+         
+         <p>x - any data; can be incorporated into formatted output.</p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Output Ports</h2>
+         
+         <p>f - the formatted message. </p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Notes</h2>
+         
+         <p>Leaving the formatString under Properties empty will cause the display to show the
+            input. However, if there is an input in addition to a formatString and the formatString
+            does not call upon the input, then the formatString takes precedence.</p>
+         
+         </div>
+   </body>
+</html>

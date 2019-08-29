@@ -1,0 +1,72 @@
+<html xmlns:java="http://xml.apache.org/xslt/java" xmlns:md="http://dart.sandia.gov/sierra-meta.xsd">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <link rel="stylesheet" type="text/css" href="ngwcomps.css">
+   </head>
+   <body>
+      <title>NGW Component Documentation - forLoop</title>
+      <h1>forLoop</h1>
+      
+      
+      <div>
+         
+         <h2>Description</h2>
+         
+         <p>Used in conjunction with the endloop node to create a for loop within the workflow
+            </p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Properties</h2>
+         
+         <p>start - the number at which the for loop starts</p>
+         
+         <p>step - the step size</p>
+         
+         <p>end - the number at which the for loop ends; if the step causes a change that exceeds
+            this value, the for loop will terminate</p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Input Ports</h2>
+         
+         <p>x - a previous value to be used within the loop</p>
+         
+         <p>_LBEGIN_ - once all nodes have been included in the loop, connect the last one to
+            an endloop node and then connect the _LEND_ of the endloop node to this port</p>
+         
+         <p>start - the number at which the loop starts</p>
+         
+         <p>step - the step size</p>
+         
+         <p>end - the number at which the for loop ends; if the step causes a change that exceeds
+            this value, the for loop will terminate</p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Output Ports</h2>
+         
+         <p>f - begins the loop </p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Notes</h2>
+         
+         <p>If start, step, and end are specified in both Properties and the Input Ports, the
+            Properties values will take precedence </p>
+         
+         </div>
+   </body>
+</html>

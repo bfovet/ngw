@@ -1,0 +1,91 @@
+<html xmlns:java="http://xml.apache.org/xslt/java" xmlns:md="http://dart.sandia.gov/sierra-meta.xsd">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <link rel="stylesheet" type="text/css" href="ngwcomps.css">
+   </head>
+   <body>
+      <title>NGW Component Documentation - getColumns</title>
+      <h1>getColumns</h1>
+      
+      
+      <div>
+         
+         <h2>Description</h2>
+         
+         <p>Extracts one or more columns of data from a tabular data source. Columns may be selected
+            either by name or by numerical order.</p>
+
+         <p>To select data from columns by name, provide output ports named for each column to be selected.
+            For example, an output port name <code>TIME</code> will be sent data from the column named
+            <code>TIME</code>, etc.</p>
+         
+         <p>To select data from a (single) column by numerical order, specify the numerical index of
+            the column (starting with <code>1</code>) via the <code>columnIndex</code> property, and
+            data from the corresponding column will be sent to the <code>selected</code> output port.</p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Properties</h2>
+         
+         <dl>
+         
+         <dt>number of header lines</dt>
+         <dd>the number of header lines at the beginning of the file before data begins.
+             If named columns are referenced (i.e. via output ports), column names will be expected to
+             be found in the last of the header lines. Optional, defaults to 1. </dd>
+         
+         <dt>number of footer lines</dt>
+         <dd>the number of non-data lines at the end of the file to be ignored.
+            Optional, defaults to 0.</dd>
+           
+         <dt>separator regular expression</dt>
+         <dd>a Java regular expression matching the separators between columns. Optional, defaults
+            to "\\s+"  (any white space).</dd>
+            
+         <dt>columnIndex</dt>
+         <dd>the 1-based index (left to right) of a column to send to the column output port. Optional.</dd>
+         
+         </dl>
+         
+      </div>
+      
+      <div>
+         
+         <h2>Input Ports</h2>
+         
+         <dl>
+         
+         <dt>data</dt>
+         <dd>raw tabular data.</dd>
+   
+         <dt>fileName</dt>
+         <dd>the name of a file containing tabular data.</dd>
+         
+         </dl>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Output Ports</h2>
+         
+         <dl>
+         <dt class="var">column-name</dt>
+         <dd>data from the named column</p>
+
+         <dt>selected</dt>
+         <dd>data from the column indexed by the <b>columnIndex</b> property.</dd>         
+         </dl>
+         </div>
+      
+      <div>
+         
+         <h2>Notes</h2>
+         <p>Only one of the two input ports, <b>data</b> and <b>fileName</b>, should be specified.
+         </div>
+   </body>
+</html>

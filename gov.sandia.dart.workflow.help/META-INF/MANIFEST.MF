@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Workflow Documentation
+Bundle-SymbolicName: gov.sandia.dart.workflow.help;singleton:=true
+Bundle-Version: 1.0.0.0
+Automatic-Module-Name: gov.sandia.dart.workflow.help
+Require-Bundle: org.eclipse.help
