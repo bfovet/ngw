@@ -11,6 +11,7 @@
 		<copy file="driver.jar" todir="${install.dir}"/>	
 		<copy file="scripts/run.sh" todir="${install.dir}"/>	
 		<chmod file="${install.dir}/run.sh" perm="775"/>
+		<copy file="scripts/run.bat" todir="${install.dir}"/>	
 		<copy file="scripts/hello.iwf" todir="${install.dir}"/>	
 	</target>
 	<target name="jarfile" depends="compile">
