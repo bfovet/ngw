@@ -24,5 +24,11 @@ Running	the NGW	Editor Application from Source
  6. Select an appropriate workspace directory or accept the default. 
  7. Continue with the tutorials in the file "IntroNGW.pdf" .
 
- 
+Building the Standalone Workflow Engine
+--------------
+
+ 1. Right-click the file "ant-build.xml" in the project "gov.sandia.dart.workflow.phase3" and choose "Run As | Ant Build"
+ 2. The standalone workflow engine is installed in a folder "wflib" in your (OS-dependent) home directory.
+ 3. To test the install on Mac or Linux, open a terminal window, navigate to this folder, and type "run.sh hello.iwf".
+ 4. You can rename the "wflib" folder or move it to any other computer. 
 
