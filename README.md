@@ -31,4 +31,6 @@ Building the Standalone Workflow Engine
  2. The standalone workflow engine is installed in a folder "wflib" in your (OS-dependent) home directory.
  3. To test the install, open a terminal window, navigate to this folder, and type "run.sh hello.iwf" (on Mac or Linux) or "run.bat hello.iwf" (on Windows.)
  4. You can rename the "wflib" folder or move it to any other computer. 
+ 
+Note: to use Kerberos networking features, you'll need to customize/replace the jaas.conf and krb5.conf files in gov.sandia.dart.workflow.phase3/resources.
 
