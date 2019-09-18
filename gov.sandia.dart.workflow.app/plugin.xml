@@ -23,7 +23,7 @@
          </newWizardShortcut>
          <newWizardShortcut
                id="org.eclipse.ui.wizards.new.file">
-         </newWizardShortcut>                      
+         </newWizardShortcut>          
       </perspectiveExtension>
    </extension>
    <extension
@@ -299,6 +299,14 @@
             implementation="gov.sandia.dart.workflow.app.application.GrabFocusTweaklet"
             >
       </tweaklet>
+   </extension>
+   <extension
+         point="org.eclipse.ui.navigator.navigatorContent">
+      <commonWizard
+            type="new"
+            wizardId="gov.sandia.dart.workflow.editor.newWorkflowWizard">
+         <enablement></enablement>
+      </commonWizard>
    </extension>
 
 </plugin>
