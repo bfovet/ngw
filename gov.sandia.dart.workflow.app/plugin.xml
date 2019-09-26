@@ -308,5 +308,33 @@
          <enablement></enablement>
       </commonWizard>
    </extension>
+   <extension
+           point="gov.sandia.dart.workflow.editor.resourceContributor">
+        <contribution
+              node="queueSubmit"
+              priority="10"
+              property="submitScript"
+              resource="/scripts/submit.sh">
+        </contribution>
+        <contribution
+              node="queueSubmit"
+              priority="10"
+              property="executeScript"
+              resource="/scripts/execute.sh">
+        </contribution>
+        <contribution
+              node="queueSubmit"
+              priority="10"
+              property="checkjobScript"
+              resource="/scripts/checkjob.sh">
+        </contribution>
+        <contribution
+              node="queueSubmit"
+              priority="10"
+              property="statusScript"
+              resource="/scripts/status.sh">
+        </contribution>
+     </extension>
+   
 
 </plugin>
