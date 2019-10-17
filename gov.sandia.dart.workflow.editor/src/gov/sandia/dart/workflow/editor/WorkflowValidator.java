@@ -113,7 +113,7 @@ public class WorkflowValidator {
 
 				}
 					
-				
+				validateName(fp, decorators, node, null);
 				
 				for (InputPort port: node.getInputPorts()) {
 					validateName(fp, decorators, node, port);					
@@ -127,14 +127,21 @@ public class WorkflowValidator {
 		}
 	}
 
+	private static char[] BAD_CHARS = ". /\\\t".toCharArray();
 	private void validateName(IFeatureProvider fp, Map<EObject, IDecorator> decorators, WFNode object, NamedObject port) {
-		String name = port.getName();
-		if (name.indexOf('.') > -1) {
+		String name = port == null ? object.getName() : port.getName();
+		
+		for (char c: BAD_CHARS)
+		if (name.indexOf(c) > -1) {
 			ImageDecorator imageRenderingDecorator = new ImageDecorator(IPlatformImageConstants.IMG_ECLIPSE_ERROR_TSK);
-			imageRenderingDecorator.setMessage("Invalid character '.' in port name '" + port.getName() + "' of node '" + object.getName() + "'");
+			if (port != null)
+				imageRenderingDecorator.setMessage("Invalid character '" + c + "' in port name '" + port.getName() + "' of node '" + object.getName() + "'");
+			else
+				imageRenderingDecorator.setMessage("Invalid character '" + c + "' in node name '" + object.getName() + "'");
+
 			PictogramElement pe = fp.getPictogramElementForBusinessObject(object);
 			imageRenderingDecorator.setX(pe.getGraphicsAlgorithm().getWidth() - 20);
-			decorators.put(object, imageRenderingDecorator);					
+			decorators.put(object, imageRenderingDecorator);		
 		}
 	}
 	
