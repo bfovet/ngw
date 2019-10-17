@@ -42,17 +42,14 @@
       </win>
    </launcher>
 
-
    <vm>
    </vm>
-
 
    <plugins>
    </plugins>
 
    <features>
       <feature id="org.eclipse.platform"/>
-      <feature id="nu.psnet.quickimage" version="1.0.3.2"/>
       <feature id="gov.sandia.dart.ngw.core.feature" version="1.0.0"/>
       <feature id="gov.sandia.dart.workflow.app.feature" version="1.0.0"/>
       <feature id="org.eclipse.emf.ecore"/>
@@ -70,7 +67,6 @@
       <feature id="org.eclipse.ecf.core.ssl.feature"/>
       <feature id="org.eclipse.ecf.filetransfer.ssl.feature"/>
       <feature id="org.eclipse.e4.rcp"/>
-      <feature id="org.eclipse.gef" version="3.11.0.201606061308"/>
    </features>
 
    <configurations>
