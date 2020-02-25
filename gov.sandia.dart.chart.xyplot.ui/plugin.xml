@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="gov.sandia.dart.chart.xyplot"
+            name="XY Plot">
+      </category>
+      <view
+            category="gov.sandia.dart.chart.xyplot"
+            class="gov.sandia.dart.chart.xyplot.ui.view.NebulaXYPlotView"
+            id="gov.sandia.dart.chart.xyplot.ui.view.XYPlotView"
+            name="XYPlot">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="gov.sandia.dart.chart.xyplot.ui.PreferenceInitializer">
+      </initializer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.propertiesView">
+      <excludeSources
+            id="gov.sandia.dart.chart.xyplot.view.XYPlotView">
+      </excludeSources>
+   </extension>
+</plugin>

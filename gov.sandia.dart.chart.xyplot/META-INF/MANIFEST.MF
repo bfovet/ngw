@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: XY Plot
+Bundle-SymbolicName: gov.sandia.dart.chart.xyplot; singleton:=true
+Bundle-Version: 1.2.0
+Bundle-Activator: gov.sandia.dart.chart.xyplot.Activator
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.ui,
+ gov.sandia.dart.commandqueue;bundle-version="1.0.0",
+ gov.sandia.dart.chart.xyplot.ui;bundle-version="1.2.0"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Export-Package: gov.sandia.dart.chart.xyplot,
+ gov.sandia.dart.chart.xyplot.command
+Bundle-Vendor: Sandia National Laboratories

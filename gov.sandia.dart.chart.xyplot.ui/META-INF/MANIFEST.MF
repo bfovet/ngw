@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: XY Plot UI Plug-in
+Bundle-SymbolicName: gov.sandia.dart.chart.xyplot.ui;singleton:=true
+Bundle-Version: 1.2.0
+Bundle-Activator: gov.sandia.dart.chart.xyplot.ui.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.nebula.visualization.xygraph;bundle-version="1.0.0";visibility:=reexport,
+ org.eclipse.draw2d,
+ gov.sandia.dart.apache.commons;bundle-version="2.0.0",
+ gov.sandia.dart.common.core;bundle-version="1.0.0",
+ com.strikewire.snl.apc.Common;bundle-version="1.8.0"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Export-Package: gov.sandia.dart.chart.xyplot.expression,
+ gov.sandia.dart.chart.xyplot.ui,
+ gov.sandia.dart.chart.xyplot.ui.view
+Bundle-Vendor: Sandia National Laboratories

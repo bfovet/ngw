@@ -1,0 +1,53 @@
+<html xmlns:java="http://xml.apache.org/xslt/java" xmlns:md="http://dart.sandia.gov/sierra-meta.xsd">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <link rel="stylesheet" type="text/css" href="ngwcomps.css">
+   </head>
+   <body>
+      <title>NGW Component Documentation - remoteNestedWorkflow</title>
+      <h1>remoteNestedWorkflow</h1>
+      
+      
+      <div>
+         
+         <h2>Description</h2>
+         
+         <p>Represents a "sub-workflow," stored in a different IWF file from the main workflow, which will be executed remotely.
+         The parameters and responses of the sub-workflow can be connected to input and output ports, respectively, of this node by 
+         pressing the <img src="../images/ports.gif"> context button. The remote workflow is executed synchronously on the remote host.</p>  
+         <p>This node is powerful but not yet as convenient to use as we'd like. A future version will include a custom
+         editor configured with known machines and their properties.</p>
+         </div>
+     
+      <div>
+         
+         <h2>Properties</h2>
+          <p><b>fileName</b> - the name of the sub-workflow IWF file. </p>
+		  <p><b>hostname</b> - the name of the remote host. It is assumed that you can log into that host using the active Kerberos ticket.</p>
+		  <p><b>remotePath</b> - the absolute path on the remote machine in which  the workflow should be executed. Like all workflow node properties, you can
+		  use parameters to define this value.</p>
+		  <p><b>wflib</b> (optional) - if present, specifies the location of a workflow library directory on the remote machine.
+		  If not present the standard search path is used.</p>
+         </div>      
+      <div>
+         
+         <h2>Input Ports</h2>
+         <p>This node has no standard input ports, but parameters of the sub-workflow can be connected to input ports if desired.</p>
+         </div>
+      
+      <div>
+         
+         <h2>Output Ports</h2>
+         <p><b>stdout</b> - the standard output of the sub-workflow process.</p>
+         <p><b>stderr</b> - the standard error of the sub-workflow process.</p>
+         <p>Additional output ports can be connected to the responses of the sub-workflow if desired. In addition, note that when the remote workflow completes
+         its workflow.engine.log is retrieved, and the "Grab Output File" tool can be used to provide that file via a port.</p>
+         
+         </div>
+      
+      <div>
+         <h2>Notes</h2>
+         <p>This node logs copious progress info to both workflow.engine.log and the workflow stdout.</p>
+         </div>
+   </body>
+</html>

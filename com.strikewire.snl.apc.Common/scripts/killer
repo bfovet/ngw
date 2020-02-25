@@ -1,0 +1,37 @@
+#!/bin/bash
+
+#################################################################################
+# killer, mark 2
+#
+# Recursively make a list of a process and all its descendants, most-derived first,
+# and then kill them.
+#################################################################################
+
+#
+# Walk the process tree, depth first. Store all process ids in the array "pids"
+#
+
+function traverse {
+    local pid
+    local ppid=$1
+    for pid in `ps -ef| awk '$3 == '$ppid' { print $2 }'`; do
+        traverse $pid
+    done
+    pids[$index]=$ppid
+    index=`expr $index + 1`
+}
+
+index=1
+traverse "$@"
+
+#
+# Kill all the processes in the array "pids".
+#
+
+index2=1
+while [ $index2 -ne $index ]
+do
+    # echo "Killing ${pids[$index2]}"
+    kill -9 ${pids[$index2]} > /dev/null 2>&1 || true;
+    index2=`expr $index2 + 1`    
+done

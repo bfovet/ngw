@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<classpath>
+    <classpathentry kind="src" path="src"/>
+    <classpathentry kind="src" path="resources"/>
+    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
+        <attributes>
+            <attribute name="module" value="true"/>
+        </attributes>
+    </classpathentry>
+    <classpathentry kind="output" path="bin"/>
+    <classpathentry eecu="true" exported="true" kind="lib" path="lib/activation-1.1.1.jar" sourcepath="/gov.sandia.dart.workflow.phase3/lib-ref/activation-1.1.1-sources.jar"/>
+    <classpathentry eecu="true" exported="true" kind="lib" path="lib/commons-io-2.6.jar" sourcepath="/gov.sandia.dart.workflow.phase3/lib-ref/commons-io-2.6-sources.jar">
+        <attributes>
+            <attribute name="javadoc_location" value="jar:platform:/resource/gov.sandia.dart.workflow.phase3/lib-ref/commons-io-2.6-javadoc.jar!/"/>
+        </attributes>
+    </classpathentry>
+    <classpathentry eecu="true" exported="true" kind="lib" path="lib/commons-lang3-3.9.jar" sourcepath="/gov.sandia.dart.workflow.phase3/lib-ref/commons-lang3-3.9-sources.jar">
+        <attributes>
+            <attribute name="javadoc_location" value="jar:platform:/resource/gov.sandia.dart.workflow.phase3/lib-ref/commons-lang3-3.9-javadoc.jar!/"/>
+        </attributes>
+    </classpathentry>
+    <classpathentry eecu="true" exported="true" kind="lib" path="lib/commons-math3-3.6.1.jar" sourcepath="/gov.sandia.dart.workflow.phase3/lib-ref/commons-math3-3.6.1-sources.jar">
+        <attributes>
+            <attribute name="javadoc_location" value="jar:platform:/resource/gov.sandia.dart.workflow.phase3/lib-ref/commons-math3-3.6.1-javadoc.jar!/"/>
+        </attributes>
+    </classpathentry>
+    <classpathentry eecu="true" exported="true" kind="lib" path="lib/commons-text-1.8.jar" sourcepath="/gov.sandia.dart.workflow.phase3/lib-ref/commons-text-1.8-sources.jar">
+        <attributes>
+            <attribute name="javadoc_location" value="jar:platform:/resource/gov.sandia.dart.workflow.phase3/lib-ref/commons-text-1.8-javadoc.jar!/"/>
+        </attributes>
+    </classpathentry>
+    <classpathentry eecu="true" exported="true" kind="lib" path="lib/istack-commons-runtime-3.0.9.jar" sourcepath="/gov.sandia.dart.workflow.phase3/lib-ref/istack-commons-runtime-3.0.9-sources.jar">
+        <attributes>
+            <attribute name="javadoc_location" value="jar:platform:/resource/gov.sandia.dart.workflow.phase3/lib-ref/istack-commons-runtime-3.0.9-javadoc.jar!/"/>
+        </attributes>
+    </classpathentry>
+    <classpathentry eecu="true" exported="true" kind="lib" path="lib/jackson-annotations-2.9.9.jar" sourcepath="/gov.sandia.dart.workflow.phase3/lib-ref/jackson-annotations-2.9.9-sources.jar">
+        <attributes>
+            <attribute name="javadoc_location" value="jar:platform:/resource/gov.sandia.dart.workflow.phase3/lib-ref/jackson-annotations-2.9.9-javadoc.jar!/"/>
+        </attributes>
+    </classpathentry>
+    <classpathentry eecu="true" exported="true" kind="lib" path="lib/jackson-core-2.9.9.jar" sourcepath="/gov.sandia.dart.workflow.phase3/lib-ref/jackson-core-2.9.9-sources.jar">
+        <attributes>
+            <attribute name="javadoc_location" value="jar:platform:/resource/gov.sandia.dart.workflow.phase3/lib-ref/jackson-core-2.9.9-javadoc.jar!/"/>
+        </attributes>
+    </classpathentry>
+    <classpathentry eecu="true" exported="true" kind="lib" path="lib/jackson-databind-2.9.9.3.jar" sourcepath="/gov.sandia.dart.workflow.phase3/lib-ref/jackson-databind-2.9.9.3-sources.jar">
+        <attributes>
+            <attribute name="javadoc_location" value="jar:platform:/resource/gov.sandia.dart.workflow.phase3/lib-ref/jackson-databind-2.9.9.3-javadoc.jar!/"/>
+        </attributes>
+    </classpathentry>
+    <classpathentry eecu="true" exported="true" kind="lib" path="lib/jaxb-api-2.3.1.jar" sourcepath="/gov.sandia.dart.workflow.phase3/lib-ref/jaxb-api-2.3.1-sources.jar">
+        <attributes>
+            <attribute name="javadoc_location" value="jar:platform:/resource/gov.sandia.dart.workflow.phase3/lib-ref/jaxb-api-2.3.1-javadoc.jar!/"/>
+        </attributes>
+    </classpathentry>
+    <classpathentry eecu="true" exported="true" kind="lib" path="lib/jaxb-runtime-2.3.2.jar" sourcepath="/gov.sandia.dart.workflow.phase3/lib-ref/jaxb-runtime-2.3.2-sources.jar">
+        <attributes>
+            <attribute name="javadoc_location" value="jar:platform:/resource/gov.sandia.dart.workflow.phase3/lib-ref/jaxb-runtime-2.3.2-javadoc.jar!/"/>
+        </attributes>
+    </classpathentry>
+    <classpathentry eecu="true" exported="true" kind="lib" path="lib/jsch-0.1.55.jar" sourcepath="/gov.sandia.dart.workflow.phase3/lib-ref/jsch-0.1.55-sources.jar">
+        <attributes>
+            <attribute name="javadoc_location" value="jar:platform:/resource/gov.sandia.dart.workflow.phase3/lib-ref/jsch-0.1.55-javadoc.jar!/"/>
+        </attributes>
+    </classpathentry>
+    <classpathentry eecu="true" exported="true" kind="lib" path="lib/jzlib-1.1.3.jar" sourcepath="/gov.sandia.dart.workflow.phase3/lib-ref/jzlib-1.1.3-sources.jar">
+        <attributes>
+            <attribute name="javadoc_location" value="jar:platform:/resource/gov.sandia.dart.workflow.phase3/lib-ref/jzlib-1.1.3-javadoc.jar!/"/>
+        </attributes>
+    </classpathentry>
+    <classpathentry eecu="true" exported="true" kind="lib" path="lib/log4j-api-2.12.1.jar" sourcepath="/gov.sandia.dart.workflow.phase3/lib-ref/log4j-api-2.12.1-sources.jar">
+        <attributes>
+            <attribute name="javadoc_location" value="jar:platform:/resource/gov.sandia.dart.workflow.phase3/lib-ref/log4j-api-2.12.1-javadoc.jar!/"/>
+        </attributes>
+    </classpathentry>
+    <classpathentry eecu="true" exported="true" kind="lib" path="lib/log4j-core-2.12.1.jar" sourcepath="/gov.sandia.dart.workflow.phase3/lib-ref/log4j-core-2.12.1-sources.jar">
+        <attributes>
+            <attribute name="javadoc_location" value="jar:platform:/resource/gov.sandia.dart.workflow.phase3/lib-ref/log4j-core-2.12.1-javadoc.jar!/"/>
+        </attributes>
+    </classpathentry>
+    <classpathentry eecu="true" exported="true" kind="lib" path="lib/log4j-slf4j-impl-2.12.1.jar" sourcepath="/gov.sandia.dart.workflow.phase3/lib-ref/log4j-slf4j-impl-2.12.1-sources.jar">
+        <attributes>
+            <attribute name="javadoc_location" value="jar:platform:/resource/gov.sandia.dart.workflow.phase3/lib-ref/log4j-slf4j-impl-2.12.1-javadoc.jar!/"/>
+        </attributes>
+    </classpathentry>
+    <classpathentry eecu="true" exported="true" kind="lib" path="lib/sarasvati-core-2.0.2.jar" sourcepath="/gov.sandia.dart.workflow.phase3/lib-ref/sarasvati-core-2.0.2-sources.jar">
+        <attributes>
+            <attribute name="javadoc_location" value="jar:platform:/resource/gov.sandia.dart.workflow.phase3/lib-ref/sarasvati-core-2.0.2-javadoc.jar!/"/>
+        </attributes>
+    </classpathentry>
+    <classpathentry eecu="true" exported="true" kind="lib" path="lib/slf4j-api-1.7.28.jar" sourcepath="/gov.sandia.dart.workflow.phase3/lib-ref/slf4j-api-1.7.28-sources.jar">
+        <attributes>
+            <attribute name="javadoc_location" value="jar:platform:/resource/gov.sandia.dart.workflow.phase3/lib-ref/slf4j-api-1.7.28-javadoc.jar!/"/>
+        </attributes>
+    </classpathentry>
+    <classpathentry eecu="true" exported="true" kind="lib" path="lib/trinityconn-0.0.1.jar"/>
+</classpath>

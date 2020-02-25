@@ -1,0 +1,64 @@
+<html xmlns:java="http://xml.apache.org/xslt/java" xmlns:md="http://dart.sandia.gov/sierra-meta.xsd">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <link rel="stylesheet" type="text/css" href="ngwcomps.css">
+   </head>
+   <body>
+      <title>NGW Component Documentation - aprepro</title>
+      <h1>aprepro</h1>
+      
+      
+      <div>
+         
+         <h2>Description</h2>
+         
+         <p>Runs the aprepro processor on a file, stores the result in a new file, and passes
+            along the path to this new file. The current values of the workflow's parameters are
+            available as variables in the aprepro environment.</p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Properties</h2>
+         
+         <p>templateFile - a local file, the file to process using aprepro..</p>
+         
+         <p>commentChar (Optional) - a comment character (or string) appropriate to the file being
+            processed. If unspecified, defaults to "#".</p>
+         
+         <p>outputFile (Optional) - The desired name for the output file. If unspecified, for
+            filename.ext defaults to filename.aprepro.ext .</p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Input Ports</h2>
+         
+         <p>(None)</p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Output Ports</h2>
+         
+         <p>outputFile - absolute path to the processed file</p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Notes</h2>
+         
+         <p>Requires configuration: the environment variable APREPRO_PATH should exist in the
+            workflow server environment, and point to the aprepro executable.</p>
+         
+         </div>
+   </body>
+</html>

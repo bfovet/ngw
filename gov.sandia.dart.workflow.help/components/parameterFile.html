@@ -1,0 +1,56 @@
+<html xmlns:java="http://xml.apache.org/xslt/java" xmlns:md="http://dart.sandia.gov/sierra-meta.xsd">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <link rel="stylesheet" type="text/css" href="ngwcomps.css">
+   </head>
+   <body>
+      <title>NGW Component Documentation - parameterFile</title>
+      <h1>parameterFile</h1>
+      
+      
+      <div>
+         
+         <h2>Description</h2>
+         
+         <p>Reads parameters from a file </p>
+         
+      </div>
+      
+      
+      <div>
+         
+         <h2>Properties</h2>
+         
+         <p>fileName - the file to be read. The format should be that of a simple Java properties file:
+         each line should be of the form "key=value". Octothorpes (#) introduce comment lines.
+         No escaping of special characters or line continuation is performed. </p>
+               
+      </div>
+      <div>
+         
+         <h2>Input Ports</h2>
+         
+         <p>None</p>
+               
+      
+      </div>
+      <div>
+         
+         <h2>Output Ports</h2>
+         
+         <p> f - a map containing all the parameter mappings from the file.</p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Notes</h2>
+         
+         <p>The parameterFile node will actually be executed before the rest of the workflow runs,
+         and the parameters will be injected into the workflow engine at that time. If you connect the output of this node
+         the map will be available for further processing, but an unconnected parameterFile node is the usual case.</p>
+         <p>If the given filename is not an absolute path, it is taken to be relative to the workflow home directory.</p>
+         </div>
+   </body>
+</html>

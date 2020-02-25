@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="argvProvider" name="Application Startup Options Provider" schema="schema/argvProvider.exsd"/>
+</plugin>

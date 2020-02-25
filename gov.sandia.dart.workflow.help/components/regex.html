@@ -1,0 +1,62 @@
+<html xmlns:java="http://xml.apache.org/xslt/java" xmlns:md="http://dart.sandia.gov/sierra-meta.xsd">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <link rel="stylesheet" type="text/css" href="ngwcomps.css">
+   </head>
+   <body>
+      <title>NGW Component Documentation - regex</title>
+      <h1>regex</h1>
+      
+      
+      <div>
+         
+         <h2>Description</h2>
+         
+         <p>Attempt to match a regular expression with an optional capture group against some
+            input. Emit the matched data (possibly just the capture group) to one of two outputs.</p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Properties</h2>
+         
+         <p>regex - the regular expression, with an optional capture group. As an example, if
+            you wanted to match the number in text like -Energy = 101.5- an appropriate regular
+            expession would be -Energy = (.+)"</p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Input Ports</h2>
+         
+         <p>x - input data to be matched</p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Output Ports</h2>
+         
+         <p>match - if the input matches the regular expression, then the data - or the capture
+            group, if present - is sent to this output</p>
+         
+         <p>no_match - if the input doesn-t match the regular expression, the input is sent to
+            this output</p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Notes</h2>
+         
+         <p>This node uses Java regular expressions as documented here.</p>
+         
+         </div>
+   </body>
+</html>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.eclipse.nebula.widgets.passwordrevealer.feature"
+      label="Nebula Password Revealer Widget"
+      version="1.0.0.201907151344"
+      provider-name="Eclipse Nebula, Laurent CARON">
+
+   <description url="http://eclipse.org/nebula">
+      PasswordRevealer
+   </description>
+
+   <license url="%licenseURL">
+      %license
+   </license>
+
+   <plugin
+         id="org.eclipse.nebula.widgets.passwordrevealer"
+         download-size="15"
+         install-size="30"
+         version="1.0.0.201907151344"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.nebula.widgets.passwordrevealer.source"
+         download-size="18"
+         install-size="94"
+         version="1.0.0.201907151344"
+         unpack="false"/>
+</feature>

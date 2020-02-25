@@ -1,0 +1,29 @@
+Signature-Version: 1.0
+SHA-256-Digest-Manifest-Main-Attributes: pVtblzApAkHKEp52PMf2qyRxVsXH7
+ 3zc8ECImmQ+Ewg=
+SHA-256-Digest-Manifest: QBO23tcGjQgIA9BDVoxnh/QESyQD7kuUQMladzrYAwc=
+Created-By: 1.8.0_51 (Oracle Corporation)
+
+Name: .gitkeep
+SHA-256-Digest: NSNWqF35Q8uUhdLqkq92c+FanjLXKI95DHKSXYWkzNo=
+
+Name: META-INF/maven/org.eclipse.graphiti/org.eclipse.graphiti.export.
+ feature/pom.properties
+SHA-256-Digest: FV/OWpCK3ppcwanGk99tTV3qrnszD0B6RfsgLvec0a8=
+
+Name: epl-2.0.html
+SHA-256-Digest: AED4dAeGrOY0hc5nW8gJmyCMPlZ5rTF8ACL9TK1dx/Q=
+
+Name: feature.xml
+SHA-256-Digest: Yv34y+fKD2EonXHnLBPnlFEJL3maxsQvHplb7gl3Afw=
+
+Name: META-INF/maven/org.eclipse.graphiti/org.eclipse.graphiti.export.
+ feature/pom.xml
+SHA-256-Digest: l1Hq671UXewIYREGPtPudA8vRZiryns0FgDni5vokI8=
+
+Name: feature.properties
+SHA-256-Digest: xvDO2g0XvHRnmS9O/U2GaF8lHfG3mrAjo/JvX4HJkXs=
+
+Name: license.html
+SHA-256-Digest: zVM/vJgU0kRLZDQ3qmgeRgMh5WQ38NzJh/8vJedLd0s=
+

@@ -1,0 +1,28 @@
+Manifest-Version: 1.0
+Built-By: genie.graphiti
+Created-By: Apache Maven 3.6.0
+Build-Jdk: 1.8.0_192
+
+Name: .gitkeep
+SHA-256-Digest: 47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=
+
+Name: epl-2.0.html
+SHA-256-Digest: koxKavfpz4JYnlYPmP+7at5zhbWf7Iy07zamu5HPcBg=
+
+Name: META-INF/maven/org.eclipse.graphiti/org.eclipse.graphiti.feature
+ .examples/pom.properties
+SHA-256-Digest: Spb3O6GyoXjuvDt37DOm+IKXb6QFt2rEjYqOaPVQY2c=
+
+Name: META-INF/maven/org.eclipse.graphiti/org.eclipse.graphiti.feature
+ .examples/pom.xml
+SHA-256-Digest: phb/49WK0MFdSKa36Sm451vEoph/TqqPsyftNiyVb+U=
+
+Name: feature.xml
+SHA-256-Digest: DL5/EfGt5lsuVcpcqskGyDJDviyg6LTc+5B73A7J/aQ=
+
+Name: feature.properties
+SHA-256-Digest: UNAmqc/P7V4Y6NUuvLy52WhcfNeqevRFRSd1qPqzajQ=
+
+Name: license.html
+SHA-256-Digest: Dv5NbrV590iFepPFp4HDAA9w8zkHSynRW5FCE+FLHVM=
+

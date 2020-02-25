@@ -1,0 +1,1175 @@
+<workflowData>
+  <nodeTypes>
+    <nodeType name='checkpoint'>
+      <categories>
+        <category name='Control'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+        <output name='checkpointName' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='ln'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='constant'>
+      <categories>
+        <category name='Workflow Organization'/>
+        <category name='Data Sources'/>
+      </categories>
+      <properties>
+        <property name='value' type='default' advanced='false'/>
+      </properties>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='cos'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='queueSubmit'>
+      <categories>
+        <category name='Applications'/>
+      </categories>
+      <properties>
+        <property name='inputFile' type='home_file' advanced='false'/>
+        <property name='sierra_code' type='default' advanced='false'/>
+        <property name='num.processors' type='integer' value='16' advanced='false'/>
+        <property name='executeScript' type='home_file' advanced='false'/>
+        <property name='statusScript' type='home_file' advanced='false'/>
+        <property name='submit to queue and monitor status' type='boolean' value='true' advanced='false'/>
+        <property name='account' type='default' advanced='false'/>
+        <property name='queue' type='text' value='nw' advanced='false'/>
+        <property name='num.nodes' type='integer' value='1' advanced='false'/>
+        <property name='job.hours' type='integer' value='0' advanced='false'/>
+        <property name='job.minutes' type='integer' value='30' advanced='false'/>
+        <property name='submitScript' type='home_file' advanced='false'/>
+        <property name='checkjobScript' type='home_file' advanced='false'/>
+        <property name='checkjobFrequency' type='integer' value='15' advanced='false'/>
+        <property name='use private work directory' type='boolean' value='true' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='inputFile' type='input_file'/>
+      </inputs>
+      <outputs>
+        <output name='logFile' type='output_file'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='tclScript'>
+      <categories>
+        <category name='Scripting'/>
+        <category name='Applications'/>
+      </categories>
+      <properties>
+        <property name='script' type='multitext' advanced='false'/>
+        <property name='write properties to a property file' type='boolean' advanced='false'/>
+        <property name='use private work directory' type='boolean' value='true' advanced='false'/>
+        <property name='restartable' type='boolean' value='true' advanced='true'/>
+      </properties>
+      <inputs>
+        <input name='stdin' type='default'/>
+        <input name='script' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='stdout' type='default'/>
+        <output name='stderr' type='default'/>
+        <output name='exitStatus' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='apostpro'>
+      <categories>
+        <category name='Text Data'/>
+      </categories>
+      <properties>
+        <property name='inputFile' type='home_file' advanced='false'/>
+        <property name='match' type='default' advanced='false'/>
+        <property name='field' type='default' advanced='false'/>
+        <property name='skip' type='default' advanced='false'/>
+        <property name='separator' type='default' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='inputFile' type='input_file'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='atan'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='cshScript'>
+      <categories>
+        <category name='Scripting'/>
+        <category name='Applications'/>
+      </categories>
+      <properties>
+        <property name='script' type='multitext' advanced='false'/>
+        <property name='write properties to a property file' type='boolean' advanced='false'/>
+        <property name='use private work directory' type='boolean' value='true' advanced='false'/>
+        <property name='restartable' type='boolean' value='true' advanced='true'/>
+      </properties>
+      <inputs>
+        <input name='stdin' type='default'/>
+        <input name='script' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='stdout' type='default'/>
+        <output name='stderr' type='default'/>
+        <output name='exitStatus' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='sqrt'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='parameterFile'>
+      <categories>
+        <category name='Workflow Organization'/>
+        <category name='Data Sources'/>
+      </categories>
+      <properties>
+        <property name='fileName' type='home_file' advanced='false'/>
+      </properties>
+      <outputs>
+        <output name='f' type='map'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='aprepro'>
+      <categories>
+        <category name='Text Data'/>
+        <category name='Applications'/>
+      </categories>
+      <properties>
+        <property name='templateFile' type='home_file' advanced='false'/>
+        <property name='outputFile' type='default' advanced='false'/>
+        <property name='commentChar' type='default' advanced='false'/>
+        <property name='use private work directory' type='boolean' value='true' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='templateFile' type='input_file'/>
+        <input name='inputParametersMap' type='map'/>
+      </inputs>
+      <outputs>
+        <output name='outputFile' type='output_file'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='exp'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='forLoop'>
+      <categories>
+        <category name='Control'/>
+      </categories>
+      <properties>
+        <property name='start' type='integer' advanced='false'/>
+        <property name='step' type='integer' advanced='false'/>
+        <property name='end' type='integer' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='x' type='default'/>
+        <input name='_LBEGIN_' type='default'/>
+        <input name='start' type='default'/>
+        <input name='step' type='default'/>
+        <input name='end' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='add'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+        <input name='y' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='tan'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='signum'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='stringCompare'>
+      <categories>
+        <category name='Control'/>
+      </categories>
+      <properties>
+        <property name='compareString' type='default' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='true' type='default'/>
+        <output name='false' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='subtract'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+        <input name='y' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='remoteNestedWorkflow'>
+      <categories>
+        <category name='Control'/>
+        <category name='Remote/Network Ops'/>
+        <category name='Workflow Organization'/>
+      </categories>
+      <properties>
+        <property name='fileName' type='home_file' advanced='false'/>
+        <property name='hostname' type='default' advanced='false'/>
+        <property name='username' type='default' advanced='false'/>
+        <property name='jumphost' type='default' advanced='false'/>
+        <property name='jumpuser' type='default' advanced='false'/>
+        <property name='remotePath' type='default' advanced='false'/>
+        <property name='wflib' type='default' advanced='false'/>
+        <property name='Other files/directories' type='multitext' advanced='false'/>
+        <property name='use private work directory' type='boolean' value='true' advanced='false'/>
+      </properties>
+      <outputs>
+        <output name='stdout' type='default'/>
+        <output name='stderr' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='acos'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='concat'>
+      <categories>
+        <category name='Text Data'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+        <input name='y' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='javascript'>
+      <categories>
+        <category name='Scripting'/>
+      </categories>
+      <properties>
+        <property name='customCode' type='multitext' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='arrayElement'>
+      <categories>
+        <category name='Sequential Data'/>
+      </categories>
+      <properties>
+        <property name='index' type='int' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='array' type='default'/>
+        <input name='index' type='int'/>
+      </inputs>
+      <outputs>
+        <output name='element' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='downloadFile'>
+      <categories>
+        <category name='Remote/Network Ops'/>
+      </categories>
+      <properties>
+        <property name='hostname' type='default' advanced='false'/>
+        <property name='localFile' type='default' advanced='false'/>
+        <property name='remoteFile' type='default' advanced='false'/>
+        <property name='remotePath' type='default' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='trigger' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='file' type='output_file'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='square'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='fail'>
+      <categories>
+        <category name='Control'/>
+      </categories>
+      <properties>
+        <property name='formatString' type='default' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+    </nodeType>
+    <nodeType name='exit'>
+      <categories>
+        <category name='Control'/>
+      </categories>
+      <properties>
+        <property name='formatString' type='default' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+    </nodeType>
+    <nodeType name='externalProcess'>
+      <categories>
+        <category name='Applications'/>
+      </categories>
+      <properties>
+        <property name='command' type='text' advanced='false'/>
+        <property name='write properties to a property file' type='boolean' advanced='false'/>
+        <property name='use private work directory' type='boolean' value='true' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='stdin' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='stdout' type='default'/>
+        <output name='stderr' type='default'/>
+        <output name='exitStatus' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='regex'>
+      <categories>
+        <category name='Control'/>
+        <category name='Text Data'/>
+      </categories>
+      <properties>
+        <property name='regex' type='default' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='match' type='default'/>
+        <output name='no_match' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='folder'>
+      <categories>
+        <category name='File Operations'/>
+      </categories>
+      <properties>
+        <property name='folderName' type='home_file' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='folderName' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='folderReference' type='text'/>
+        <output name='fileList' type='text'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='gnuplot'>
+      <categories>
+        <category name='User Interface'/>
+        <category name='Applications'/>
+      </categories>
+      <properties>
+        <property name='commands' type='multitext' advanced='false'/>
+        <property name='imageFile' type='text' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='x' type='default'/>
+        <input name='y' type='default'/>
+      </inputs>
+    </nodeType>
+    <nodeType name='bashScript'>
+      <categories>
+        <category name='Scripting'/>
+        <category name='Applications'/>
+      </categories>
+      <properties>
+        <property name='script' type='multitext' advanced='false'/>
+        <property name='write properties to a property file' type='boolean' advanced='false'/>
+        <property name='use private work directory' type='boolean' value='true' advanced='false'/>
+        <property name='restartable' type='boolean' value='true' advanced='true'/>
+      </properties>
+      <inputs>
+        <input name='stdin' type='default'/>
+        <input name='script' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='stdout' type='default'/>
+        <output name='stderr' type='default'/>
+        <output name='exitStatus' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='status'>
+      <categories>
+        <category name='User Interface'/>
+      </categories>
+      <properties>
+        <property name='status' type='default' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='nestedWorkflow'>
+      <categories>
+        <category name='Control'/>
+        <category name='Workflow Organization'/>
+      </categories>
+      <properties>
+        <property name='fileName' type='home_file' advanced='false'/>
+        <property name='concurrency' type='integer' advanced='false'/>
+        <property name='workdirNameTemplate' type='text' advanced='false'/>
+        <property name='use private work directory' type='boolean' value='true' advanced='false'/>
+      </properties>
+      <outputs>
+        <output name='responses_csv' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='endloop'>
+      <categories>
+        <category name='Control'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+        <output name='_LEND_' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='compare'>
+      <categories>
+        <category name='Control'/>
+      </categories>
+      <properties>
+        <property name='operator' type='default' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='x' type='default'/>
+        <input name='y' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='true' type='default'/>
+        <output name='false' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='log'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='sierra'>
+      <categories>
+        <category name='Applications'/>
+      </categories>
+      <properties>
+        <property name='inputFile' type='home_file' advanced='false'/>
+        <property name='sierra_code' type='default' advanced='false'/>
+        <property name='num.processors' type='integer' value='16' advanced='false'/>
+        <property name='executeScript' type='home_file' advanced='false'/>
+        <property name='statusScript' type='home_file' advanced='false'/>
+        <property name='submit to queue and monitor status' type='boolean' value='true' advanced='false'/>
+        <property name='account' type='default' advanced='false'/>
+        <property name='queue' type='text' value='nw' advanced='false'/>
+        <property name='num.nodes' type='integer' value='1' advanced='false'/>
+        <property name='job.hours' type='integer' value='0' advanced='false'/>
+        <property name='job.minutes' type='integer' value='30' advanced='false'/>
+        <property name='submitScript' type='home_file' advanced='false'/>
+        <property name='checkjobScript' type='home_file' advanced='false'/>
+        <property name='checkjobFrequency' type='integer' value='15' advanced='false'/>
+        <property name='use private work directory' type='boolean' value='true' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='inputFile' type='input_file'/>
+      </inputs>
+      <outputs>
+        <output name='logFile' type='output_file'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='increment'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='sum'>
+      <categories>
+        <category name='Sequential Data'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='replaceAll'>
+      <categories>
+        <category name='Text Data'/>
+      </categories>
+      <properties>
+        <property name='regex' type='default' advanced='false'/>
+        <property name='replacement' type='default' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='x' type='default'/>
+        <input name='regex' type='default'/>
+        <input name='replacement' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='demultiplexColumns'>
+      <categories>
+        <category name='Sequential Data'/>
+      </categories>
+      <properties>
+        <property name='number of footer lines to ignore (optional)' type='default' advanced='false'/>
+        <property name='separator regular expression (optional)' type='default' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='columns' type='default'/>
+      </inputs>
+    </nodeType>
+    <nodeType name='substring'>
+      <categories>
+        <category name='Text Data'/>
+      </categories>
+      <properties>
+        <property name='start' type='integer' advanced='false'/>
+        <property name='length' type='integer' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='onOffSwitch'>
+      <categories>
+        <category name='Control'/>
+        <category name='User Interface'/>
+      </categories>
+      <properties>
+        <property name='onOff' type='boolean' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='input' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='output' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='getColumns'>
+      <categories>
+        <category name='Sequential Data'/>
+      </categories>
+      <properties>
+        <property name='number of header lines' type='default' value='1' advanced='false'/>
+        <property name='number of footer lines' type='default' value='0' advanced='false'/>
+        <property name='separator regular expression (optional)' type='default' advanced='false'/>
+        <property name='column number (optional)' type='default' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='data' type='default'/>
+        <input name='fileName' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='RENAME TO GET NAMED COLUMN' type='default'/>
+        <output name='indexed column' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='sleep'>
+      <categories>
+        <category name='Control'/>
+      </categories>
+      <properties>
+        <property name='ms' type='integer' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='windowsBatchScript'>
+      <categories>
+        <category name='Scripting'/>
+        <category name='Applications'/>
+      </categories>
+      <properties>
+        <property name='script' type='multitext' advanced='false'/>
+        <property name='write properties to a property file' type='boolean' advanced='false'/>
+        <property name='use private work directory' type='boolean' value='true' advanced='false'/>
+        <property name='restartable' type='boolean' value='true' advanced='true'/>
+      </properties>
+      <inputs>
+        <input name='stdin' type='default'/>
+        <input name='script' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='stdout' type='default'/>
+        <output name='stderr' type='default'/>
+        <output name='exitStatus' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='random'>
+      <categories>
+        <category name='Scalar Operations'/>
+        <category name='Data Sources'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='rotaryInputSwitch'>
+      <categories>
+        <category name='Control'/>
+        <category name='User Interface'/>
+      </categories>
+      <properties>
+        <property name='selector' type='text' value='a' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='a' type='default'/>
+        <input name='b' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='output' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='file'>
+      <categories>
+        <category name='File Operations'/>
+      </categories>
+      <properties>
+        <property name='fileName' type='home_file' advanced='false'/>
+        <property name='append' type='boolean' advanced='false'/>
+        <property name='checkExists' type='boolean' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='fileName' type='default'/>
+        <input name='dataIn' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='fileReference' type='text'/>
+        <output name='dataOut' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='min'>
+      <categories>
+        <category name='Sequential Data'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='parameter'>
+      <categories>
+        <category name='Workflow Organization'/>
+        <category name='Data Sources'/>
+      </categories>
+      <properties>
+        <property name='value' type='default' advanced='false'/>
+      </properties>
+      <outputs>
+        <output name='f' type='text'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='sin'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='pow'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+        <input name='y' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='divide'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+        <input name='y' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='multiply'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+        <input name='y' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='stddev'>
+      <categories>
+        <category name='Sequential Data'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='rotaryOutputSwitch'>
+      <categories>
+        <category name='Control'/>
+        <category name='User Interface'/>
+      </categories>
+      <properties>
+        <property name='selector' type='text' value='a' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='input' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='a' type='default'/>
+        <output name='b' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='abSwitch'>
+      <categories>
+        <category name='Control'/>
+        <category name='User Interface'/>
+      </categories>
+      <properties>
+        <property name='a' type='boolean' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='input' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='a' type='default'/>
+        <output name='b' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='uploadFile'>
+      <categories>
+        <category name='Remote/Network Ops'/>
+      </categories>
+      <properties>
+        <property name='hostname' type='default' advanced='false'/>
+        <property name='localFile' type='default' advanced='false'/>
+        <property name='remoteFile' type='default' advanced='false'/>
+        <property name='remotePath' type='default' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='trigger' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='file' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='rejoinCheckpoint'>
+      <categories>
+        <category name='Control'/>
+      </categories>
+      <properties>
+        <property name='nameOfCheckpoint' type='text' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+    </nodeType>
+    <nodeType name='or'>
+      <categories>
+        <category name='Control'/>
+      </categories>
+      <inputs>
+        <input name='left' type='default'/>
+        <input name='right' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='output' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='max'>
+      <categories>
+        <category name='Sequential Data'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='column'>
+      <categories>
+        <category name='Sequential Data'/>
+      </categories>
+      <properties>
+        <property name='columnIndex' type='default' advanced='false'/>
+        <property name='headerLines' type='default' advanced='false'/>
+        <property name='separator' type='default' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='data' type='default'/>
+        <input name='fileName' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='stdout' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='multiSwitch'>
+      <categories>
+        <category name='Control'/>
+      </categories>
+      <properties>
+        <property name='selector' type='default' advanced='false'/>
+        <property name='passThrough' type='default' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='selector' type='default'/>
+        <input name='passThrough' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='_else' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='int'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='stringSearch'>
+      <categories>
+        <category name='Text Data'/>
+      </categories>
+      <properties>
+        <property name='searchValue' type='default' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='print'>
+      <categories>
+        <category name='User Interface'/>
+      </categories>
+      <properties>
+        <property name='formatString' type='default' advanced='false'/>
+        <property name='formatOnly' type='boolean' value='false' advanced='true'/>
+      </properties>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='cubit'>
+      <categories>
+        <category name='Meshing'/>
+        <category name='Applications'/>
+      </categories>
+      <properties>
+        <property name='journalFile' type='home_file' advanced='false'/>
+        <property name='pythonFile' type='home_file' advanced='false'/>
+        <property name='use private work directory' type='boolean' value='true' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='journalFile' type='input_file'/>
+        <input name='pythonFile' type='input_file'/>
+      </inputs>
+      <outputs>
+        <output name='logFile' type='output_file'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='templateSubstitution'>
+      <categories>
+        <category name='Text Data'/>
+      </categories>
+      <properties>
+        <property name='template' type='default' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='template' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='result' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='negate'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='decrement'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='mean'>
+      <categories>
+        <category name='Sequential Data'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='pythonScript'>
+      <categories>
+        <category name='Scripting'/>
+        <category name='Applications'/>
+      </categories>
+      <properties>
+        <property name='script' type='multitext' advanced='false'/>
+        <property name='write properties to a property file' type='boolean' advanced='false'/>
+        <property name='use private work directory' type='boolean' value='true' advanced='false'/>
+        <property name='restartable' type='boolean' value='true' advanced='true'/>
+      </properties>
+      <inputs>
+        <input name='stdin' type='default'/>
+        <input name='script' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='stdout' type='default'/>
+        <output name='stderr' type='default'/>
+        <output name='exitStatus' type='default'/>
+      </outputs>
+    </nodeType>
+     <nodeType name='cubitPythonScript'>
+      <categories>
+        <category name='Scripting'/>
+        <category name='Applications'/>
+      </categories>
+      <properties>
+        <property name='script' type='multitext' advanced='false'/>
+        <property name='write properties to a property file' type='boolean' advanced='false'/>
+        <property name='use private work directory' type='boolean' value='true' advanced='false'/>
+        <property name='restartable' type='boolean' value='true' advanced='true'/>
+      </properties>
+      <inputs>
+        <input name='stdin' type='default'/>
+        <input name='script' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='stdout' type='default'/>
+        <output name='stderr' type='default'/>
+        <output name='exitStatus' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='pi'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
+    </nodeType>
+    <nodeType name='asin'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='f' type='default'/>
+      </outputs>
+    </nodeType>
+    <nodeType name='remoteCommand'>
+      <categories>
+        <category name='Applications'/>
+        <category name='Remote/Network Ops'/>
+      </categories>
+      <properties>
+        <property name='hostname' type='default' advanced='false'/>
+        <property name='command' type='default' advanced='false'/>
+        <property name='remotePath' type='default' advanced='false'/>
+      </properties>
+      <inputs>
+        <input name='trigger' type='default'/>
+      </inputs>
+      <outputs>
+        <output name='output' type='default'/>
+        <output name='error' type='default'/>
+        <output name='exitCode' type='int'/>
+      </outputs>
+    </nodeType>
+  </nodeTypes>
+  <conductorTypes>
+    <conductorType name='sweep'>
+      <properties>
+        <property name='parameter' type='parameter'/>
+        <property name='start' type='default'/>
+        <property name='step' type='default'/>
+        <property name='end' type='default'/>
+      </properties>
+    </conductorType>
+    <conductorType name='conditional'>
+      <properties>
+        <property name='condition' type='default'/>
+      </properties>
+    </conductorType>
+    <conductorType name='repeat'>
+      <properties>
+        <property name='count' type='integer'/>
+      </properties>
+    </conductorType>
+    <conductorType name='simple'>
+    </conductorType>
+    <conductorType name='list'>
+      <properties>
+        <property name='parameter' type='parameter'/>
+        <property name='values' type='default'/>
+      </properties>
+    </conductorType>
+  </conductorTypes>
+</workflowData>

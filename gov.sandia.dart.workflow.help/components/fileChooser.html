@@ -1,0 +1,55 @@
+<html xmlns:java="http://xml.apache.org/xslt/java" xmlns:md="http://dart.sandia.gov/sierra-meta.xsd">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <link rel="stylesheet" type="text/css" href="ngwcomps.css">
+   </head>
+   <body>
+      <title>NGW Component Documentation - fileChooser</title>
+      <h1>fileChooser</h1>
+      
+      
+      <div>
+         
+         <h2>Description</h2>
+         
+         <p>Allows a user to browse to and select a file. </p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Properties</h2>
+         
+         <p>initialPath - the directory at which the browser should start. If not specified the workflow home directory is used. </p>
+         <p>title - a title for the browser dialog. </p>
+         <p>fileFilters - one or more allowed file patterns; i.e., "*.txt;*.dat". </p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Input Ports</h2>
+         
+         <p>x -  a pure trigger; data is ignored</p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Output Ports</h2>
+         
+         <p> f - if the user chooses a file, an absolute filesystem path to the chosen file.</p>
+         <p> canceled - if the user cancels the operation, the string "canceled" is sent here.</p>
+         </div>
+      
+      
+      <div>
+         
+         <h2>Notes</h2>
+         <p>If the workflow is re-executed with a populated work directory, will remember the previously selected file and try to reselect it.</p>
+         </div>
+   </body>
+</html>

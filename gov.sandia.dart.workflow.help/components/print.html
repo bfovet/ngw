@@ -1,0 +1,54 @@
+<html xmlns:java="http://xml.apache.org/xslt/java" xmlns:md="http://dart.sandia.gov/sierra-meta.xsd">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <link rel="stylesheet" type="text/css" href="ngwcomps.css">
+   </head>
+   <body>
+      <title>NGW Component Documentation - print</title>
+      <h1>print</h1>
+      
+      
+      <div>
+         
+         <h2>Description</h2>
+         
+         <p>Prints formatted output to standard output, and sends the same data to an output port.</p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Properties</h2>
+         
+         <p>formatString - a Java format string, similar to the one used by C's <code>printf</code> function.  See https://docs.oracle.com/javase/tutorial/java/data/numberformat.html.
+            </p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Input Ports</h2>
+         
+         <p>x - data which becomes the argument that can be included in the formatted String using format conversion.</p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Output Ports</h2>
+         
+         <p>f - the formatted String is also sent here.</p>
+         
+         </div>
+      
+      
+      <div>
+         
+         <h2>Notes</h2>
+         <p>You can create additional input ports on this node. In that case, the formatting operation will be repeated on each connected input in turn.
+         </div>
+   </body>
+</html>
