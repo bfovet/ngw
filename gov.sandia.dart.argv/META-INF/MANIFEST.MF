@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Argv
-Bundle-SymbolicName: gov.sandia.dart.argv;singleton:=true
-Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: gov.sandia.dart.argv
-Require-Bundle: org.eclipse.core.runtime

@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<?eclipse version="3.4"?>
-<plugin>
-   <extension-point id="command" name="Command" schema="schema/command.exsd"/>
-   <extension-point id="commandsource" name="Command Source" schema="schema/commandsource.exsd"/>
-
-</plugin>

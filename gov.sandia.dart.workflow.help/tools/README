@@ -1,3 +1,0 @@
-- extractObjects.xsl, convertHtml.xsl, and process.sh are XSLT 2.0 code and a bash script, which together were used to convert the old
-	Confluence space into these standalone HTML files.
-- mktoc.sh was used to create an eclipse help toc file for all the individual component pages. 
