@@ -487,6 +487,14 @@
         <output name='exitStatus' type='default'/>
       </outputs>
     </nodeType>
+    <nodeType name='blackHole'>
+      <categories>
+        <category name='Data Sinks'/>
+      </categories>
+      <inputs>
+        <input name='x' type='default'/>
+      </inputs>
+    </nodeType>
     <nodeType name='status'>
       <categories>
         <category name='User Interface'/>
@@ -1087,7 +1095,12 @@
         <output name='exitStatus' type='default'/>
       </outputs>
     </nodeType>
-     <nodeType name='cubitPythonScript'>
+    <nodeType name='pi'>
+      <categories>
+        <category name='Scalar Operations'/>
+      </categories>
+    </nodeType>
+    <nodeType name='cubitPythonScript'>
       <categories>
         <category name='Scripting'/>
         <category name='Applications'/>
@@ -1107,11 +1120,6 @@
         <output name='stderr' type='default'/>
         <output name='exitStatus' type='default'/>
       </outputs>
-    </nodeType>
-    <nodeType name='pi'>
-      <categories>
-        <category name='Scalar Operations'/>
-      </categories>
     </nodeType>
     <nodeType name='asin'>
       <categories>

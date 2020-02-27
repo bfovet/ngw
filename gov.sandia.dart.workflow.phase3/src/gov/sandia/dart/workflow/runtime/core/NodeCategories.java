@@ -21,6 +21,7 @@ public class NodeCategories {
 		CONTROL = "Control",
 		DATA_FORMATS = "Data Formats",
 		DATA_SOURCES = "Data Sources",
+		DATA_SINKS = "Data Sinks",
 		EXTERNAL_PROCESSES = "Applications",
 		FILES = "File Operations",
 		UI = "User Interface",

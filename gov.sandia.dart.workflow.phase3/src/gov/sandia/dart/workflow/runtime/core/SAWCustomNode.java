@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Array;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -734,7 +735,7 @@ public abstract class SAWCustomNode extends CustomNode implements ISAWCustomNode
 			RuntimeData runtime,
 			WorkflowDefinition.OutputPort port) {
 		WorkflowDefinition.Property fn = port.properties.get("filename");
-		String filename = fn != null ? fn.value : port.name;
+		String filename = (fn == null || StringUtils.isEmpty(fn.value)) ? port.name : fn.value;
 
 		filename = performStandardSubstitutions(workflow, runtime, filename, properties);
 		
@@ -946,13 +947,25 @@ public abstract class SAWCustomNode extends CustomNode implements ISAWCustomNode
 			throw new SAWWorkflowException(getName() + ": error analyzing file transfer", e);
 		}
 
+		File obstruction = new File(componentWorkDir, newFileName);
+		
+		if (exists(obstruction)) {
+			if (obstruction.isDirectory()) {
+				try {
+					FileUtils.deleteDirectory(obstruction);
+				} catch (IOException ex) {
+					throw new SAWWorkflowException(obstruction.getAbsolutePath() + " is in the way and cannot be deleted.", ex);
+				}
+			} else {
+				if (!obstruction.delete()) {
+					throw new SAWWorkflowException(obstruction.getAbsolutePath() + " is in the way and cannot be deleted.");
+				}
+			}
+		}
+		obstruction.getParentFile().mkdirs();
+		if (!obstruction.getParentFile().exists())
+			throw new SAWWorkflowException("Can't create directory " + obstruction.getParentFile().getAbsolutePath());				
 		if (shouldLink()) {
-			File obstruction = new File(componentWorkDir, newFileName);
-			if (obstruction.exists() && !obstruction.delete())
-				throw new SAWWorkflowException(obstruction.getAbsolutePath() + " is in the way and cannot be deleted.");
-			obstruction.getParentFile().mkdirs();
-			if (!obstruction.getParentFile().exists())
-				throw new SAWWorkflowException("Can't create directory " + obstruction.getParentFile().getAbsolutePath());				
 			ProcessBuilder builder = new ProcessBuilder().command("ln", "-s", inputFile.getAbsolutePath(), newFileName);
 			builder.directory(componentWorkDir);
 			try {
@@ -966,22 +979,40 @@ public abstract class SAWCustomNode extends CustomNode implements ISAWCustomNode
 						// May be a spurious wakeup. Check for cancellation, and go check exit status again.
 					}
 				}
-				// TODO confirm success!
-				return new File(componentWorkDir, newFileName);
+				File result = new File(componentWorkDir, newFileName);
+				if (!result.exists()) {
+					throw new SAWWorkflowException(getName() + ": coud not create file " + newFileName);
+				}
+				return result;
 
 			} catch (IOException e) {
-				throw new SAWWorkflowException(getName() + ": error linking file", e);
+				throw new SAWWorkflowException(getName() + ": error linking file " + newFileName, e);
 			}
 		} else {
 			try {
-				// TODO confirm success!
-				FileUtils.copyFile(inputFile, newFile);
+				if (inputFile.isDirectory())
+					FileUtils.copyDirectory(inputFile, newFile);
+				else			
+					FileUtils.copyFile(inputFile, newFile);
+								
+				if (!newFile.exists()) {
+					throw new SAWWorkflowException(getName() + ": coud not create file " + newFile.getName());
+				}
 				return newFile;
 			} catch (IOException e) {
 				throw new SAWWorkflowException(getName() + ": error copying file", e);
 			}
 		}
 	}
+	
+	/**
+	 * This method returns true even if the file is a symbolic link that goes nowhere.
+	 */
+	private boolean exists(File obstruction) {
+		boolean isLink = Files.isSymbolicLink(obstruction.toPath());
+		return obstruction.exists() || isLink;
+	}
+
 	protected File copyFile(File componentWorkDir, File inputFile, RuntimeData runtime) {
 		return copyFile(componentWorkDir, inputFile, inputFile.getName(), runtime);
 	}
@@ -992,7 +1023,7 @@ public abstract class SAWCustomNode extends CustomNode implements ISAWCustomNode
 			
 		} else if (newFileName.equals("*")) {
 			newFileName = inputFile.getName();
-			
+			 
 		} else {
 			File expander = new File(newFileName);
 			if (expander.getName().contains("*")) {
@@ -1005,12 +1036,31 @@ public abstract class SAWCustomNode extends CustomNode implements ISAWCustomNode
 				return newFile;
 			}
 			File obstruction = new File(componentWorkDir, newFileName);
-			if (obstruction.exists() && !obstruction.delete())
-				throw new SAWWorkflowException(obstruction.getAbsolutePath() + " is in the way and cannot be deleted.");
+			if (exists(obstruction)) {
+				if (obstruction.isDirectory()) {
+					try {
+						FileUtils.deleteDirectory(obstruction);
+					} catch (IOException ex) {
+						throw new SAWWorkflowException(obstruction.getAbsolutePath() + " is in the way and cannot be deleted.", ex);
+					}
+				} else {
+					if (!obstruction.delete()) {
+						throw new SAWWorkflowException(obstruction.getAbsolutePath() + " is in the way and cannot be deleted.");
+					}
+				}
+			}
 
-			// TODO Confirm success!
-			FileUtils.copyFile(inputFile, newFile);
+			if (inputFile.isDirectory())
+				FileUtils.copyDirectory(inputFile, newFile);
+			else			
+				FileUtils.copyFile(inputFile, newFile);
+			
+			if (!newFile.exists()) {
+				throw new SAWWorkflowException(getName() + ": could not create " + newFileName);
+			}
+						
 			return newFile;
+
 		} catch (IOException e) {
 			throw new SAWWorkflowException(getName() + ": error copying file", e);
 		}

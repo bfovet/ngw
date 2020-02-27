@@ -76,6 +76,7 @@ public class WorkflowImageProvider extends AbstractImageProvider {
         addImageFilePath(PREFIX + "prompt", "icons/ask.png");       
         addImageFilePath(PREFIX + "ask_yes_no", "icons/ask.png");
         addImageFilePath(PREFIX + "sierra", "icons/sierra.gif");
+        addImageFilePath(PREFIX + "blackHole", "icons/blackHole.png");
 
         addImageFilePath(PREFIX + "parameterFile", "icons/properties.png");
         addImageFilePath(PREFIX + "or", "icons/or.png");

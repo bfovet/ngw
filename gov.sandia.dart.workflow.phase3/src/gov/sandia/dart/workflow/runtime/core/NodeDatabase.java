@@ -34,6 +34,7 @@ import gov.sandia.dart.workflow.runtime.components.ConstantNode;
 import gov.sandia.dart.workflow.runtime.components.CosNode;
 import gov.sandia.dart.workflow.runtime.components.DecrementNode;
 import gov.sandia.dart.workflow.runtime.components.DemultiplexColumnsNode;
+import gov.sandia.dart.workflow.runtime.components.DevNullNode;
 import gov.sandia.dart.workflow.runtime.components.DivideNode;
 import gov.sandia.dart.workflow.runtime.components.EndLoopNode;
 import gov.sandia.dart.workflow.runtime.components.ExitNode;
@@ -273,6 +274,7 @@ public class NodeDatabase {
 		nodeTypes.put("exit", ExitNode.class);
 		nodeTypes.put("random", RandomNode.class);
 		nodeTypes.put("sleep", SleepNode.class);
+		nodeTypes.put("blackHole", DevNullNode.class);
 
 		nodeTypes.put("regex", RegexNode.class);
 		nodeTypes.put("increment", IncrementNode.class);

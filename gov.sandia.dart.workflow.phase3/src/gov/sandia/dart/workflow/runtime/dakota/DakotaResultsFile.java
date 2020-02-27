@@ -49,7 +49,8 @@ public class DakotaResultsFile {
 	
 	private static Object format(Object object) {
 		Datum datum = new Datum("text", object, object.getClass());
-		return datum.getAs(String.class);
+		String result = (String) datum.getAs(String.class);
+		return result.trim();
 	}
 
 }

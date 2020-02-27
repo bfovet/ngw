@@ -132,7 +132,7 @@ public abstract class AbstractExternalScriptNode extends AbstractExternalNode {
 				throw new SAWWorkflowException("Exception writing to temporary script file.", e);
 			}
 
-			status = executeScript(runtime, outFile, errFile, nodeDef, componentWorkDir, commandArgs);					
+			status = executeScript(runtime, outFile, errFile, workflow, componentWorkDir, commandArgs);					
 			
 		} catch (Throwable t) {
 			throw new SAWWorkflowException(getName() + ": problem executing script ... try examining " + filenameRoot + ".err", t);
@@ -251,7 +251,7 @@ public abstract class AbstractExternalScriptNode extends AbstractExternalNode {
 	}
 
 	private int executeScript(RuntimeData runtime, File outFile, File errFile,
-			WorkflowDefinition.Node nodeDef, File componentWorkDir, List<String> commandArgs)
+			WorkflowDefinition workflow, File componentWorkDir, List<String> commandArgs)
 			throws IOException, InterruptedException {
 		Process p;
 		ProcessBuilder proc = ProcessUtils.createProcess(runtime);
@@ -279,12 +279,12 @@ public abstract class AbstractExternalScriptNode extends AbstractExternalNode {
 			}
 
 			Thread t1, t2;
-			if (nodeDef.outputs.containsKey(STDOUT_PORT_NAME) && !nodeDef.outputs.get(STDOUT_PORT_NAME).connections.isEmpty())
+			if (isConnectedOutput(STDOUT_PORT_NAME, workflow))
 				t1 = new Thread(new Squirter(p.getInputStream(), new PrintStream(outBytes)));
 			else
 				t1 = new Thread(new Squirter(p.getInputStream(), new PrintStream(new TeeOutputStream(new WriterOutputStream(runtime.getOut()), outBytes))));
 
-			if (nodeDef.outputs.containsKey(STDERR_PORT_NAME) && !nodeDef.outputs.get(STDERR_PORT_NAME).connections.isEmpty())
+			if (isConnectedOutput(STDERR_PORT_NAME, workflow))
 				t2 = new Thread(new Squirter(p.getErrorStream(), new PrintStream(errBytes)));
 			else
 				t2 = new Thread(new Squirter(p.getErrorStream(), new PrintStream(new TeeOutputStream(new WriterOutputStream(runtime.getErr()), errBytes))));

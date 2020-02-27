@@ -52,6 +52,7 @@ public class ProcessUtils {
 			environment.remove("DYLD_INSERT_LIBRARIES");
 			environment.remove("DYLD_FORCE_FLAT_NAMESPACE");
 			environment.remove("LD_LIBRARY_PATH");
+			environment.remove("DYLD_LIBRARY_PATH");
 
 
 			Map<String, String> replacements = new HashMap<>();
@@ -68,7 +69,7 @@ public class ProcessUtils {
 	}
 	
 	public static boolean isEmbeddedRun() {		
-		return System.getProperties().containsKey("eclipse.application");
+		return System.getProperties().containsKey("eclipse.launcher");
 	}
 
 	/**

@@ -9,6 +9,8 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.runtime.components.remote;
 
+import static gov.sandia.dart.workflow.runtime.components.AbstractExternalNode.*;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +35,6 @@ import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import gov.sandia.dart.workflow.runtime.components.AbstractExternalNode;
 import gov.sandia.dart.workflow.runtime.components.AbstractNestedWorkflowNode;
 import gov.sandia.dart.workflow.runtime.components.nested.NestedWorkflowNode;
 import gov.sandia.dart.workflow.runtime.core.LoggingWorkflowMonitor;
@@ -58,6 +59,9 @@ public class RemoteNestedWorkflowNode extends AbstractNestedWorkflowNode {
 	@Override
 	protected Map<String, Object> doExecute(Map<String, String> properties, WorkflowDefinition workflow,
 			RuntimeData runtime) {
+		boolean stdoutConnected = isConnectedOutput(STDOUT_PORT_NAME, workflow);
+		boolean stderrConnected = isConnectedOutput(STDERR_PORT_NAME, workflow);
+
 		try {
 			// Fetch parameters
 			String dstHost = getStringFromPortOrProperty(runtime, properties, RemoteCommandNode.HOSTNAME).trim();
@@ -85,11 +89,14 @@ public class RemoteNestedWorkflowNode extends AbstractNestedWorkflowNode {
 			log(runtime, "Creating remote directory '" + path + "' on " + dstHost);
 			try {
 				ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-				int exitCode = remote.execute("mkdir -p " + path + "; : > " + LoggingWorkflowMonitor.DEFAULT_NAME, outStream, errStream, runtime);
+				String command = "";
+				if (!StringUtils.isEmpty(path))
+					command = "mkdir -p " + path + "; ";
+				command += (": > " + LoggingWorkflowMonitor.DEFAULT_NAME);
+				int exitCode = remote.execute(command, outStream, errStream, runtime);
 				remote.setPath(path);
-				stdout.append(outStream.toString());
-				stderr.append(errStream.toString());
-				errStream.reset();
+				routeOutputs(runtime, stdoutConnected, stderrConnected, outStream, errStream, stdout, stderr);
+
 				if (exitCode != 0)
 					throw new SAWWorkflowException("Error creating remote directory '" + path + "' in node " + getName() + ": " + errStream.toString());
 			} catch (SAWWorkflowException t) {
@@ -103,9 +110,7 @@ public class RemoteNestedWorkflowNode extends AbstractNestedWorkflowNode {
 				// We need to make sure the status log exists and is empty, in case we start tailing it before workflow engine starts
 				ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 				int exitCode = remote.execute(": > " + LoggingWorkflowMonitor.DEFAULT_NAME, outStream, errStream, runtime);
-				stdout.append(outStream.toString());
-				stderr.append(errStream.toString());
-				errStream.reset();
+				routeOutputs(runtime, stdoutConnected, stderrConnected, outStream, errStream, stdout, stderr);
 				if (exitCode != 0)
 					throw new SAWWorkflowException("Error preparing remote directory '" + path + "' in node " + getName() + ": " + errStream.toString());
 			} catch (SAWWorkflowException t) {
@@ -192,9 +197,7 @@ public class RemoteNestedWorkflowNode extends AbstractNestedWorkflowNode {
 				try {
 					ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 					int exitCode = remote.execute(commandLine, outStream, errStream, runtime);
-					stdout.append(outStream.toString());
-					stderr.append(errStream.toString());
-					errStream.reset();
+					routeOutputs(runtime, stdoutConnected, stderrConnected, outStream, errStream, stdout, stderr);
 					if (exitCode != 0)
 						throw new SAWWorkflowException(String.format("%s: Remote workflow exited with status %d: '%s'", getName(), exitCode, stderr.toString()));
 				} catch (SAWWorkflowException t) {
@@ -264,13 +267,29 @@ public class RemoteNestedWorkflowNode extends AbstractNestedWorkflowNode {
 			// Create node outputs	
 			log(runtime, "Extracting responses from remote response file in node " + getName());
 			Map<String, Object> responses = extractResponses(responseFile);
-			downloadRemoteOutputFiles(runtime, properties, remote, responses, errStream);
-			responses.put(AbstractExternalNode.STDOUT_PORT_NAME, stdout.toString());
-			responses.put(AbstractExternalNode.STDERR_PORT_NAME, stderr.toString());	
+			downloadRemoteOutputFiles(runtime, properties, remote, responses, errStream);			
+			routeOutputs(runtime, stdoutConnected, stderrConnected, null, errStream, stdout, stderr);
+			responses.put(STDOUT_PORT_NAME, stdout.toString());
+			responses.put(STDERR_PORT_NAME, stderr.toString());	
+			
 			return responses; 
 		} finally {
 			log(runtime, "");
 		}
+	}
+	private void routeOutputs(RuntimeData runtime, boolean stdoutConnected, boolean stderrConnected,
+			ByteArrayOutputStream outStream, ByteArrayOutputStream errStream, StringBuilder stdout,
+			StringBuilder stderr) {
+		if (outStream != null)
+			stdout.append(outStream.toString());
+		stderr.append(errStream.toString());
+		if (!stdoutConnected && outStream != null)
+			runtime.getOut().println(outStream.toString());
+		if (!stderrConnected)
+			runtime.getOut().println(errStream.toString());
+		errStream.reset();
+		if (outStream != null)
+			outStream.reset();
 	}
 	private void downloadRemoteOutputFiles(RuntimeData runtime, Map<String, String> properties, Remote remote,
 			Map<String, Object> responses, ByteArrayOutputStream errStream) {
@@ -454,14 +473,16 @@ public class RemoteNestedWorkflowNode extends AbstractNestedWorkflowNode {
 	}
 	private Map<String, Object> extractResponses(File responseFile) {
 		try {
-			List<String> lines = FileUtils.readLines(responseFile);
+			List<String> lines = FileUtils.readLines(responseFile, Charset.defaultCharset());
 			Map<String, Object> responses = new HashMap<>();
 			for (String line: lines) {
 				String[] split = line.split("\\s+");
-				if (split.length != 2) {
+				if (split.length < 2) {
 					throw new SAWWorkflowException("Remote responses file has bad format at line '" + line + "'");					
 				}
-				responses.put(split[1], split[0]);
+				String variable = split[split.length - 1];
+				int index = line.lastIndexOf(variable);
+				responses.put(variable, line.substring(0, index).trim());
 			}
 			return responses;
 		} catch (IOException e) {
@@ -543,8 +564,8 @@ public class RemoteNestedWorkflowNode extends AbstractNestedWorkflowNode {
 	@Override
 	public List<OutputPortInfo> getDefaultOutputs() {
 		return Arrays.asList(
-				new OutputPortInfo(AbstractExternalNode.STDOUT_PORT_NAME),
-				new OutputPortInfo(AbstractExternalNode.STDERR_PORT_NAME)
+				new OutputPortInfo(STDOUT_PORT_NAME),
+				new OutputPortInfo(STDERR_PORT_NAME)
 				);
 	}
 	

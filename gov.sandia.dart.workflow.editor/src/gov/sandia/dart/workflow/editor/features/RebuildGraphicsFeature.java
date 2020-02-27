@@ -70,12 +70,13 @@ public class RebuildGraphicsFeature extends AbstractCustomFeature {
 	}
 
 	private void rebuildNotes(Diagram diagram) {
-		for (EObject o: diagram.eContents()) {
+		List<EObject> eContents = new ArrayList<>(diagram.eContents());
+		for (EObject o: eContents) {
 			if (o instanceof PictogramElement) {
+				PictogramElement pe = (PictogramElement) o;
 				Object bo = getFeatureProvider().getBusinessObjectForPictogramElement((PictogramElement) o);
 				if (bo instanceof Note) {
 					Note note = (Note) bo;
-					PictogramElement pe = getFeatureProvider().getPictogramElementForBusinessObject(note);
 					GraphicsAlgorithm ga = pe.getGraphicsAlgorithm();
 					AddContext ac = new AddContext();
 					ac.setLocation(ga.getX(), ga.getY());
@@ -91,12 +92,13 @@ public class RebuildGraphicsFeature extends AbstractCustomFeature {
 	}
 
 	private void rebuildImages(Diagram diagram) {
-		for (EObject o: diagram.eContents()) {
+		List<EObject> eContents = new ArrayList<>(diagram.eContents());
+		for (EObject o: eContents) {
 			if (o instanceof PictogramElement) {
 				Object bo = getFeatureProvider().getBusinessObjectForPictogramElement((PictogramElement) o);
 				if (bo instanceof Image) {
 					Image image = (Image) bo;
-					PictogramElement pe = getFeatureProvider().getPictogramElementForBusinessObject(image);
+					PictogramElement pe = (PictogramElement) o;
 					GraphicsAlgorithm ga = pe.getGraphicsAlgorithm();
 					AddContext ac = new AddContext();
 					ac.setLocation(ga.getX(), ga.getY());
