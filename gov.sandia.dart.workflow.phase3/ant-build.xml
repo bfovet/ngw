@@ -1,0 +1,286 @@
+<project name="ngw-core"
+         basedir="."
+         default="install"
+         xmlns:ivy="antlib:org.apache.ivy.ant"
+>
+
+
+  <!-- version in the manifest -->
+  <property name="mf.version" value="1.0.0" />
+
+
+  <property name="jar.basename" value="${ant.project.name}" />
+
+
+  <!-- grab environment variables -->
+  <property environment="env" />
+
+  <!-- allow overrides -->
+  <property name="env.HOSTNAME" value="${env.COMPUTERNAME}" />
+
+  <property file="${user.home}/.${ant.project.name}-build.properties" />
+  <property file="${user.home}/.build.properties" />
+  <property file="${user.name}-${env.HOSTNAME}-build.properties" />
+  <property file="${user.name}-build.properties" />
+
+
+
+  <!--
+    defines the src, compile.output, ivy-repo
+  -->
+  <property file="standard-dirs.properties" />
+
+
+  <!--
+    include the workflow versions
+  -->
+  <property file="${workflow.versions}" />
+
+
+  <!-- set global properties for this build -->
+  <property name="jar.dir" value="${build.dir}" />
+  <property name="lib.dir" value="${basedir}/lib" />
+  <property name="ver.prop" value="version.properties" />
+  <property name="prop.dir"
+            value="${resources.dir}/gov/sandia/dart/workflow/phase3"
+  />
+
+  <property name="version.file" value="${prop.dir}/${ver.prop}" />
+
+
+  <property name="install.dir" value="${user.home}/wflib" />
+
+
+
+  <!--
+    defines the java settings
+  -->
+  <property file="javasettings.properties" />
+
+
+  <!-- common version targets and definitions -->
+  <property name="ver.propfile.name" value="version.properties" />
+  <property name="ver.propfile.dir"
+            value="${resources.dir}/gov/sandia/dart/workflow/phase3"
+  />
+  <property name="ver.propfile.version" value="ngw.core.version" />
+  <property name="ver.propfile.lastupdate" value="ngw.core.lastUpdate" />
+
+  <!-- adds every jar in the lib directory to the classpath-->
+  <path id="classpath">
+    <fileset dir="${lib.dir}" includes="**/*.jar" />
+  </path>
+
+
+  <target name="clean-pub-artifacts"
+          description="clean any publication artifacts"
+  >
+    <delete>
+      <fileset dir="${build.dir}">
+        <include name="${jar.basename}*.jar" />
+      </fileset>
+    </delete>
+  </target>
+
+
+
+
+  <target name="clean-install-dir">
+    <delete verbose="true">
+      <fileset dir="${install.dir}/">
+        <include name="*.jar" />
+      </fileset>
+    </delete>
+  </target>
+
+
+
+
+  <target name="clean-install-lib-dir">
+    <delete verbose="true">
+      <fileset dir="${install.dir}/lib">
+        <include name="*.jar" />
+      </fileset>
+    </delete>
+  </target>
+
+
+
+
+  <target name="clean-install-plugins-dir">
+    <delete verbose="true">
+      <fileset dir="${install.dir}/plugins">
+        <include name="*.jar" />
+      </fileset>
+    </delete>
+  </target>
+
+
+
+
+  <target name="install" depends="jar">
+    <mkdir dir="${install.dir}" />
+    <mkdir dir="${install.dir}/lib" />
+    <mkdir dir="${install.dir}/plugins" />
+
+    <!-- remove any previous versions of the jar -->
+    <delete>
+      <fileset dir="${install.dir}">
+        <include name="${ant.project.name}-*.jar" />
+      </fileset>
+
+    </delete>
+
+    <copy todir="${install.dir}">
+      <fileset dir="${build.dir}">
+        <include name="${ant.project.name}.jar" />
+      </fileset>
+
+      <fileset dir="${basedir}/scripts">
+        <include name="*.iwf" />
+        <include name="run.*" />
+      </fileset>
+
+      <fileset dir="${resources.dir}">
+        <include name="*.conf" />
+      </fileset>
+    </copy>
+
+    <copy todir="${install.dir}/lib">
+      <fileset dir="${lib.dir}">
+        <include name="**/*.jar" />
+      </fileset>
+    </copy>
+
+    <chmod file="${install.dir}/run.sh" perm="775" />
+  </target>
+
+
+
+
+
+  <target name="clean-all">
+    <delete dir="${build.dir}" />
+    <mkdir dir="${build.dir}" />
+  </target>
+
+
+
+
+  <target name="clean" depends="clean-jar">
+    <delete dir="${compile.output.dir}" />
+    <mkdir dir="${compile.output.dir}" />
+
+  </target>
+
+
+
+
+  <target name="clean-jar">
+    <mkdir dir="${jar.dir}" />
+
+    <delete verbose="true">
+      <fileset dir="${jar.dir}">
+        <include name="*.jar" />
+      </fileset>
+    </delete>
+  </target>
+
+
+
+
+  <target name="compile"
+          description="compiles the source"
+          depends="copy-resources"
+  >
+    <mkdir dir="${compile.output.dir}" />
+    <javac srcdir="${src.dir}"
+           destdir="${compile.output.dir}"
+           source="${compile.java.source}"
+           target="${compile.java.target}"
+           nowarn="${compile.java.nowarn}"
+           debug="${compile.java.debug}"
+           deprecation="${compile.java.deprecation}"
+           includeantruntime="${compile.includeAntRuntime}"
+           failonerror="${compile.java.failonerror}"
+    >
+      <classpath>
+        <fileset dir="${lib.dir}">
+          <include name="**/*.jar" />
+        </fileset>
+        <!--
+        <fileset dir="${install.dir}">
+          <include name="**/*.jar" />
+        </fileset>
+        <fileset dir="${install.dir}/..">
+          <include name="**/*.jar" />
+        </fileset>
+        -->
+      </classpath>
+
+    </javac>
+
+
+  </target>
+
+
+
+
+  <target name="clean-compile"
+          description="cleans and compiles"
+          depends="clean,compile"
+  >
+  </target>
+
+
+
+
+  <target name="copy-resources">
+    <mkdir dir="${compile.output.dir}" />
+
+    <copy todir="${compile.output.dir}">
+      <fileset dir="${resources.dir}">
+        <include name="**/*.xml" />
+        <include name="**/*.properties" />
+      </fileset>
+    </copy>
+
+  </target>
+
+
+
+
+  <target name="jar"
+          depends="clean-jar,compile,copy-resources"
+  >
+    <property name="jar.name"
+              value="${ant.project.name}.jar"
+    />
+
+    <!-- 
+      copy some desired files
+        the resources/*.xml, resources/*.properties are already copied 
+    -->
+    <mkdir dir="${build.dir}/data" />
+    <mkdir dir="${build.dir}/data/scripts" />
+
+    <copy todir="${build.dir}/data/scripts">
+      <fileset dir="${basedir}/scripts">
+        <include name="**/*.sh" />
+        <exclude name="**/run.sh" />
+      </fileset>
+    </copy>
+  	
+    <jar destfile="${jar.dir}/${jar.name}">
+      <fileset dir="${compile.output.dir}">
+        <include name="**/*" />
+        <exclude name="**/log4j*.xml" />
+      </fileset>
+      <fileset dir="${build.dir}/data">
+        <include name="**/*" />
+      </fileset>
+    </jar>
+  </target>
+
+
+</project>
