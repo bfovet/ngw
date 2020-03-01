@@ -9,6 +9,7 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.editor.features;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -34,7 +35,7 @@ public abstract class AbstractFileReferenceFeature extends AbstractCustomFeature
 	public boolean canOperateOn(WFNode node) {
 		if (node.getType().equals(nodeType)) {
 			final String fileName = PropertyUtils.getProperty(node, property);
-			if (fileName != null) {
+			if (StringUtils.isNotBlank(fileName)) {
 				IFile diagramFile = getDiagramFolder().getFile(new Path(fileName));
 				return diagramFile.exists();
 			}	

@@ -9,6 +9,7 @@
  ******************************************************************************/
 package gov.sandia.dart.workflow.editor.rendering;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.draw2d.Graphics;
@@ -30,7 +31,7 @@ public class NestedWorkflowGARenderer extends AbstractNestedWorkflowGARenderer {
 		WFNode node = (WFNode) fp.getBusinessObjectForPictogramElement(pe);
 		String fileName = PropertyUtils.getProperty(node, "fileName");
 		// TODO Avoid loops!
-		if (fileName != null) {
+		if (StringUtils.isNotBlank(fileName)) {
 			IFile file = getDiagramFolder().getFile(new Path(fileName));
 			if (file.exists()) {
 				renderWorkflow(node, file, g);
