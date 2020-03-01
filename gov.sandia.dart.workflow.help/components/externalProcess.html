@@ -25,7 +25,9 @@
          
          <p>command - the command line to execute. Each separate command line token should be
             enclosed in square brackets.</p>
-         
+         <p>write properties to a property file -- if 'true', then the node will write a Java properties
+         file containing the node properties and the port values and save it in the node's working directory
+         before executing the script.</p>
          </div>
       
       
@@ -55,12 +57,9 @@
          
          <h2>Notes</h2>
          
-         <p>Currently, additional properties and ports are made available to external processes
-            via the following conventions:</p>
-         
-         <h2>Example</h2>
-         
-         <p>TBD</p>
+         <p>Global and built-in workflow parameters can be used via variable interpolation to build the command line.</p>
+         <p>Connections can be used to save files to a node's workdir, and the "Grab Output File" tool can be
+         used to collect results.</p>
          
          </div>
    </body>
