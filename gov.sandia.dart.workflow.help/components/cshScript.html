@@ -14,7 +14,8 @@
          
          <p>Executes a csh script. In its simplest usage, the script can read data from stdin
             and print results on stdout. Additional inputs, outputs, and properties can be defined
-            to create more elaborate behaviors.</p>
+            to create more elaborate behaviors.  The csh interpreter is located using the
+            environment variable NGW_INTERP_CSH.</p>
          
          </div>
       
@@ -24,7 +25,9 @@
          <h2>Properties</h2>
          
          <p>script - the text of the script to execute.</p>
-         
+         <p>write properties to a property file -- if 'true', then the node will write a Java properties
+         file containing the node properties and the port values and save it in the node's working directory
+         before executing the script.
          </div>
       
       
@@ -33,6 +36,8 @@
          <h2>Input Ports</h2>
          
          <p>stdin - data on this input become the standard input of the process.</p>
+         
+         <p>script - path to a script to execute. Will override the 'script' property.</p>
          
          </div>
       
@@ -45,7 +50,7 @@
          
          <p>stderr - data on this output comes from the standard error of the process.</p>
          
-          <p>exitStatus - exit status of the process. If this is not connected and the script exits with nonzero status, this node
+         <p>exitStatus - exit status of the process. If this is not connected and the script exits with nonzero status, this node
          will abort the workflow with a diagnostic.</p>
          </div>
       
@@ -54,12 +59,10 @@
          
          <h2>Notes</h2>
          
-         <p>Currently, additional properties and ports are made available to external processes
-            via the following conventions:</p>
+         <p>The values of all node properties and data from all input ports, along with the values of global
+         parameters and many standard workflow parameters, will be available to the script in variables of the
+         same name.  Periods ('.') and spaces in those names are replaced with underscores.</p>
          
-         <h2>Example</h2>
-         
-         <p>TBD</p>
          
          </div>
    </body>

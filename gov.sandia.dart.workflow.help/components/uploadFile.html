@@ -21,14 +21,13 @@
          
          <h2>Properties</h2>
          
-         <p>hostname - the location the file is to be uploaded to</p>
+         <p>hostname - the machine the file is to be uploaded to</p>
          
-         <p>localFile - the name of the file to be uploaded</p>
+         <p>localFile - the path of the file to be uploaded. If it's a relative path, it is relative to the workflow home.</p>
          
-         <p>remoteFile - optional; the name of the file to be uploaded</p>
+         <p>remoteFile - optional; the name of the file on the remote system.</p>
          
-         <p>remotePath -  if uploading a remote file, the working directory to use on the remote
-            machine</p>
+         <p>remotePath -  the destination directory to use on the remote machine</p>
          
          </div>
       
@@ -37,7 +36,7 @@
          
          <h2>Input Ports</h2>
          
-         <p>trigger - any node; it will initiate the file upload </p>
+         <p>localFile - the path of the file to be uploaded. Overrides the property by the same name</p>
          
          </div>
       
@@ -46,7 +45,7 @@
          
          <h2>Output Ports</h2>
          
-         <p>file - any node </p>
+         <p>file - the resulting name of the remote file. </p>
          
          </div>
       

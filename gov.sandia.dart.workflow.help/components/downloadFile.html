@@ -12,7 +12,7 @@
          
          <h2>Description</h2>
          
-         <p> Downloads a file either locally or remotely</p>
+         <p> Downloads a file</p>
          
          </div>
       
@@ -21,14 +21,13 @@
          
          <h2>Properties</h2>
          
-         <p>hostname - the location of the file to be downloaded</p>
+         <p>hostname - the machine to download the file from</p>
          
-         <p>localFile - optional; determines the file to be downloaded</p>
+         <p>localFile - optional; a local path for the downloaded file</p>
          
-         <p>remoteFile - determines the file to be downloaded</p>
+         <p>remoteFile - path of the remote file to be downloaded</p>
          
-         <p>remotePath -  If downloading a file remotely, specifies the working directory to use
-            on the remote machine</p>
+         <p>remotePath -  the working directory to use on the remote machine</p>
          
          </div>
       
@@ -37,7 +36,7 @@
          
          <h2>Input Ports</h2>
          
-         <p>trigger -  any node. It will initiate the download</p>
+         <p>localFile - a local path for the downloaded file/p>
          
          </div>
       
@@ -46,18 +45,9 @@
          
          <h2>Output Ports</h2>
          
-         <p>outputFile -  any port that could use the file such as fromFile</p>
+         <p>file -  the absolute path of the downloaded file.</p>
          
          </div>
       
-      
-      <div>
-         
-         <h2>Notes</h2>
-         
-         <p>The localFile, if given, could be an absolute path. If it's not, then it's relative
-            to the workflow working directory</p>
-         
-         </div>
-   </body>
+    </body>
 </html>
