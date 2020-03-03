@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: NGW SDK
+Bundle-SymbolicName: gov.sandia.dart.workflow.phase3.sdk;singleton:=true
+Bundle-Version: 1.0.0.0
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: gov.sandia.dart.workflow.phase3;bundle-version="1.0.0",
+ gov.sandia.dart.workflow.editor;bundle-version="1.0.0"
+Export-Package: gov.sandia.dart.workflow.phase3.electrical
+Import-Package: org.eclipse.graphiti.ui.platform

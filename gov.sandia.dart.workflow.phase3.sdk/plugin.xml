@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin
+   id="gov.sandia.dart.workflow.phase3.exodus"
+   version="1.0.0"
+>
+   <extension
+         point="gov.sandia.dart.workflow.phase3.embedded.nodeDefinitionContributor">
+       
+     <nodeDefinition name="foo" nodeClass="gov.sandia.dart.workflow.phase3.sdk.FooNode">
+     </nodeDefinition>
+
+	</extension>
+
+   <extension
+         point="gov.sandia.dart.workflow.editor.nodeTypeContributor">
+      <contributor
+            class="gov.sandia.dart.workflow.phase3.sdk.ui.FooNodeContributor">
+      </contributor>
+   </extension>
+	
+</plugin>
